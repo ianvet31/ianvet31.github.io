@@ -20,15 +20,15 @@ btn.addEventListener("click", function(){
 
 });
 
-var video = document.querySelector('.video');
-var buton = document.getElementById('play-pause');
+var video = document.querySelector(".video");
+var buton = document.getElementById("play-pause");
 function togglePlayPause() {
 	if(video.paused){
-		buton.className = 'pause';
+		buton.className = "pause";
 		video.play();
 	}
 	else {
-		buton.className = 'play';
+		buton.className = "play";
 		video.pause();
 	}
 }
