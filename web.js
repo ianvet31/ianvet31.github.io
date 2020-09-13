@@ -35,5 +35,5 @@ function togglePlayPause() {
 buton.addEventListener("click", function(){
 	togglePlayPause();
 	alert("Here comes mario!");
-};
+)};
 		
