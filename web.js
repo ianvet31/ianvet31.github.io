@@ -26,15 +26,13 @@ function togglePlayPause() {
 	if(video.paused) {
 		buton.className = "pause";
 		video.play();
-	}
-	else {
+	} else {
 		buton.className = "play";
 		video.pause();
 	}
 }
 
 buton.onclick = function() {
-	alert("here comes mario!");
 	togglePlayPause();
 };
 		
