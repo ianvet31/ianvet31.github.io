@@ -7,7 +7,6 @@ var pics = [
 	"imgs/e6.jpg"
 ];
 
-var boton = document.querySelector("button");
 var img = document.querySelector("img");
 var counter = 1;
 
