@@ -7,11 +7,11 @@ var pics = [
 	"imgs/e6.jpg"
 ];
 
-var btn = document.querySelector("button");
+var boton = document.querySelector("button");
 var img = document.querySelector("img");
 var counter = 1;
 
-btn.addEventListener("click", function(){
+boton.addEventListener("click", function(){
 	if(counter === 6){
 		counter = 0;
 	}
@@ -20,20 +20,13 @@ btn.addEventListener("click", function(){
 
 });
 
-var video = document.querySelector(".video");
-var buton = document.getElementById("play-pause");
-function togglePlayPause() {
-	if(video.paused) {
-		buton.className = "pause";
-		video.play();
+function playPause(btn,vid) {
+	var vid = document.getElementById(vid);
+	if(vid.paused) {
+		vid.play();
+		btn.innerHTML = "Pause";
 	} else {
-		buton.className = "play";
-		video.pause();
+		vid.pause();
+		btn.innterHTML = "Play";
 	}
 }
-
-buton.addEventListener("click", function(){
-	togglePlayPause();
-	alert("Here comes mario!");
-});
-		
