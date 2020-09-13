@@ -24,13 +24,14 @@
 	
 <body>
 	<div class="container">
-		<div class="c-video">
-			<video class="video" src="imgs/mario.mp4"></video>
-			<div class="controls">
-				<div class="buttons">
-					<button id="play-pause"></button>
-				</div>
+		<div id="video_player_box">
+			<video id="my_video" width="800" height="800" autoplay>
+				<source src="imgs/mario.mp4">
+			</video>
+			<div id="video_controls_bar">
+				<button id="playpausebtn" onclick="playPause(this,'my_video')">Pause</button>
 			</div>
+			
 		</div>
 	</div>
 </body>
