@@ -19,3 +19,22 @@ btn.addEventListener("click", function(){
 	counter = counter + 1;
 
 });
+
+var video = document.querySelector('.video');
+var buton = document.getElementById('play-pause');
+function togglePlayPause() {
+	if(video.paused){
+		buton.className = 'pause';
+		video.play();
+	}
+	else {
+		buton.className = 'play';
+		video.pause();
+	}
+}
+
+buton.onclick = function() {
+	alert("here comes mario!");
+	togglePlayPause();
+};
+		
