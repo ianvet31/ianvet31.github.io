@@ -32,7 +32,8 @@ function togglePlayPause() {
 	}
 }
 
-buton.onclick = function() {
+buton.addEventListener("click", function(){
 	togglePlayPause();
+	alert("Here comes mario!");
 };
 		
