@@ -23,7 +23,7 @@ btn.addEventListener("click", function(){
 var video = document.querySelector(".video");
 var buton = document.getElementById("play-pause");
 function togglePlayPause() {
-	if(video.paused){
+	if(video.paused) {
 		buton.className = "pause";
 		video.play();
 	}
