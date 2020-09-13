@@ -9,3 +9,12 @@ body {
 	
 
 }
+
+.controls {
+	display: flex;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	flex-wrap: wrap;
+	background: rgba(0,0,0,0.7);
+}
