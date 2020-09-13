@@ -11,7 +11,7 @@ var boton = document.querySelector("button");
 var img = document.querySelector("img");
 var counter = 1;
 
-boton.addEventListener("click", function(){
+function elemphant(btn) {
 	if(counter === 6){
 		counter = 0;
 	}
