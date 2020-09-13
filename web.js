@@ -17,7 +17,7 @@ function elemphant(btn) {
 	img.src = pics[counter]
 	counter = counter + 1;
 
-});
+}
 
 function playPause(btn,vid) {
 	var vid = document.getElementById(vid);
