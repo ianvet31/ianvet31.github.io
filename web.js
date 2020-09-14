@@ -8,16 +8,18 @@ var pics = [
 ];
 
 var img = document.querySelector("img");
+var button = document.querySelector("button");
 var counter = 1;
 
-
-function buttonElephant() {
-	if(counter == 6){
+button.addEventListener("click", function(){
+	if(counter === 6) {
 		counter = 0;
 	}
 	img.src = pics[counter];
 	counter = counter + 1;
-}
+});
+	
+
 
 function playPause(btn,vid) {
 	var vid = document.getElementById(vid);
