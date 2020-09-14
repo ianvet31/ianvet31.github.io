@@ -7,17 +7,18 @@ var pics = [
 	"imgs/e6.jpg"
 ];
 
+var button = document.querySelector("button");
 var img = document.querySelector("img");
 var counter = 1;
 
-function elemphant(btn) {
-	if(counter === 6){
+
+button.addEventListener("click", function() {
+	if(counter == 6){
 		counter = 0;
 	}
-	img.src = pics[counter]
+	img.src = pics[counter];
 	counter = counter + 1;
-
-}
+});
 
 function playPause(btn,vid) {
 	var vid = document.getElementById(vid);
