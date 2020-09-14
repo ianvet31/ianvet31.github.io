@@ -7,7 +7,7 @@ var pics = [
 	"imgs/e6.jpg"
 ];
 
-var button = document.querySelector("button");
+var button = document.getElementById("elephantbutton");
 var img = document.querySelector("img");
 var counter = 1;
 
