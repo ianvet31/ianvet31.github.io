@@ -15,7 +15,6 @@ function buttonElephant() {
 	if(counter == 6){
 		counter = 0;
 	}
-	img.src = pics[counter]
 	img.src = pics[counter];
 	counter = counter + 1;
 }
