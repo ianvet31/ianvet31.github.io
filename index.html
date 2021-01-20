@@ -17,16 +17,29 @@
 
 <h2>Your credit card number, if you would >;)</h2>
 
-<form action="results.html method = "GET">
+<form action="index.html method = "GET">
   <label for="fname">****-****-****-**** "," security code:</label><br>
   <input type="text" id="fname" name="fname"><br><br>
   <input type="submit" value="Submit">
-  <input type="checkbox" value="What"/>
-  <input type="checkbox" value="What"/>
-  <input type="checkbox" value="What"/>
-  <input type="checkbox" value="What"/>
+  <input type="checkbox" value="1"/>
+  <input type="checkbox" value="2"/>
+  <input type="checkbox" value="3"/>
+  <input type="checkbox" value="4"/>
 </form>
 
+</body>
+
+<body>
+  <div id="results"></div>
+  <a href="/">Back</a>
+  <script>
+  const resultsList = document.getElementById('results')
+  	new URLSearchParams(window.location.search).forEach((value, name) => {
+	resultsList.append(`${name}: ${value}`)
+	resultsList.append(document.createElement('br'))
+
+  })
+  </script>
 </body>
 
 
