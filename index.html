@@ -13,9 +13,26 @@
 			<h1> OK, this is an elephant </h1>
 			<h2> seriously </h2>
 			<article class="regular">
-				<label for="tbuser">Username:</label>
+				<label for="tbuser">Say something, anything:</label>
 				<input type="text" id="tbuser" placeholder="Enter Username" maxlength="10">
-				<input type="button" value="Check me out">
+				<input type="button" id="btn1" value="Check me out">
+				
+				<p class="output" id="output1"></p>
+			
+			</article>
+			
+			<script>
+				const txt1 = document.getElementById('tbuser');
+				const butt = document.getElementById('btn1');
+				const out1 = document.getElementById('output1');
+				
+				function funny() {
+					out1.innerHTML = txt1.value;
+				}
+
+				butt.addEventListener('click', funny);
+				
+			</script>
 		
 
 			<a href="http://www.google.com">search</a>
