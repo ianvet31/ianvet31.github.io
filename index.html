@@ -16,21 +16,34 @@
 				<label for="tbuser">Say something, anything:</label>
 				<input type="text" id="tbuser" placeholder="Enter Username" maxlength="10">
 				<input type="button" id="btn1" value="Check me out">
+				<input type="button" id="btn2" value="LOAD BOOK">
 				
 				<p class="output" id="output1"></p>
 			
 			</article>
 			
 			<script>
+				
+				const butt2 = document.getElementById('btn2');
+				
+				
 				const txt1 = document.getElementById('tbuser');
 				const butt = document.getElementById('btn1');
 				const out1 = document.getElementById('output1');
 				
+				function load() {
+					out1.innerHTML = localStorage.getItem("userDetails");
+				}
+				
 				function funny() {
-					out1.innerHTML = txt1.value;
+					out1.innerHTML += txt1.value;
+					var currbook = out1.innerHTML;
+					localStorage.setItem("userDetails", currbook);
 				}
 
 				butt.addEventListener('click', funny);
+				butt2.addEventListener('click', load);
+				
 				
 			</script>
 		
