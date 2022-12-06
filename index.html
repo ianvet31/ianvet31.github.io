@@ -12,21 +12,34 @@
 			</p>
 			<h1> OK, this is an elephant </h1>
 			<h2> seriously </h2>
-			<div class="box">
-			    <h2>Login</h2>
-			    <form action="config.php">
-			      <div class="input-box">
-				<input type="text" name="text"  autocomplete="off" required>
-				<label for="">enter sum</label>
-			      </div>
-			 
-				<input type="submit" value="Save">
-			    </form>
-			  </div>
+			<article class="regular">
+				<label for="tbuser">Help the book</label>
+				<input type="text" id="tbuser" placeholder="WRITE" maxlength="500">
+				<input type="button" id="btn1" value="Save">
+				<p class="output" id="output1">
+			</article>
 			
 			<script>
-					
 				
+				const butt2 = document.getElementById('btn2');
+				
+				
+				const txt1 = document.getElementById('tbuser');
+				const butt = document.getElementById('btn1');
+				const out1 = document.getElementById('output1');
+				
+				function load() {
+					out1.innerHTML = localStorage.getItem("userDetails");
+				}
+				
+				function funny() {
+					out1.innerHTML += txt1.value;
+					var currbook = out1.innerHTML;
+					localStorage.setItem("userDetails", currbook);
+				}
+
+				butt.addEventListener('click', funny);
+				butt2.addEventListener('click', load);
 
 				
 				
