@@ -13,6 +13,9 @@
 			</p>
 			<h1> OK </h1>
 			<h2> IMV!</h2>
+			<div class="image-container">
+				<img src="imgs/seesaw.gif" alt="Image Description">
+			</div>
 			<pre>
 				
                             _
@@ -35,6 +38,9 @@ jgs `""`   \  nnh  D_.-'L__nnh
             `"""`
 			
 			</pre>
+			<div class="image-container">
+				<img src="imgs/cubes.gif" alt="Image Description">
+			</div>
 			<article class="regular">
 				<label for="tbuser">Jot down some notes</label>
 				<input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
@@ -93,6 +99,41 @@ jgs `""`   \  nnh  D_.-'L__nnh
 	</body>
 	<script type ="text/javascript" src="aboutjs.js"></script>
 	<hr>
+
+	<body>
+		<h1>Stock Information</h1>
+		<input type="text" id="stockentry" placeholder="Enter a ticker" maxlength="10">
+		<input type="button" id="btn4" value="Check API">
+		<p>Current stock price for AAPL: <span id="stock-price"></span></p>
+	
+		<script>
+			// Function to fetch stock information from the Alpha Vantage API
+			function fetchStockInfo() {
+				const apiKey = '2FK1G6PPJW9YU9WS'; // Replace with your Alpha Vantage API key
+				const symbol = 'AAPL'; // Replace with the stock symbol you want to track
+				const apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&apikey=${apiKey}`;
+	
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						const latestData = data['Time Series (1min)'];
+						const timestamps = Object.keys(latestData);
+						const latestTimestamp = timestamps[0];
+						const stockPrice = latestData[latestTimestamp]['1. open'];
+						document.getElementById('stock-price').textContent = stockPrice;
+					})
+					.catch(error => {
+						console.error('Error fetching stock information:', error);
+					});
+			}
+	
+			// Call the fetchStockInfo function to load stock information when the page loads
+			window.addEventListener('load', fetchStockInfo);
+		</script>
+	</body>
+	
+	<hr>
+	
 	<body>
 		<h1>Interactive Song Builder</h1>
 		<div id="song-builder">
