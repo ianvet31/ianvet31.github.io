@@ -39,47 +39,100 @@ jgs `""`   \  nnh  D_.-'L__nnh
             `"""`
 			
 			</pre>
-			<div class="image-container">
-				<img src="imgs/cubes.gif" alt="Image Description">
+		</section>
+		<hr>
+		<section>
+			<div id="container">
+				<article class="regular">
+					<label for="tbuser">Jot down some notes</label>
+					<input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
+					<input type="button" id="btn1" value="Add it">
+					<p class="output" id="output1">
+				</article>
+				<script>
+				
+					const butt2 = document.getElementById('btn2');
+					
+					
+					const txt1 = document.getElementById('tbuser');
+					const butt = document.getElementById('btn1');
+					const out1 = document.getElementById('output1');
+					
+					function load() {
+						out1.innerHTML = localStorage.getItem("userDetails");
+					}
+					
+					function funny() {
+						out1.innerHTML += txt1.value;
+						var currbook = out1.innerHTML;
+						localStorage.setItem("userDetails", currbook);
+					}
+	
+					butt.addEventListener('click', funny);
+					butt2.addEventListener('click', load);
+	
+					
+					
+				</script>
+
+				<canvas id="drawing-pad" width="800" height="400"></canvas>
+				<button id="clear-button">Clear drawing</button>
+				<button id="save-button">Save drawing</button>
+
+				<script>
+					const canvas = document.getElementById('drawing-pad');
+					const context = canvas.getContext('2d');
+					let isDrawing = false;
+
+					canvas.addEventListener('mousedown', () => {
+						isDrawing = true;
+					});
+
+					canvas.addEventListener('mouseup', () => {
+						isDrawing = false;
+						context.beginPath();
+					});
+
+					canvas.addEventListener('mousemove', draw);
+
+					function draw(event) {
+						if (!isDrawing) return;
+						context.lineWidth = 5;
+						context.lineCap = 'round';
+						context.strokeStyle = 'black';
+
+						context.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+						context.stroke();
+						context.beginPath();
+						context.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+					}
+
+					const clearButton = document.getElementById('clear-button');
+					clearButton.addEventListener('click', () => {
+						context.clearRect(0, 0, canvas.width, canvas.height);
+					});
+
+					const saveButton = document.getElementById('save-button');
+					saveButton.addEventListener('click', () => {
+						const image = canvas.toDataURL("image/png");
+						const a = document.createElement('a');
+						a.href = image;
+						a.download = 'drawing.png';
+						a.click();
+					});
+				</script>
 			</div>
-			<article class="regular">
-				<label for="tbuser">Jot down some notes</label>
-				<input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
-				<input type="button" id="btn1" value="Add it">
-				<p class="output" id="output1">
-			</article>
+			</section>
 			
-			<script>
-				
-				const butt2 = document.getElementById('btn2');
-				
-				
-				const txt1 = document.getElementById('tbuser');
-				const butt = document.getElementById('btn1');
-				const out1 = document.getElementById('output1');
-				
-				function load() {
-					out1.innerHTML = localStorage.getItem("userDetails");
-				}
-				
-				function funny() {
-					out1.innerHTML += txt1.value;
-					var currbook = out1.innerHTML;
-					localStorage.setItem("userDetails", currbook);
-				}
-
-				butt.addEventListener('click', funny);
-				butt2.addEventListener('click', load);
-
-				
-				
-			</script>
+		
 			<hr>
+			<section>
 			<h1> Mario Bailando </h1>
 			<video autoplay loop controls>
 				<source src="imgs/mario.mp4" type="video/mp4">
 				Your browser does not support the video tag.
 			</video>
+			</section>
 			<hr>
 			<h1> Elephant pics</h1>
 			
@@ -95,8 +148,7 @@ jgs `""`   \  nnh  D_.-'L__nnh
 
 		
 		</section>
-		<section>
-		</section>
+
 	</body>
 	<script type ="text/javascript" src="aboutjs.js"></script>
 	<hr>
@@ -216,6 +268,9 @@ jgs `""`   \  nnh  D_.-'L__nnh
             }
         });
     </script>
+
+
+	<hr>
 
 	<div>
 		<h1>BLOG</h1>
