@@ -2,20 +2,43 @@
 	<head>
 		<title>Ian website</title>
 		<link rel="stylesheet" type="text/css" href="hammy.css">
+		<a href="http://www.google.com">search</a>
 	</head> 
 
 	<body>
 		<section id="continer">
 			<p>
-			<strong>whats up guys!</strong>
-			<em> lets go!</em>
+			<strong>Welcome</strong>
+			<em>to the treasure trove</em>
 			</p>
-			<h1> OK, this is an elephant </h1>
-			<h2> seriously </h2>
+			<h1> OK </h1>
+			<h2> IMV</h2>
+			<pre>
+				
+                            _
+                          .' `'.__
+                         /      \ `'"-,
+        .-''''--...__..-/ .     |      \
+      .'               ; :'     '.  a   |
+     /                 | :.       \     =\
+    ;                   \':.      /  ,-.__;.-;`
+   /|     .              '--._   /-.7`._..-;`
+  ; |       '                |`-'      \  =|
+  |/\        .   -' /     /  ;         |  =/
+  (( ;.       ,_  .:|     | /     /\   | =|
+   ) / `\     | `""`;     / |    | /   / =/
+     | ::|    |      \    \ \    \ `--' =/
+    /  '/\    /       )    |/     `-...-`
+   /    | |  `\    /-'    /;
+   \  ,,/ |    \   D    .'  \
+jgs `""`   \  nnh  D_.-'L__nnh
+            `"""`
+			
+			</pre>
 			<article class="regular">
-				<label for="tbuser">Help the book</label>
-				<input type="text" id="tbuser" placeholder="WRITE" maxlength="500">
-				<input type="button" id="btn1" value="Save">
+				<label for="tbuser">Jot down some notes</label>
+				<input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
+				<input type="button" id="btn1" value="Add it">
 				<p class="output" id="output1">
 			</article>
 			
@@ -44,17 +67,115 @@
 				
 				
 			</script>
-		
+			<hr>
+			<h1> Mario Bailando </h1>
+			<video autoplay loop controls>
+				<source src="imgs/mario.mp4" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+			<hr>
+			<h1> Elephant pics</h1>
+			
+			<div>
+				<input type="button" id="e_button" value="More elephant photos!">
+			</div>
 
-			<a href="http://www.google.com">search</a>
-		
-			<button> more elephant photos! </button>
+			<div>
+				<img src="imgs/e1.jpg", id="imger">
 
-			<img src="https://www.zsl.org/sites/default/files/media/2014-10/SG9A8359.jpg">
-			<script type ="text/javascript" src="aboutjs.js"></script>
+			</div>
+
+
 		
 		</section>
+		<section>
+		</section>
 	</body>
+	<script type ="text/javascript" src="aboutjs.js"></script>
+	<hr>
+	<body>
+		<h1>Interactive Song Builder</h1>
+		<div id="song-builder">
+			<div class="image-container">
+				<img src="imgs/rap.gif" alt="Image Description">
+			</div>
+			<div>
+				<label for="audio-selector">Select an audio file:</label>
+				<select id="audio-selector">
+					<option value="sounds/3yeets.mp3">3 yeets</option>
+					<option value="sounds/21n.mp3">Whats 9 + 10</option>
+					<option value="sounds/aaaaaa.mp3">aaaaaa</option>
+					<option value="sounds/amoggus.mp3">amogus</option>
+					<option value="sounds/bigfart.mp3">fart</option>
+					<option value="sounds/bongo.mp3">bongo</option>
+					<option value="sounds/bruh.mp3">bruh</option>
+					<option value="sounds/fart.mp3">fart2</option>
+					<option value="sounds/fartnitecard.mp3">fortnitecard</option>
+					<option value="sounds/klonk.mp3">klonck</option>
+					<option value="sounds/metronotrust.mp3">metro</option>
+					<option value="sounds/punch.mp3">punch</option>
+					<option value="sounds/oof.mp3">oof</option>
+					<option value="sounds/wockyslush.mp3">wocky sluch</option>
+					<!-- Add more options for additional audio files -->
+				</select>
+				<button id="add-audio">Add to Sequence</button>
+				<button id="clear-sequence">Clear Sequence</button>
+			</div>
+			<div>
+				<h2>Song Sequence</h2>
+				<ul id="song-sequence"></ul>
+				<button id="play-song">Play Song</button>
+			</div>
+		</div>
+	</body>
+	<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const audioSelector = document.getElementById("audio-selector");
+            const addAudioButton = document.getElementById("add-audio");
+            const clearSequenceButton = document.getElementById("clear-sequence"); // New button
+            const songSequence = document.getElementById("song-sequence");
+            const playSongButton = document.getElementById("play-song");
+            const audioElements = [];
+            let currentAudioIndex = 0;
+
+            // Event listener for adding audio to the sequence
+            addAudioButton.addEventListener("click", function () {
+                const selectedAudio = audioSelector.value;
+                if (selectedAudio) {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = selectedAudio;
+                    songSequence.appendChild(listItem);
+                    const audio = new Audio(selectedAudio);
+                    audio.addEventListener("ended", playNextAudio);
+                    audioElements.push(audio);
+                }
+            });
+
+            // Event listener for clearing the sequence
+            clearSequenceButton.addEventListener("click", function () {
+                audioElements.forEach((audio) => audio.pause());
+                audioElements.length = 0;
+                currentAudioIndex = 0;
+                songSequence.innerHTML = ''; // Clear the list
+            });
+
+            // Event listener for playing the song
+            playSongButton.addEventListener("click", function () {
+                if (audioElements.length > 0) {
+                    playNextAudio();
+                }
+            });
+
+            function playNextAudio() {
+                if (currentAudioIndex < audioElements.length) {
+                    audioElements[currentAudioIndex].play();
+                    currentAudioIndex++;
+                }
+            }
+        });
+    </script>
+	
+	
 
 
 </html>
