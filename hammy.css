@@ -8,7 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #cfcece
+    background-color: #cfcece;
     margin: 0;
     perspective: 1000px;
 }
