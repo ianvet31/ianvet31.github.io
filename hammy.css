@@ -3,12 +3,16 @@ h1 {
 	color: rgb(0, 0, 0);
 }
 
-
 body {
-	background-color: #cfcece
-	
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #cfcece
+    margin: 0;
+    perspective: 1000px;
 }
+
 
 .image-container {
 	float: right; /* Float the container to the right */
