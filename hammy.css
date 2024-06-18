@@ -5,7 +5,7 @@ h1 {
 
 body {
     	background-image: url('imgs/background1.webp');
-    	background-size: contain;
+    	background-size: 50%;
     	background-repeat: no-repeat;
 	background-position: center;
     	background-color: #cfcece;
