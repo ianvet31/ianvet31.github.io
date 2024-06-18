@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog/Portfolio</title>
+    <title>8-bit Snowy Blog</title>
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: black;
-            color: white;
+            font-family: 'Press Start 2P', cursive; /* 8-bit style font */
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
         }
         .container {
             display: flex;
@@ -17,17 +18,21 @@
             padding: 20px;
         }
         .main-content {
-            background-color: darksalmon;
+            background-color: #add8e6; /* Light blue, like snow */
             width: 60%;
             padding: 20px;
             margin-right: 20px;
+            border: 4px solid #fff; /* White border for snowy effect */
             border-radius: 10px;
+            box-shadow: 0 0 10px #fff; /* Glow effect */
         }
         .sidebar {
             width: 20%;
             padding: 20px;
             border-radius: 10px;
             background-color: #333;
+            border: 4px solid #fff;
+            box-shadow: 0 0 10px #fff;
         }
         .header {
             text-align: center;
@@ -42,20 +47,141 @@
             margin-bottom: 20px;
         }
         .blog-post {
+            background-color: #87ceeb; /* Sky blue */
+            padding: 10px;
+            border: 2px solid #fff;
+            border-radius: 5px;
             margin-bottom: 20px;
+            box-shadow: 0 0 5px #fff;
+        }
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            width: 10px;
+            height: 10px;
+            background: url('snowflake.png') no-repeat center center;
+            background-size: contain;
+            animation: fall 10s linear infinite;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        .background-elements {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .background-elements img {
+            position: absolute;
+            bottom: 0;
+            width: 10%;
+        }
+        .background-elements img.mountain {
+            left: 0;
+            width: 100%;
+        }
+        .background-elements img.pagoda {
+            left: 15%;
+            animation: movePagoda 10s linear infinite;
+        }
+        .background-elements img.mammoth {
+            left: 70%;
+            animation: moveMammoth 10s linear infinite;
+        }
+        @keyframes movePagoda {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-50px);
+            }
+        }
+        @keyframes moveMammoth {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(50px);
+            }
+        }
+        .skiers {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .skier {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: url('skier.png') no-repeat center center;
+            background-size: contain;
+            animation: ski 10s linear infinite;
+        }
+        @keyframes ski {
+            to {
+                transform: translate(-200px, 200px) rotate(45deg);
+            }
+        }
+        @keyframes ski2 {
+            to {
+                transform: translate(200px, 200px) rotate(-45deg);
+            }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="snowflakes">
+        <!-- Snowflakes -->
+        <div class="snowflake" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="snowflake" style="left: 20%; animation-delay: 1s;"></div>
+        <div class="snowflake" style="left: 30%; animation-delay: 2s;"></div>
+        <div class="snowflake" style="left: 40%; animation-delay: 3s;"></div>
+        <div class="snowflake" style="left: 50%; animation-delay: 4s;"></div>
+        <div class="snowflake" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="snowflake" style="left: 70%; animation-delay: 6s;"></div>
+        <div class="snowflake" style="left: 80%; animation-delay: 7s;"></div>
+        <div class="snowflake" style="left: 90%; animation-delay: 8s;"></div>
+    </div>
+    <div class="background-elements">
+        <img src="imgs/mountain.png" alt="Mountains" class="mountain">
+        <img src="imgs/pagoda.png" alt="Pagoda" class="pagoda">
+        <img src="imgs/elephantx.png" alt="Woolly Mammoth" class="mammoth">
+    </div>
+    <div class="skiers">
+        <div class="skier" style="left: 20%; animation: ski 10s linear infinite;"></div>
+        <div class="skier" style="left: 50%; animation: ski2 12s linear infinite;"></div>
+        <div class="skier" style="left: 70%; animation: ski 8s linear infinite;"></div>
+    </div>
     <div class="container">
         <div class="main-content">
             <div class="header">
-                <img src="imgs/elephantx.png" alt="Elephant">
-                <img src="imgs/elephantx.png" alt="Elephant">
-                <img src="imgs/elephantx.png" alt="Elephant">
+                <img src="imgs/snowflake.png" alt="Snowflake">
+                <img src="imgs/snowflake.png" alt="Snowflake">
+                <img src="imgs/snowflake.png" alt="Snowflake">
             </div>
             <div class="intro">
-                <h1>Welcome to My Blog/Portfolio</h1>
+                <h1>Welcome to My 8-bit Snowy Blog</h1>
                 <p>This is a short introduction about me and my work.</p>
             </div>
             <div class="blog-posts">
