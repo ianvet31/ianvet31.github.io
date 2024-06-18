@@ -4,7 +4,11 @@ h1 {
 }
 
 body {
-    background-color: #cfcece;
+    	background-image: url('imgs/background1.webp');
+    	background-size: cover;
+    	background-repeat: no-repeat;
+    	background-color: #cfcece;
+
 }
 
 .image-container {
