@@ -3,202 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8-bit Snowy Blog</title>
+    <title>Golgotha</title>
     <style>
         body {
-            margin: 0;
-            font-family: 'Press Start 2P', cursive; /* 8-bit style font */
-            background-color: #000;
-            color: #fff;
-            overflow: hidden;
-        }
-        .container {
             display: flex;
             justify-content: center;
-            padding: 20px;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+            font-family: Arial, sans-serif;
         }
-        .main-content {
-            background-color: #add8e6; /* Light blue, like snow */
-            width: 60%;
-            padding: 20px;
-            margin-right: 20px;
-            border: 4px solid #fff; /* White border for snowy effect */
-            border-radius: 10px;
-            box-shadow: 0 0 10px #fff; /* Glow effect */
+        .container {
+            border: 5px solid black;
+            width: 90%;
+            height: 90%;
+            position: relative;
+            overflow: hidden;
         }
-        .sidebar {
-            width: 20%;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #333;
-            border: 4px solid #fff;
-            box-shadow: 0 0 10px #fff;
-        }
-        .header {
-            text-align: center;
-        }
-        .header img {
-            width: 50px;
-            height: 50px;
-            margin: 0 5px;
-        }
-        .intro {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .blog-post {
-            background-color: #87ceeb; /* Sky blue */
-            padding: 10px;
-            border: 2px solid #fff;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 5px #fff;
-        }
-        .snowflakes {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .line {
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-        }
-        .snowflake {
+            height: 2px;
+            background-color: black;
             position: absolute;
-            top: -10px;
-            width: 10px;
-            height: 10px;
-            background: url('snowflake.png') no-repeat center center;
-            background-size: contain;
-            animation: fall 10s linear infinite;
         }
-        @keyframes fall {
-            to {
-                transform: translateY(100vh);
-            }
-        }
-        .background-elements {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .background-elements img {
+        .line1 { top: 20%; }
+        .line2 { top: 40%; }
+        .line3 { top: 60%; }
+        .line4 { top: 80%; }
+
+        .walker {
             position: absolute;
-            bottom: 0;
-            width: 10%;
+            width: 80px;
+            height: 80px;
         }
-        .background-elements img.mountain {
-            left: 0;
-            width: 100%;
+        .walker-right {
+            background: url('imgs/elephant_walkingr.gif') no-repeat center center;
+            background-size: cover;
         }
-        .background-elements img.pagoda {
-            left: 15%;
-            animation: movePagoda 10s linear infinite;
-        }
-        .background-elements img.mammoth {
-            left: 70%;
-            animation: moveMammoth 10s linear infinite;
-        }
-        @keyframes movePagoda {
-            from {
-                transform: translateX(0);
-            }
-            to {
-                transform: translateX(-50px);
-            }
-        }
-        @keyframes moveMammoth {
-            from {
-                transform: translateX(0);
-            }
-            to {
-                transform: translateX(50px);
-            }
-        }
-        .skiers {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .skier {
-            position: absolute;
-            top: 0;
-            width: 20px;
-            height: 20px;
-            background: url('skier.png') no-repeat center center;
-            background-size: contain;
-            animation: ski 10s linear infinite;
-        }
-        @keyframes ski {
-            to {
-                transform: translate(-200px, 200px) rotate(45deg);
-            }
-        }
-        @keyframes ski2 {
-            to {
-                transform: translate(200px, 200px) rotate(-45deg);
-            }
+        .walker-left {
+            background: url('imgs/elephant_walking.gif') no-repeat center center;
+            background-size: cover;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="snowflakes">
-        <!-- Snowflakes -->
-        <div class="snowflake" style="left: 10%; animation-delay: 0s;"></div>
-        <div class="snowflake" style="left: 20%; animation-delay: 1s;"></div>
-        <div class="snowflake" style="left: 30%; animation-delay: 2s;"></div>
-        <div class="snowflake" style="left: 40%; animation-delay: 3s;"></div>
-        <div class="snowflake" style="left: 50%; animation-delay: 4s;"></div>
-        <div class="snowflake" style="left: 60%; animation-delay: 5s;"></div>
-        <div class="snowflake" style="left: 70%; animation-delay: 6s;"></div>
-        <div class="snowflake" style="left: 80%; animation-delay: 7s;"></div>
-        <div class="snowflake" style="left: 90%; animation-delay: 8s;"></div>
-    </div>
-    <div class="background-elements">
-        <img src="imgs/mountain.png" alt="Mountains" class="mountain">
-        <img src="imgs/pagoda.png" alt="Pagoda" class="pagoda">
-        <img src="imgs/elephantx.png" alt="Woolly Mammoth" class="mammoth">
-    </div>
-    <div class="skiers">
-        <div class="skier" style="left: 20%; animation: ski 10s linear infinite;"></div>
-        <div class="skier" style="left: 50%; animation: ski2 12s linear infinite;"></div>
-        <div class="skier" style="left: 70%; animation: ski 8s linear infinite;"></div>
-    </div>
     <div class="container">
-        <div class="main-content">
-            <div class="header">
-                <img src="imgs/snowflake.png" alt="Snowflake">
-                <img src="imgs/snowflake.png" alt="Snowflake">
-                <img src="imgs/snowflake.png" alt="Snowflake">
-            </div>
-            <div class="intro">
-                <h1>Welcome to My 8-bit Snowy Blog</h1>
-                <p>This is a short introduction about me and my work.</p>
-            </div>
-            <div class="blog-posts">
-                <div class="blog-post">
-                    <h2>Blog Post Title 1</h2>
-                    <p>This is the content of the first blog post.</p>
-                </div>
-                <div class="blog-post">
-                    <h2>Blog Post Title 2</h2>
-                    <p>This is the content of the second blog post.</p>
-                </div>
-            </div>
-        </div>
-        <div class="sidebar">
-            <h2>Miscellaneous Points</h2>
-            <p>Additional information or links can go here.</p>
-        </div>
+        <div class="line line1"></div>
+        <div class="line line2"></div>
+        <div class="line line3"></div>
+        <div class="line line4"></div>
+        <div class="walker walker-right" id="walker"></div>
     </div>
+    <script>
+
+        const walker = document.getElementById('walker');
+        const lines = document.querySelectorAll('.line');
+
+        let currentLine = 0;
+        let direction = 1;
+        let direction2 = 1;
+
+        window.onload = () => {
+            walker.style.top = '65px';  // vert adj
+            walker.style.left = '0px';
+            requestAnimationFrame(walk);
+        };
+
+        function walk() {
+            const line = lines[currentLine];
+            const container = document.querySelector('.container');
+            const containerWidth = container.clientWidth;
+            const walkerWidth = walker.clientWidth;
+            let walkerLeft = parseInt(window.getComputedStyle(walker).left || 0);
+
+            if (walkerLeft + walkerWidth >= containerWidth || walkerLeft <= 0) {
+                direction *= -1;
+                walkerLeft = direction > 0 ? 0 : containerWidth - walkerWidth;
+                walker.className = direction > 0 ? 'walker walker-right' : 'walker walker-left';
+                walker.style.left = walkerLeft + 'px';
+            }
+
+
+            walker.style.left = walkerLeft + direction * 1 + 'px';
+
+            requestAnimationFrame(walk);
+        }
+
+    </script>
 </body>
 </html>
