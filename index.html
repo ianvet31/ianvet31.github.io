@@ -1,30 +1,203 @@
-<html>
-	<head>
-	    <meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <title>The Ian Website</title>
-	    <link rel="stylesheet" href="hammy.css">
-	</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ian Website</title>
+    <link rel="stylesheet" href="hammy.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('imgs/junglebackground.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        section {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.437);
+            border-radius: 10px;
+        }
+        a {
+            color: #00ffcc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            text-align: center;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .blog-entry {
+            margin-bottom: 20px;
+        }
 
+        /* Cube CSS */
+        .scene {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            animation: rotate 5s infinite linear;
+        }
+        .face {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #000;
+            box-sizing: border-box;
+            font-size: 5px;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .front  { transform: rotateY(0deg) translateZ(25px); }
+        .back   { transform: rotateY(180deg) translateZ(25px); }
+        .left   { transform: rotateY(-90deg) translateZ(25px); }
+        .right  { transform: rotateY(90deg) translateZ(25px); }
+        .top    { transform: rotateX(90deg) translateZ(25px); }
+        .bottom { transform: rotateX(-90deg) translateZ(25px); }
 
-	<body>
-		<section id="container">
-			<p>
-			<strong>MAKE THIS DARK FANTASY THEMED HOBBIT SHIT</strong>
-			<em>to the treasure trove</em>
-				
-			</p>
-			<h1> OK </h1>
-			<h2> IMV!</h2>
-			<a href="http://www.google.com">search</a>
-			<a href="http://www.github.com/ianvet31">What we're workin on</a>
-			<a href="cubes.html">The Cubes</a>
-			<a href="temp.html">Test</a>
-			<div class="container">
-				<img src="imgs/seesaw.gif" alt="Image Description">
-			</div>
-			<pre>	
-                          .' `'.__
+        @keyframes rotate {
+            from {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+            to {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        /* Dice Dot Styling */
+        .dot {
+            width: 5px;
+            height: 5px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        /* Dot positions */
+        .center {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .top-left {
+            top: 20%;
+            left: 20%;
+        }
+        .top-right {
+            top: 20%;
+            right: 20%;
+        }
+        .bottom-left {
+            bottom: 20%;
+            left: 20%;
+        }
+        .bottom-right {
+            bottom: 20%;
+            right: 20%;
+        }
+        .center-left {
+            top: 50%;
+            left: 20%;
+            transform: translateY(-50%);
+        }
+        .center-right {
+            top: 50%;
+            right: 20%;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>The treasure trove</h1>
+    </header>
+
+    <!-- Navigation Links -->
+    <section>
+        <h2>Navigation</h2>
+        <div class="container">
+            <a href="http://www.google.com">Search</a> |
+            <a href="http://www.github.com/ianvet31">What we're workin' on</a> |
+            <a href="cubes.html">The Cubes</a> |
+            <a href="temp.html">Test</a> |
+            <a href="fluidsim.html">Fluid Sim</a>
+        </div>
+    </section>
+
+    <!-- Rotating Cube Section -->
+    <section>
+        <h2>Have at thee</h2>
+        <div class="scene">
+            <div class="cube">
+                <div class="face front">
+                    <div class="dot center"></div>
+                </div>
+                <div class="face back">
+                    <div class="dot top-left"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+                <div class="face left">
+                    <div class="dot top-left"></div>
+                    <div class="dot center"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+                <div class="face right">
+                    <div class="dot top-left"></div>
+                    <div class="dot top-right"></div>
+                    <div class="dot bottom-left"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+                <div class="face top">
+                    <div class="dot top-left"></div>
+                    <div class="dot top-right"></div>
+                    <div class="dot bottom-left"></div>
+                    <div class="dot bottom-right"></div>
+                    <div class="dot center"></div>
+                </div>
+                <div class="face bottom">
+                    <div class="dot top-left"></div>
+                    <div class="dot top-right"></div>
+                    <div class="dot bottom-left"></div>
+                    <div class="dot bottom-right"></div>
+                    <div class="dot center-left"></div>
+                    <div class="dot center-right"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image and ASCII Art -->
+    <section>
+        <h2>Fun</h2>
+        <div class="container">
+            <img src="imgs/seesaw.gif" alt="Image Description">
+        </div>
+        <pre>
+			.' `'.__
                          /      \ `'"-,
         .-''''--...__..-/ .     |      \
       .'               ; :'     '.  a   |
@@ -41,192 +214,116 @@
    \  ,,/ |    \   D    .'  \
 jgs `""`   \  nnh  D_.-'L__nnh
             `"""`
-			</pre>
-		</section>
-		<hr>
-		<section>
-			<div id="container">
-				<article class="regular">
-					<label for="tbuser">Jot down some notes</label>
-					<input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
-					<input type="button" id="btn1" value="Add it">
-					<p class="output" id="output1">
-				</article>
-				<script>
-				
-					const butt2 = document.getElementById('btn2');
-					
-					
-					const txt1 = document.getElementById('tbuser');
-					const butt = document.getElementById('btn1');
-					const out1 = document.getElementById('output1');
-					
-					function load() {
-						out1.innerHTML = localStorage.getItem("userDetails");
-					}
-					
-					function funny() {
-						out1.innerHTML += txt1.value;
-						var currbook = out1.innerHTML;
-						localStorage.setItem("userDetails", currbook);
-					}
-	
-					butt.addEventListener('click', funny);
-					butt2.addEventListener('click', load);
-	
-					
-					
-				</script>
+        </pre>
+    </section>
 
-				<canvas id="drawing-pad" width="800" height="400"></canvas>
-				<button id="clear-button">Clear drawing</button>
-				<button id="save-button">Save drawing</button>
-
-				<script>
-					const canvas = document.getElementById('drawing-pad');
-					const context = canvas.getContext('2d');
-					let isDrawing = false;
-
-					canvas.addEventListener('mousedown', () => {
-						isDrawing = true;
-					});
-
-					canvas.addEventListener('mouseup', () => {
-						isDrawing = false;
-						context.beginPath();
-					});
-
-					canvas.addEventListener('mousemove', draw);
-
-					function draw(event) {
-						if (!isDrawing) return;
-						context.lineWidth = 5;
-						context.lineCap = 'round';
-						context.strokeStyle = 'black';
-
-						context.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
-						context.stroke();
-						context.beginPath();
-						context.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
-					}
-
-					const clearButton = document.getElementById('clear-button');
-					clearButton.addEventListener('click', () => {
-						context.clearRect(0, 0, canvas.width, canvas.height);
-					});
-
-					const saveButton = document.getElementById('save-button');
-					saveButton.addEventListener('click', () => {
-						const image = canvas.toDataURL("image/png");
-						const a = document.createElement('a');
-						a.href = image;
-						a.download = 'drawing.png';
-						a.click();
-					});
-				</script>
-			</div>
-			</section>
-			
-		
-			<hr>
-			<section>
-			<h1> Mario Bailando </h1>
-			<video autoplay loop controls>
-				<source src="imgs/mario.mp4" type="video/mp4">
-				Your browser does not support the video tag.
-			</video>
-			</section>
-			<hr>
-			<h1> Elephant pics</h1>
-			
-			<div>
-				<input type="button" id="e_button" value="More elephant photos!">
-			</div>
-
-			<div>
-				<img src="imgs/e1.jpg", id="imger">
-
-			</div>
+    <!-- Notes Section -->
+    <section>
+        <h2>Jot Down Some Notes</h2>
+        <label for="tbuser">Write something:</label>
+        <input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
+        <input type="button" id="btn1" value="Add it">
+        <p class="output" id="output1"></p>
+    </section>
 
 
-		
-		</section>
+    <!-- Video Section -->
+    <section>
+        <h2>Mario Bailando</h2>
+        <video autoplay loop controls>
+            <source src="imgs/mario.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </section>
 
-	</body>
-	<a href="fluidsim.html">Fluid sim</a>
-	<script type ="text/javascript" src="aboutjs.js"></script>
-	<hr>
+    <!-- Elephant Photos -->
+    <section>
+        <h2>Elephant Pics</h2>
+        <div>
+            <input type="button" id="e_button" value="More elephant photos!">
+        </div>
+        <div>
+            <img src="imgs/e1.jpg" id="imger" alt="Elephant">
+        </div>
+    </section>
 
-	<body>
-		<h1>Stock Information</h1>
-		<input type="text" id="stockentry" placeholder="Enter a ticker" maxlength="10">
-		<input type="button" id="btn4" value="Check API">
-		<p>Current stock price for AAPL: <span id="stock-price"></span></p>
-	
-		<script>
-			// Function to fetch stock information from the Alpha Vantage API
-			function fetchStockInfo() {
-				const apiKey = '2FK1G6PPJW9YU9WS'; // Replace with your Alpha Vantage API key
-				const symbol = 'AAPL'; // Replace with the stock symbol you want to track
-				const apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&apikey=${apiKey}`;
-	
-				fetch(apiUrl)
-					.then(response => response.json())
-					.then(data => {
-						const latestData = data['Time Series (1min)'];
-						const timestamps = Object.keys(latestData);
-						const latestTimestamp = timestamps[0];
-						const stockPrice = latestData[latestTimestamp]['1. open'];
-						document.getElementById('stock-price').textContent = stockPrice;
-					})
-					.catch(error => {
-						console.error('Error fetching stock information:', error);
-					});
-			}
-	
-			// Call the fetchStockInfo function to load stock information when the page loads
-			window.addEventListener('load', fetchStockInfo);
-		</script>
-	</body>
-	
-	<hr>
-	
-	<body>
-		<h1>Interactive Song Builder</h1>
-		<div id="song-builder">
-			<div class="image-container">
-				<img src="imgs/rap.gif" alt="Image Description">
-			</div>
-			<div>
-				<label for="audio-selector">Select an audio file:</label>
-				<select id="audio-selector">
-					<option value="sounds/3yeets.mp3">3 yeets</option>
-					<option value="sounds/21n.mp3">Whats 9 + 10</option>
-					<option value="sounds/aaaaaa.mp3">aaaaaa</option>
-					<option value="sounds/amoggus.mp3">amogus</option>
-					<option value="sounds/bigfart.mp3">fart</option>
-					<option value="sounds/bongo.mp3">bongo</option>
-					<option value="sounds/bruh.mp3">bruh</option>
-					<option value="sounds/fart.mp3">fart2</option>
-					<option value="sounds/fartnitecard.mp3">fortnitecard</option>
-					<option value="sounds/klonk.mp3">klonck</option>
-					<option value="sounds/metronotrust.mp3">metro</option>
-					<option value="sounds/punch.mp3">punch</option>
-					<option value="sounds/oof.mp3">oof</option>
-					<option value="sounds/wockyslush.mp3">wocky sluch</option>
-					<!-- Add more options for additional audio files -->
-				</select>
-				<button id="add-audio">Add to Sequence</button>
-				<button id="clear-sequence">Clear Sequence</button>
-			</div>
-			<div>
-				<h2>Song Sequence</h2>
-				<ul id="song-sequence"></ul>
-				<button id="play-song">Play Song</button>
-			</div>
-		</div>
-	</body>
-	<script>
+
+    <!-- Interactive Song Builder -->
+    <section>
+        <h2>Interactive Song Builder</h2>
+        <div id="song-builder">
+            <div class="image-container">
+                <img src="imgs/rap.gif" alt="Image Description">
+            </div>
+            <div>
+                <label for="audio-selector">Select an audio file:</label>
+                <select id="audio-selector">
+                    <option value="sounds/3yeets.mp3">3 yeets</option>
+                    <option value="sounds/21n.mp3">Whats 9 + 10</option>
+                    <option value="sounds/aaaaaa.mp3">aaaaaa</option>
+                    <option value="sounds/amoggus.mp3">amogus</option>
+                    <option value="sounds/bigfart.mp3">fart</option>
+                    <option value="sounds/bongo.mp3">bongo</option>
+                    <option value="sounds/bruh.mp3">bruh</option>
+                    <option value="sounds/fart.mp3">fart2</option>
+                    <option value="sounds/fartnitecard.mp3">fortnitecard</option>
+                    <option value="sounds/klonk.mp3">klonck</option>
+                    <option value="sounds/metronotrust.mp3">metro</option>
+                    <option value="sounds/punch.mp3">punch</option>
+                    <option value="sounds/oof.mp3">oof</option>
+                    <option value="sounds/wockyslush.mp3">wocky sluch</option>
+                </select>
+                <button id="add-audio">Add to Sequence</button>
+                <button id="clear-sequence">Clear Sequence</button>
+            </div>
+            <div>
+                <h3>Song Sequence</h3>
+                <ul id="song-sequence"></ul>
+                <button id="play-song">Play Song</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section>
+        <h2>Blog</h2>
+        <div class="blog-entry">
+            <em>09/18/2023</em>
+            <p>Golgotha</p>
+        </div>
+        <div class="blog-entry">
+            <em>09/26/2023</em>
+            <p>Hoping dinosaurs come back</p>
+        </div>
+        <div class="blog-entry">
+            <em>12/20/2023</em>
+            <p>Got the job I'm coolin' 8)</p>
+        </div>
+    </section>
+
+    <!-- Datasets -->
+    <section>
+        <h2>Datasets</h2>
+        <a href="sentiment_data.csv" download="sentiment_data.csv">Sentiment analysis data (News Headlines)</a><br>
+        <a href="S30.csv" download="S30.csv">Movie ratings matrix (STAT598)</a>
+    </section>
+
+    <!-- 3D Cube -->
+    <section>
+        <h2>3D Cube</h2>
+        <div class="scene">
+            <div class="cube">
+                <div class="face front">1</div>
+                <div class="face back">2</div>
+                <div class="face left">3</div>
+                <div class="face right">4</div>
+                <div class="face top">5</div>
+                <div class="face bottom">6</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
         document.addEventListener("DOMContentLoaded", function () {
             const audioSelector = document.getElementById("audio-selector");
             const addAudioButton = document.getElementById("add-audio");
@@ -273,65 +370,88 @@ jgs `""`   \  nnh  D_.-'L__nnh
         });
     </script>
 
+    <script>
+        const butt2 = document.getElementById('btn2');
+        const txt1 = document.getElementById('tbuser');
+        const butt = document.getElementById('btn1');
+        const out1 = document.getElementById('output1');
 
-	<hr>
+        function load() {
+            out1.innerHTML = localStorage.getItem("userDetails");
+        }
 
-	<div>
-		<h1>BLOG</h1>
-		<em>09/18/2023</em>
-		<p>Golgotha</p>
+        function funny() {
+            out1.innerHTML += txt1.value;
+            var currbook = out1.innerHTML;
+            localStorage.setItem("userDetails", currbook);
+        }
 
-		<em>09/26/2023</em>
-		<p>Hoping dinosaurs come back</p>
+        butt.addEventListener('click', funny);
+        butt2.addEventListener('click', load);
 
-		<em>10/11/2023</em>
-		<p>Casio duro dive</p>
+        const canvas = document.getElementById('drawing-pad');
+        const context = canvas.getContext('2d');
+        let isDrawing = false;
 
-		<em>10/19/2023</em>
-		<p>Can't believe I'm still looking for a job been like two months</p>
+        canvas.addEventListener('mousedown', () => {
+            isDrawing = true;
+        });
 
-		<em>12/09/2023</em>
-		<p>Can't believe I'm still looking for a job been like four months</p>
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            context.beginPath();
+        });
 
-		<em>12/09/2023</em>
-		<p>My prediction for the near future is a hysterical caffeine/sugar fueled collapse of life and free will as we know it. General anxiety and uneasiness will shoot up until it reaches a breaking point, and the populous will adopt complete indoor AI control over their day-to-day, and those who resist will be eliminated or take themselves out in the primal streets of protest and disarray.</p>
+        canvas.addEventListener('mousemove', draw);
 
-		<em>12/20/2023</em>
-		<p>Got th job I'm coolin' 8)</p>
+        function draw(event) {
+            if (!isDrawing) return;
+            context.lineWidth = 5;
+            context.lineCap = 'round';
+            context.strokeStyle = 'black';
 
-		<em>04/01/2024</em>
-		<p>Life is not bad, much to learn much to do. If u lookin for smoke den say dat.</p>
-	</div>
+            context.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+            context.stroke();
+            context.beginPath();
+            context.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+        }
 
+        const clearButton = document.getElementById('clear-button');
+        clearButton.addEventListener('click', () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        });
 
-	<body>
-		<section id="container">
-			<strong> Datasets </strong>
-			<a href="sentiment_data.csv" download="sentiment_data.csv">Sentiment analysis data (News Headlines)</a>
-			<a href="S30.csv" download="S30.csv">Movie ratings matrix (STAT598)</a>
+        const saveButton = document.getElementById('save-button');
+        saveButton.addEventListener('click', () => {
+            const image = canvas.toDataURL("image/png");
+            const a = document.createElement('a');
+            a.href = image;
+            a.download = 'drawing.png';
+            a.click();
+        });
 
+        // Function to fetch stock information from the Alpha Vantage API
+        function fetchStockInfo() {
+            const apiKey = '2FK1G6PPJW9YU9WS'; // Replace with your Alpha Vantage API key
+            const symbol = 'AAPL'; // Replace with the stock symbol you want to track
+            const apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&apikey=${apiKey}`;
 
-			
-		</section>
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const latestData = data['Time Series (1min)'];
+                    const timestamps = Object.keys(latestData);
+                    const latestTimestamp = timestamps[0];
+                    const stockPrice = latestData[latestTimestamp]['1. open'];
+                    document.getElementById('stock-price').textContent = stockPrice;
+                })
+                .catch(error => {
+                    console.error('Error fetching stock information:', error);
+                });
+        }
 
-
-
-	</body>
-
-	<body>
-	    <div class="scene">
-	        <div class="cube">
-	            <div class="face front">1</div>
-	            <div class="face back">2</div>
-	            <div class="face left">3</div>
-	            <div class="face right">4</div>
-	            <div class="face top">5</div>
-	            <div class="face bottom">6</div>
-	        </div>
-	    </div>
-	</body>
-	
-	
-
-
+        // Call the fetchStockInfo function to load stock information when the page loads
+        window.addEventListener('load', fetchStockInfo);
+    </script>
+</body>
 </html>
