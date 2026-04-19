@@ -415,6 +415,125 @@
         }
         .scramble-skip:hover { border-color: #D4830A; color: #D4830A; }
         .scramble-score { text-align: center; color: #F0C040; font-weight: bold; font-family: Arial, sans-serif; margin-top: 8px; }
+
+        /* === SPARKLE CANVAS === */
+        #sparkle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === SECTION REVEAL === */
+        section { position: relative; z-index: 2; }
+        .reveal-hidden {
+            opacity: 0 !important;
+            transform: translateY(50px) !important;
+        }
+        section {
+            transition: opacity 0.75s ease, transform 0.75s ease, border-color 0.3s, box-shadow 0.3s;
+        }
+        section:hover {
+            border-color: rgba(212,131,10,0.75) !important;
+            box-shadow: 0 0 28px rgba(212,131,10,0.18) !important;
+        }
+
+        /* === KENTE SLIDE ANIMATION === */
+        .kente {
+            background-size: 280px 100% !important;
+            animation: kente-slide 2.5s linear infinite !important;
+        }
+        @keyframes kente-slide {
+            from { background-position: 0 0; }
+            to   { background-position: 280px 0; }
+        }
+
+        /* === TITLE GLOW PULSE === */
+        .page-header h1 {
+            animation: shimmer 5s linear infinite, title-glow 3s ease-in-out infinite !important;
+        }
+        @keyframes title-glow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(212,131,10,0.3)); }
+            50%       { filter: drop-shadow(0 0 28px rgba(240,192,64,0.65)); }
+        }
+
+        /* === SAVANNA GROUND STRIP === */
+        .savanna-floor {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%;
+            height: 110px;
+            z-index: 100;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .savanna-floor::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to top, #0d0500 0%, #1c0800 55%, transparent 100%);
+        }
+        .savanna-grass {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 55px;
+        }
+
+        /* === ELEPHANT WALK === */
+        .elephant {
+            position: absolute;
+            bottom: 6px;
+            pointer-events: none;
+            image-rendering: auto;
+        }
+        .el-1 { height: 80px;  animation: walk-rtl 26s linear infinite 0s; }
+        .el-2 { height: 62px;  animation: walk-ltr 38s linear infinite 5s; }
+        .el-3 { height: 90px;  animation: walk-rtl 20s linear infinite 13s; }
+        .el-4 { height: 58px;  animation: walk-ltr 44s linear infinite 2s; }
+        .el-5 { height: 72px;  animation: walk-rtl 32s linear infinite 9s; }
+
+        @keyframes walk-rtl {
+            from { left: calc(100vw + 130px); }
+            to   { left: -130px; }
+        }
+        @keyframes walk-ltr {
+            from { left: -130px; }
+            to   { left: calc(100vw + 130px); }
+        }
+
+        /* === FLYING BIRDS === */
+        .bird-fly {
+            position: fixed;
+            font-size: 1.6em;
+            pointer-events: none;
+            z-index: 45;
+            opacity: 0;
+            line-height: 1;
+        }
+        .bird-1 { top: 7vh;  animation: bird-ltr 22s linear infinite 0s; }
+        .bird-2 { top: 13vh; animation: bird-ltr 30s linear infinite 8s; }
+        .bird-3 { top: 5vh;  animation: bird-rtl 18s linear infinite 14s; }
+        .bird-4 { top: 18vh; animation: bird-ltr 26s linear infinite 3s; }
+        .bird-5 { top: 10vh; animation: bird-rtl 35s linear infinite 20s; }
+
+        @keyframes bird-ltr {
+            0%   { left: -80px;                    transform: scaleX(1);  opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 1; }
+            100% { left: calc(100vw + 80px);       transform: scaleX(1);  opacity: 0; }
+        }
+        @keyframes bird-rtl {
+            0%   { left: calc(100vw + 80px);       transform: scaleX(-1); opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 1; }
+            100% { left: -80px;                    transform: scaleX(-1); opacity: 0; }
+        }
+
+        /* Extra bottom padding so content clears the elephant strip */
+        body { padding-bottom: 120px !important; }
+
     </style>
 </head>
 <body>
@@ -897,5 +1016,145 @@ document.getElementById('scramble-skip').addEventListener('click', () => {
 
 loadScramble();
 </script>
+
+<!-- ============ PARTICLE CANVAS ============ -->
+<canvas id="sparkle-canvas"></canvas>
+
+<!-- ============ SAVANNA GROUND + ELEPHANTS ============ -->
+<div class="savanna-floor">
+    <svg class="savanna-grass" viewBox="0 0 1440 55" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#1a0800" d="
+            M0,55 L0,38 Q5,18 10,36 Q14,8 18,34 Q22,0 26,33
+            Q32,20 38,36 Q42,5 46,33 Q50,18 54,36 L60,38
+            Q66,10 72,36 Q76,22 80,38 Q86,5 92,34 Q98,18 104,36
+            Q110,28 116,38 Q120,8 124,34 Q130,20 136,36 L144,40
+            Q150,6 156,36 Q162,22 168,38 Q174,10 180,34
+            Q186,24 192,38 Q198,5 204,34 Q210,18 216,36
+            Q222,28 228,38 Q234,8 240,34 Q246,20 252,36 L260,40
+            Q266,6 272,36 Q278,22 284,38 Q290,10 296,34
+            Q302,24 308,38 Q314,5 320,34 Q326,18 332,36
+            Q338,28 344,38 Q350,8 356,34 Q362,20 368,36 L376,40
+            Q382,6 388,36 Q394,22 400,38 Q406,10 412,34
+            Q418,24 424,38 Q430,5 436,34 Q442,18 448,36
+            Q454,28 460,38 Q466,8 472,34 Q478,20 484,36 L492,40
+            Q498,6 504,36 Q510,22 516,38 Q522,10 528,34
+            Q534,24 540,38 Q546,5 552,34 Q558,18 564,36
+            Q570,28 576,38 Q582,8 588,34 Q594,20 600,36 L608,40
+            Q614,6 620,36 Q626,22 632,38 Q638,10 644,34
+            Q650,24 656,38 Q662,5 668,34 Q674,18 680,36
+            Q686,28 692,38 Q698,8 704,34 Q710,20 716,36 L724,40
+            Q730,6 736,36 Q742,22 748,38 Q754,10 760,34
+            Q766,24 772,38 Q778,5 784,34 Q790,18 796,36
+            Q802,28 808,38 Q814,8 820,34 Q826,20 832,36 L840,40
+            Q846,6 852,36 Q858,22 864,38 Q870,10 876,34
+            Q882,24 888,38 Q894,5 900,34 Q906,18 912,36
+            Q918,28 924,38 Q930,8 936,34 Q942,20 948,36 L956,40
+            Q962,6 968,36 Q974,22 980,38 Q986,10 992,34
+            Q998,24 1004,38 Q1010,5 1016,34 Q1022,18 1028,36
+            Q1034,28 1040,38 Q1046,8 1052,34 Q1058,20 1064,36 L1072,40
+            Q1078,6 1084,36 Q1090,22 1096,38 Q1102,10 1108,34
+            Q1114,24 1120,38 Q1126,5 1132,34 Q1138,18 1144,36
+            Q1150,28 1156,38 Q1162,8 1168,34 Q1174,20 1180,36 L1188,40
+            Q1194,6 1200,36 Q1206,22 1212,38 Q1218,10 1224,34
+            Q1230,24 1236,38 Q1242,5 1248,34 Q1254,18 1260,36
+            Q1266,28 1272,38 Q1278,8 1284,34 Q1290,20 1296,36 L1304,40
+            Q1310,6 1316,36 Q1322,22 1328,38 Q1334,10 1340,34
+            Q1346,24 1352,38 Q1358,5 1364,34 Q1370,18 1376,36
+            Q1382,28 1388,38 Q1394,8 1400,34 Q1406,20 1412,36
+            Q1418,28 1424,38 Q1430,10 1436,36 L1440,38 L1440,55 Z
+        "/>
+    </svg>
+
+    <!-- Right-to-left elephants (face left) -->
+    <img class="elephant el-1" src="imgs/elephant_walking.gif" alt="">
+    <img class="elephant el-3" src="imgs/elephant_walking.gif" alt="">
+    <img class="elephant el-5" src="imgs/elephant_walking.gif" alt="">
+    <!-- Left-to-right elephants (face right) -->
+    <img class="elephant el-2" src="imgs/elephant_walkingr.gif" alt="">
+    <img class="elephant el-4" src="imgs/elephant_walkingr.gif" alt="">
+</div>
+
+<!-- ============ FLYING BIRDS ============ -->
+<span class="bird-fly bird-1">🦅</span>
+<span class="bird-fly bird-2">🦅</span>
+<span class="bird-fly bird-3">🦅</span>
+<span class="bird-fly bird-4">🕊️</span>
+<span class="bird-fly bird-5">🦅</span>
+
+<script>
+// ============ SPARKLE / EMBER PARTICLES ============
+const sparkleCanvas = document.getElementById('sparkle-canvas');
+const sCtx = sparkleCanvas.getContext('2d');
+
+function resizeSparkle() {
+    sparkleCanvas.width  = window.innerWidth;
+    sparkleCanvas.height = window.innerHeight;
+}
+resizeSparkle();
+window.addEventListener('resize', resizeSparkle);
+
+const COLORS = ['#F0C040','#D4830A','#FFF0D0','#C8A06A','#FF8C42','#FFDC73'];
+const sparks = [];
+
+function newSpark() {
+    return {
+        x:       Math.random() * sparkleCanvas.width,
+        y:       sparkleCanvas.height + 10,
+        vx:      (Math.random() - 0.5) * 0.6,
+        vy:      -(Math.random() * 0.9 + 0.25),
+        r:       Math.random() * 2.2 + 0.4,
+        color:   COLORS[Math.floor(Math.random() * COLORS.length)],
+        alpha:   0,
+        maxA:    Math.random() * 0.55 + 0.15,
+        life:    0,
+        maxLife: Math.random() * 220 + 100,
+    };
+}
+
+for (let i = 0; i < 90; i++) {
+    const s = newSpark();
+    s.y    = Math.random() * sparkleCanvas.height;
+    s.life = Math.floor(Math.random() * s.maxLife);
+    sparks.push(s);
+}
+
+(function animateSparks() {
+    sCtx.clearRect(0, 0, sparkleCanvas.width, sparkleCanvas.height);
+    sparks.forEach((s, i) => {
+        s.life++; s.x += s.vx; s.y += s.vy;
+        const half = s.maxLife / 2;
+        s.alpha = s.life < half
+            ? (s.life / half) * s.maxA
+            : ((s.maxLife - s.life) / half) * s.maxA;
+
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        sCtx.shadowColor = s.color;
+        sCtx.shadowBlur  = s.r * 5;
+        sCtx.fillStyle   = s.color;
+        sCtx.globalAlpha = s.alpha;
+        sCtx.fill();
+        sCtx.shadowBlur  = 0;
+
+        if (s.life >= s.maxLife) sparks[i] = newSpark();
+    });
+    sCtx.globalAlpha = 1;
+    requestAnimationFrame(animateSparks);
+})();
+
+// ============ SECTION SCROLL REVEAL ============
+(() => {
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) e.target.classList.remove('reveal-hidden');
+        });
+    }, { threshold: 0.07 });
+    document.querySelectorAll('section').forEach(s => {
+        s.classList.add('reveal-hidden');
+        obs.observe(s);
+    });
+})();
+</script>
+
 </body>
 </html>
