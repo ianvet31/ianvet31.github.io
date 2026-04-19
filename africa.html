@@ -534,6 +534,117 @@
         /* Extra bottom padding so content clears the elephant strip */
         body { padding-bottom: 120px !important; }
 
+        /* ===== SUN ===== */
+        .sun-orb {
+            position: fixed; right: 13%; top: 9%;
+            width: 62px; height: 62px; border-radius: 50%;
+            background: radial-gradient(circle at 38% 34%, #fffbe0, #ffe040 35%, #ff9900 70%, #c85000);
+            z-index: 3; pointer-events: none;
+            animation: sun-pulse 4s ease-in-out infinite;
+            box-shadow: 0 0 30px 10px rgba(255,170,0,.45), 0 0 70px 24px rgba(255,100,0,.2);
+        }
+        @keyframes sun-pulse {
+            0%,100% { box-shadow: 0 0 28px 9px rgba(255,170,0,.45), 0 0 65px 22px rgba(255,100,0,.2); }
+            50%      { box-shadow: 0 0 48px 16px rgba(255,200,0,.6), 0 0 110px 38px rgba(255,110,0,.3), 0 0 180px 55px rgba(200,60,0,.12); }
+        }
+        /* Warm sky glow radiating from sun */
+        .sun-glow {
+            position: fixed; right: 0; top: 0;
+            width: 55%; height: 55%;
+            background: radial-gradient(ellipse at 75% 20%, rgba(200,90,0,.18) 0%, transparent 65%);
+            z-index: 1; pointer-events: none;
+            animation: sky-glow 5s ease-in-out infinite alternate;
+        }
+        @keyframes sky-glow {
+            from { opacity: 0.6; }
+            to   { opacity: 1;   }
+        }
+
+        /* ===== STARS CANVAS ===== */
+        #stars-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 45%;
+            pointer-events: none; z-index: 2;
+        }
+
+        /* ===== DISTANT MOUNTAINS ===== */
+        .horizon-scene {
+            position: fixed; bottom: 108px; left: 0;
+            width: 100%; height: 180px;
+            pointer-events: none; z-index: 4;
+            overflow: hidden;
+        }
+
+        /* ===== ACACIA TREES ===== */
+        .acacia { position: absolute; bottom: 0; }
+
+        /* ===== GIRAFFE ===== */
+        .giraffe-wrap {
+            position: fixed; bottom: 104px;
+            pointer-events: none; z-index: 96;
+            height: 210px;
+        }
+        .giraffe-wrap.g1 { animation: g-rtl 58s linear infinite 0s,  g-bob 1.8s ease-in-out infinite; }
+        .giraffe-wrap.g2 { animation: g-ltr 74s linear infinite 28s, g-bob 1.6s ease-in-out infinite; transform: scaleX(-1); }
+        @keyframes g-rtl {
+            from { left: calc(100vw + 120px); }
+            to   { left: -120px; }
+        }
+        @keyframes g-ltr {
+            from { left: -120px; }
+            to   { left: calc(100vw + 120px); }
+        }
+        @keyframes g-bob {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-7px); }
+        }
+        .giraffe-wrap.g2 { transform-origin: center bottom; }
+
+        /* ===== LION ===== */
+        .lion-wrap {
+            position: fixed; bottom: 104px;
+            pointer-events: none; z-index: 95;
+            animation: lion-ltr 46s linear infinite 12s, lion-low 1.1s ease-in-out infinite;
+        }
+        @keyframes lion-ltr {
+            from { left: -220px; }
+            to   { left: calc(100vw + 220px); }
+        }
+        @keyframes lion-low {
+            0%,100% { transform: translateY(0) scaleX(1); }
+            50%     { transform: translateY(4px) scaleX(1); }
+        }
+
+        /* ===== ZEBRA HERD ===== */
+        .zebra-herd {
+            position: fixed; bottom: 106px;
+            display: flex; gap: 6px; align-items: flex-end;
+            pointer-events: none; z-index: 94;
+            animation: z-herd 28s linear infinite 7s;
+        }
+        @keyframes z-herd {
+            from { left: -280px; }
+            to   { left: calc(100vw + 280px); }
+        }
+        .zebra-herd .zb { animation: z-gallop 0.55s ease-in-out infinite alternate; }
+        .zebra-herd .zb:nth-child(2) { animation-delay: .18s; }
+        .zebra-herd .zb:nth-child(3) { animation-delay: .36s; }
+        @keyframes z-gallop {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-10px); }
+        }
+
+        /* ===== RHINO ===== */
+        .rhino-wrap {
+            position: fixed; bottom: 104px;
+            pointer-events: none; z-index: 93;
+            animation: rhino-ltr 65s linear infinite 40s;
+        }
+        @keyframes rhino-ltr {
+            from { left: calc(100vw + 160px); }
+            to   { left: -160px; }
+        }
+
     </style>
 </head>
 <body>
@@ -1017,6 +1128,272 @@ document.getElementById('scramble-skip').addEventListener('click', () => {
 loadScramble();
 </script>
 
+<!-- ===== SUN + SKY GLOW ===== -->
+<div class="sun-orb"></div>
+<div class="sun-glow"></div>
+
+<!-- ===== STARS ===== -->
+<canvas id="stars-canvas"></canvas>
+
+<!-- ===== HORIZON: mountains + acacia trees ===== -->
+<div class="horizon-scene">
+    <!-- Mountain ridge -->
+    <svg style="position:absolute;bottom:0;left:0;width:100%;height:100px;" viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#1a0600" opacity="0.75" d="M0,100 L0,65 Q60,30 120,58 Q200,10 280,52 Q360,20 440,55 Q520,5 600,48 Q680,22 760,50 Q840,8 920,45 Q1000,25 1080,52 Q1160,12 1240,48 Q1320,28 1380,54 L1440,50 L1440,100 Z"/>
+        <path fill="#120400" opacity="0.55" d="M0,100 L0,75 Q80,50 160,68 Q240,38 320,65 Q400,45 480,70 Q560,32 640,64 Q720,48 800,70 Q880,38 960,66 Q1040,50 1120,72 Q1200,42 1280,68 Q1360,55 1440,70 L1440,100 Z"/>
+    </svg>
+    <!-- Acacia tree 1 -->
+    <svg class="acacia" style="left:4%;height:130px;" viewBox="0 0 110 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="49" y="65" width="12" height="95" rx="4" fill="#1e0a00"/>
+        <line x1="55" y1="85" x2="18" y2="68" stroke="#1e0a00" stroke-width="7" stroke-linecap="round"/>
+        <line x1="55" y1="85" x2="92" y2="70" stroke="#1e0a00" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="18" cy="52" r="22" fill="#182400"/><circle cx="40" cy="38" r="24" fill="#182400"/>
+        <circle cx="65" cy="34" r="26" fill="#182400"/><circle cx="88" cy="42" r="22" fill="#182400"/>
+        <ellipse cx="55" cy="48" rx="50" ry="18" fill="#1e2e00"/>
+    </svg>
+    <!-- Acacia tree 2 -->
+    <svg class="acacia" style="left:18%;height:100px;" viewBox="0 0 90 130" xmlns="http://www.w3.org/2000/svg">
+        <rect x="39" y="52" width="11" height="78" rx="4" fill="#1e0a00"/>
+        <line x1="44" y1="68" x2="14" y2="55" stroke="#1e0a00" stroke-width="6" stroke-linecap="round"/>
+        <line x1="44" y1="68" x2="76" y2="57" stroke="#1e0a00" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="14" cy="42" r="18" fill="#182400"/><circle cx="34" cy="30" r="20" fill="#182400"/>
+        <circle cx="56" cy="28" r="21" fill="#182400"/><circle cx="74" cy="38" r="18" fill="#182400"/>
+        <ellipse cx="44" cy="38" rx="42" ry="15" fill="#1e2e00"/>
+    </svg>
+    <!-- Acacia tree 3 (tall) -->
+    <svg class="acacia" style="right:22%;height:155px;" viewBox="0 0 120 175" xmlns="http://www.w3.org/2000/svg">
+        <rect x="53" y="70" width="14" height="105" rx="5" fill="#1e0a00"/>
+        <line x1="60" y1="92" x2="16" y2="72" stroke="#1e0a00" stroke-width="8" stroke-linecap="round"/>
+        <line x1="60" y1="92" x2="104" y2="74" stroke="#1e0a00" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="16" cy="54" r="26" fill="#182400"/><circle cx="42" cy="40" r="28" fill="#182400"/>
+        <circle cx="70" cy="36" r="30" fill="#182400"/><circle cx="96" cy="44" r="26" fill="#182400"/>
+        <ellipse cx="60" cy="54" rx="58" ry="22" fill="#1e2e00"/>
+    </svg>
+    <!-- Acacia tree 4 -->
+    <svg class="acacia" style="right:5%;height:115px;" viewBox="0 0 100 145" xmlns="http://www.w3.org/2000/svg">
+        <rect x="44" y="58" width="12" height="87" rx="4" fill="#1e0a00"/>
+        <line x1="50" y1="76" x2="16" y2="62" stroke="#1e0a00" stroke-width="7" stroke-linecap="round"/>
+        <line x1="50" y1="76" x2="84" y2="64" stroke="#1e0a00" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="16" cy="47" r="20" fill="#182400"/><circle cx="37" cy="34" r="23" fill="#182400"/>
+        <circle cx="62" cy="31" r="24" fill="#182400"/><circle cx="82" cy="40" r="20" fill="#182400"/>
+        <ellipse cx="50" cy="44" rx="46" ry="17" fill="#1e2e00"/>
+    </svg>
+    <!-- Acacia tree 5 (small/distant) -->
+    <svg class="acacia" style="left:42%;height:78px;" viewBox="0 0 75 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="33" y="42" width="9" height="58" rx="3" fill="#160800"/>
+        <line x1="37" y1="55" x2="10" y2="44" stroke="#160800" stroke-width="5" stroke-linecap="round"/>
+        <line x1="37" y1="55" x2="65" y2="46" stroke="#160800" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="10" cy="33" r="15" fill="#101a00"/><circle cx="28" cy="23" r="17" fill="#101a00"/>
+        <circle cx="48" cy="21" r="18" fill="#101a00"/><circle cx="64" cy="30" r="15" fill="#101a00"/>
+        <ellipse cx="37" cy="30" rx="35" ry="12" fill="#141e00"/>
+    </svg>
+</div>
+
+<!-- ===== GIRAFFE 1 (right to left) ===== -->
+<div class="giraffe-wrap g1">
+<svg width="80" height="210" viewBox="0 0 80 210" xmlns="http://www.w3.org/2000/svg">
+  <!-- body -->
+  <ellipse cx="40" cy="152" rx="32" ry="21" fill="#C8922A"/>
+  <!-- neck -->
+  <polygon points="42,130 52,130 62,52 50,52" fill="#C8922A"/>
+  <!-- head -->
+  <ellipse cx="58" cy="44" rx="13" ry="9" fill="#C8922A"/>
+  <ellipse cx="67" cy="50" rx="8" ry="5" fill="#C8922A"/>
+  <!-- ear -->
+  <ellipse cx="50" cy="38" rx="4" ry="7" transform="rotate(-15,50,38)" fill="#C8922A"/>
+  <!-- ossicones -->
+  <rect x="54" y="28" width="3" height="13" rx="1.5" fill="#7A4010"/>
+  <rect x="61" y="26" width="3" height="13" rx="1.5" fill="#7A4010"/>
+  <!-- eye -->
+  <circle cx="63" cy="44" r="2.5" fill="#1a0800"/>
+  <circle cx="64" cy="43" r="0.9" fill="#fff" opacity="0.7"/>
+  <!-- mane -->
+  <path d="M52,52 Q48,80 50,110 Q46,125 48,132" stroke="#8B5510" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- neck spots -->
+  <polygon points="54,70 58,64 62,70 58,76" fill="#8B5510" opacity="0.55"/>
+  <polygon points="50,95 54,89 58,95 54,101" fill="#8B5510" opacity="0.55"/>
+  <polygon points="54,118 58,112 62,118 58,124" fill="#8B5510" opacity="0.55"/>
+  <!-- body spots -->
+  <polygon points="30,140 36,133 42,140 36,147" fill="#8B5510" opacity="0.45"/>
+  <polygon points="44,143 50,136 56,143 50,150" fill="#8B5510" opacity="0.45"/>
+  <!-- tail -->
+  <path d="M10,148 Q2,162 6,182" stroke="#C8922A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="5" cy="185" rx="5" ry="3.5" fill="#7A4010"/>
+  <!-- front legs -->
+  <rect x="56" y="168" width="9" height="38" rx="3.5" fill="#B07820"/>
+  <rect x="67" y="168" width="9" height="34" rx="3.5" fill="#B07820"/>
+  <!-- hooves front -->
+  <rect x="56" y="202" width="9" height="7" rx="3" fill="#2a1000"/>
+  <rect x="67" y="198" width="9" height="7" rx="3" fill="#2a1000"/>
+  <!-- back legs -->
+  <rect x="14" y="168" width="9" height="38" rx="3.5" fill="#B07820"/>
+  <rect x="25" y="168" width="9" height="34" rx="3.5" fill="#B07820"/>
+  <!-- hooves back -->
+  <rect x="14" y="202" width="9" height="7" rx="3" fill="#2a1000"/>
+  <rect x="25" y="198" width="9" height="7" rx="3" fill="#2a1000"/>
+</svg>
+</div>
+
+<!-- ===== GIRAFFE 2 (left to right, mirrored) ===== -->
+<div class="giraffe-wrap g2" style="bottom:104px;">
+<svg width="80" height="210" viewBox="0 0 80 210" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="40" cy="152" rx="32" ry="21" fill="#C8922A"/>
+  <polygon points="42,130 52,130 62,52 50,52" fill="#C8922A"/>
+  <ellipse cx="58" cy="44" rx="13" ry="9" fill="#C8922A"/>
+  <ellipse cx="67" cy="50" rx="8" ry="5" fill="#C8922A"/>
+  <ellipse cx="50" cy="38" rx="4" ry="7" transform="rotate(-15,50,38)" fill="#C8922A"/>
+  <rect x="54" y="28" width="3" height="13" rx="1.5" fill="#7A4010"/>
+  <rect x="61" y="26" width="3" height="13" rx="1.5" fill="#7A4010"/>
+  <circle cx="63" cy="44" r="2.5" fill="#1a0800"/>
+  <circle cx="64" cy="43" r="0.9" fill="#fff" opacity="0.7"/>
+  <path d="M52,52 Q48,80 50,110 Q46,125 48,132" stroke="#8B5510" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <polygon points="54,70 58,64 62,70 58,76" fill="#8B5510" opacity="0.55"/>
+  <polygon points="50,95 54,89 58,95 54,101" fill="#8B5510" opacity="0.55"/>
+  <polygon points="30,140 36,133 42,140 36,147" fill="#8B5510" opacity="0.45"/>
+  <polygon points="44,143 50,136 56,143 50,150" fill="#8B5510" opacity="0.45"/>
+  <path d="M10,148 Q2,162 6,182" stroke="#C8922A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="5" cy="185" rx="5" ry="3.5" fill="#7A4010"/>
+  <rect x="56" y="168" width="9" height="38" rx="3.5" fill="#B07820"/>
+  <rect x="67" y="168" width="9" height="34" rx="3.5" fill="#B07820"/>
+  <rect x="56" y="202" width="9" height="7" rx="3" fill="#2a1000"/>
+  <rect x="67" y="198" width="9" height="7" rx="3" fill="#2a1000"/>
+  <rect x="14" y="168" width="9" height="38" rx="3.5" fill="#B07820"/>
+  <rect x="25" y="168" width="9" height="34" rx="3.5" fill="#B07820"/>
+  <rect x="14" y="202" width="9" height="7" rx="3" fill="#2a1000"/>
+  <rect x="25" y="198" width="9" height="7" rx="3" fill="#2a1000"/>
+</svg>
+</div>
+
+<!-- ===== LION ===== -->
+<div class="lion-wrap">
+<svg width="200" height="88" viewBox="0 0 200 88" xmlns="http://www.w3.org/2000/svg">
+  <!-- body -->
+  <ellipse cx="110" cy="60" rx="68" ry="22" fill="#C87828"/>
+  <!-- mane (large dark circle behind head) -->
+  <circle cx="42" cy="48" r="36" fill="#7A3C0A"/>
+  <!-- head -->
+  <circle cx="42" cy="44" r="24" fill="#C87828"/>
+  <!-- snout -->
+  <ellipse cx="28" cy="52" rx="13" ry="9" fill="#D4943A"/>
+  <ellipse cx="28" cy="56" rx="7" ry="4" fill="#1a0800"/>
+  <!-- nose -->
+  <path d="M22,50 Q28,54 34,50" stroke="#8B3A10" stroke-width="2" fill="none"/>
+  <!-- ears -->
+  <circle cx="24" cy="24" r="8" fill="#C87828"/>
+  <circle cx="24" cy="24" r="5" fill="#8B3A10"/>
+  <circle cx="60" cy="24" r="8" fill="#C87828"/>
+  <circle cx="60" cy="24" r="5" fill="#8B3A10"/>
+  <!-- eyes -->
+  <ellipse cx="34" cy="40" rx="5" ry="4" fill="#D4A830"/>
+  <circle cx="34" cy="40" r="2.5" fill="#1a0800"/>
+  <circle cx="35" cy="39" r="0.9" fill="#fff" opacity="0.7"/>
+  <ellipse cx="50" cy="40" rx="5" ry="4" fill="#D4A830"/>
+  <circle cx="50" cy="40" r="2.5" fill="#1a0800"/>
+  <!-- tail -->
+  <path d="M178,55 Q192,44 196,30 Q200,18 196,10" stroke="#C87828" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="196" cy="7" rx="8" ry="6" fill="#7A3C0A"/>
+  <!-- legs -->
+  <rect x="80"  y="76" width="14" height="14" rx="5" fill="#B06A1E"/>
+  <rect x="100" y="76" width="14" height="14" rx="5" fill="#B06A1E"/>
+  <rect x="130" y="76" width="14" height="14" rx="5" fill="#B06A1E"/>
+  <rect x="150" y="76" width="14" height="14" rx="5" fill="#B06A1E"/>
+  <!-- claws -->
+  <path d="M80,88 Q83,92 86,88 M86,88 Q89,92 92,88" stroke="#8B5010" stroke-width="1.5" fill="none"/>
+  <path d="M100,88 Q103,92 106,88 M106,88 Q109,92 112,88" stroke="#8B5010" stroke-width="1.5" fill="none"/>
+</svg>
+</div>
+
+<!-- ===== ZEBRA HERD ===== -->
+<div class="zebra-herd">
+  <!-- zebra 1 -->
+  <svg class="zb" width="80" height="76" viewBox="0 0 80 76" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="42" cy="44" rx="28" ry="17" fill="#E8E2D0"/>
+    <polygon points="62,30 70,30 72,44 64,44" fill="#E8E2D0"/>
+    <ellipse cx="72" cy="24" rx="10" ry="8" fill="#E8E2D0"/>
+    <polygon points="68,16 70,8 74,16" fill="#E8E2D0"/>
+    <!-- stripes -->
+    <line x1="35" y1="28" x2="33" y2="60" stroke="#1a1400" stroke-width="3" opacity="0.7"/>
+    <line x1="44" y1="27" x2="42" y2="61" stroke="#1a1400" stroke-width="3" opacity="0.7"/>
+    <line x1="53" y1="28" x2="51" y2="61" stroke="#1a1400" stroke-width="3" opacity="0.7"/>
+    <line x1="62" y1="30" x2="60" y2="60" stroke="#1a1400" stroke-width="2.5" opacity="0.7"/>
+    <!-- mane -->
+    <rect x="64" y="20" width="4" height="18" rx="2" fill="#1a1400"/>
+    <!-- legs -->
+    <rect x="55" y="58" width="7" height="18" rx="3" fill="#E8E2D0"/><rect x="64" y="58" width="7" height="16" rx="3" fill="#E8E2D0"/>
+    <rect x="24" y="58" width="7" height="18" rx="3" fill="#E8E2D0"/><rect x="33" y="58" width="7" height="16" rx="3" fill="#E8E2D0"/>
+    <!-- leg stripes -->
+    <line x1="55" y1="64" x2="62" y2="64" stroke="#1a1400" stroke-width="2"/><line x1="55" y1="70" x2="62" y2="70" stroke="#1a1400" stroke-width="2"/>
+    <line x1="64" y1="64" x2="71" y2="64" stroke="#1a1400" stroke-width="2"/>
+    <!-- tail -->
+    <path d="M14,42 Q6,48 8,60" stroke="#1a1400" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- eye -->
+    <circle cx="76" cy="23" r="2" fill="#1a0800"/>
+  </svg>
+  <!-- zebra 2 (slightly smaller) -->
+  <svg class="zb" width="68" height="64" viewBox="0 0 80 76" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="42" cy="44" rx="28" ry="17" fill="#E8E2D0"/>
+    <polygon points="62,30 70,30 72,44 64,44" fill="#E8E2D0"/>
+    <ellipse cx="72" cy="24" rx="10" ry="8" fill="#E8E2D0"/>
+    <polygon points="68,16 70,8 74,16" fill="#E8E2D0"/>
+    <line x1="37" y1="28" x2="35" y2="60" stroke="#1a1400" stroke-width="3" opacity="0.7"/>
+    <line x1="46" y1="27" x2="44" y2="61" stroke="#1a1400" stroke-width="3" opacity="0.7"/>
+    <line x1="55" y1="28" x2="53" y2="61" stroke="#1a1400" stroke-width="2.5" opacity="0.7"/>
+    <rect x="64" y="20" width="4" height="18" rx="2" fill="#1a1400"/>
+    <rect x="55" y="58" width="7" height="18" rx="3" fill="#E8E2D0"/><rect x="64" y="58" width="7" height="16" rx="3" fill="#E8E2D0"/>
+    <rect x="24" y="58" width="7" height="18" rx="3" fill="#E8E2D0"/><rect x="33" y="58" width="7" height="16" rx="3" fill="#E8E2D0"/>
+    <path d="M14,42 Q6,48 8,60" stroke="#1a1400" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="76" cy="23" r="2" fill="#1a0800"/>
+  </svg>
+  <!-- zebra 3 (smallest/furthest) -->
+  <svg class="zb" width="56" height="54" viewBox="0 0 80 76" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="42" cy="44" rx="28" ry="17" fill="#E0DAC8"/>
+    <polygon points="62,30 70,30 72,44 64,44" fill="#E0DAC8"/>
+    <ellipse cx="72" cy="24" rx="10" ry="8" fill="#E0DAC8"/>
+    <polygon points="68,16 70,8 74,16" fill="#E0DAC8"/>
+    <line x1="38" y1="28" x2="36" y2="60" stroke="#1a1400" stroke-width="3" opacity="0.65"/>
+    <line x1="48" y1="27" x2="46" y2="61" stroke="#1a1400" stroke-width="3" opacity="0.65"/>
+    <line x1="58" y1="28" x2="56" y2="61" stroke="#1a1400" stroke-width="2.5" opacity="0.65"/>
+    <rect x="64" y="20" width="4" height="18" rx="2" fill="#1a1400"/>
+    <rect x="55" y="58" width="7" height="18" rx="3" fill="#E0DAC8"/><rect x="64" y="58" width="7" height="16" rx="3" fill="#E0DAC8"/>
+    <rect x="24" y="58" width="7" height="18" rx="3" fill="#E0DAC8"/><rect x="33" y="58" width="7" height="16" rx="3" fill="#E0DAC8"/>
+    <path d="M14,42 Q6,48 8,60" stroke="#1a1400" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<!-- ===== RHINO ===== -->
+<div class="rhino-wrap">
+<svg width="160" height="80" viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- body -->
+  <ellipse cx="90" cy="52" rx="58" ry="24" fill="#7A7060"/>
+  <!-- head -->
+  <ellipse cx="28" cy="44" rx="26" ry="20" fill="#7A7060"/>
+  <!-- snout -->
+  <ellipse cx="10" cy="52" rx="14" ry="11" fill="#6A6050"/>
+  <!-- horns -->
+  <polygon points="6,30 11,8 16,30" fill="#4A3A20"/>
+  <polygon points="14,34 18,20 22,34" fill="#4A3A20"/>
+  <!-- ear -->
+  <ellipse cx="44" cy="28" rx="6" ry="9" transform="rotate(20,44,28)" fill="#6A6050"/>
+  <!-- eye -->
+  <circle cx="34" cy="38" r="4" fill="#2a1a00"/>
+  <circle cx="35" cy="37" r="1.4" fill="#fff" opacity="0.6"/>
+  <!-- neck fold -->
+  <path d="M50,30 Q54,44 52,60" stroke="#5A5040" stroke-width="4" fill="none"/>
+  <!-- back hump -->
+  <ellipse cx="105" cy="34" rx="22" ry="12" fill="#6A6050"/>
+  <!-- tail -->
+  <path d="M148,50 Q158,46 156,36" stroke="#7A7060" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- legs -->
+  <rect x="60"  y="70" width="16" height="12" rx="5" fill="#6A6050"/>
+  <rect x="82"  y="70" width="16" height="12" rx="5" fill="#6A6050"/>
+  <rect x="110" y="70" width="16" height="12" rx="5" fill="#6A6050"/>
+  <rect x="130" y="70" width="16" height="12" rx="5" fill="#6A6050"/>
+  <!-- skin folds -->
+  <path d="M52,28 Q56,52 54,68" stroke="#5A5040" stroke-width="3" fill="none" opacity="0.6"/>
+  <path d="M108,28 Q112,52 110,68" stroke="#5A5040" stroke-width="3" fill="none" opacity="0.6"/>
+</svg>
+</div>
+
 <!-- ============ PARTICLE CANVAS ============ -->
 <canvas id="sparkle-canvas"></canvas>
 
@@ -1141,6 +1518,61 @@ for (let i = 0; i < 90; i++) {
     sCtx.globalAlpha = 1;
     requestAnimationFrame(animateSparks);
 })();
+
+// ============ STARS + SHOOTING STARS ============
+const starCanvas = document.getElementById('stars-canvas');
+const sStx = starCanvas.getContext('2d');
+function resizeStars() { starCanvas.width = window.innerWidth; starCanvas.height = window.innerHeight * 0.45; }
+resizeStars();
+window.addEventListener('resize', resizeStars);
+
+const stars = Array.from({length: 180}, () => ({
+    x: Math.random(), y: Math.random(),
+    r: Math.random() * 1.6 + 0.3,
+    base: Math.random() * 0.7 + 0.2,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.02 + 0.005,
+}));
+
+let shootX = -200, shootY = -200, shootDx = 0, shootDy = 0, shootLife = 0, shootMax = 0;
+function launchShooter() {
+    shootX = Math.random() * starCanvas.width * 0.7;
+    shootY = Math.random() * starCanvas.height * 0.4;
+    const angle = Math.PI / 6 + Math.random() * Math.PI / 6;
+    const spd = 6 + Math.random() * 5;
+    shootDx = Math.cos(angle) * spd; shootDy = Math.sin(angle) * spd;
+    shootLife = 0; shootMax = 40 + Math.random() * 30;
+    setTimeout(launchShooter, 6000 + Math.random() * 10000);
+}
+setTimeout(launchShooter, 3000);
+
+(function animStars(t) {
+    sStx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+    stars.forEach(s => {
+        const alpha = s.base * (0.6 + 0.4 * Math.sin(t * s.speed + s.phase));
+        sStx.beginPath();
+        sStx.arc(s.x * starCanvas.width, s.y * starCanvas.height, s.r, 0, Math.PI*2);
+        sStx.fillStyle = '#fff'; sStx.globalAlpha = alpha;
+        sStx.shadowColor = '#fffbe0'; sStx.shadowBlur = s.r * 3;
+        sStx.fill(); sStx.shadowBlur = 0;
+    });
+    // shooting star
+    if (shootLife < shootMax) {
+        const prog = shootLife / shootMax;
+        const tail = 60;
+        sStx.beginPath();
+        sStx.moveTo(shootX - shootDx * tail / shootMax * shootLife, shootY - shootDy * tail / shootMax * shootLife);
+        sStx.lineTo(shootX, shootY);
+        const grad = sStx.createLinearGradient(shootX - shootDx*6, shootY - shootDy*6, shootX, shootY);
+        grad.addColorStop(0, 'rgba(255,255,220,0)');
+        grad.addColorStop(1, `rgba(255,255,220,${0.9 * (1-prog)})`);
+        sStx.strokeStyle = grad; sStx.lineWidth = 1.8; sStx.globalAlpha = 1;
+        sStx.stroke();
+        shootX += shootDx; shootY += shootDy; shootLife++;
+    }
+    sStx.globalAlpha = 1;
+    requestAnimationFrame(t2 => animStars(t2 / 16));
+})(0);
 
 // ============ SECTION SCROLL REVEAL ============
 (() => {
