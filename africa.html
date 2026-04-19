@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The African Experience</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            color: #FFF5E6;
+            min-height: 100vh;
+            background-color: #1C0A00;
+            background-image:
+                linear-gradient(rgba(20, 8, 0, 0.78), rgba(20, 8, 0, 0.78)),
+                url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1920&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        /* ---- Kente stripe ---- */
+        .kente {
+            height: 10px;
+            background: repeating-linear-gradient(
+                90deg,
+                #D4830A 0, #D4830A 14px,
+                #8B1A1A 14px, #8B1A1A 28px,
+                #2C5F2E 28px, #2C5F2E 42px,
+                #F0C040 42px, #F0C040 56px,
+                #1a1a1a 56px, #1a1a1a 70px,
+                #D4830A 70px
+            );
+        }
+
+        /* ---- Page header ---- */
+        .page-header {
+            text-align: center;
+            padding: 48px 20px 28px;
+        }
+        .page-header h1 {
+            font-size: 3em;
+            letter-spacing: 3px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #F0C040, #D4830A, #8B1A1A, #F0C040);
+            background-size: 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 5s linear infinite;
+            margin-bottom: 8px;
+        }
+        .page-header .subtitle {
+            font-size: 1.1em;
+            color: #C8A06A;
+            letter-spacing: 4px;
+            font-style: italic;
+        }
+        @keyframes shimmer {
+            0%   { background-position: 0% }
+            100% { background-position: 300% }
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            color: #F0C040;
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 0.95em;
+            letter-spacing: 1px;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* ---- Sections ---- */
+        section {
+            margin: 22px auto;
+            max-width: 900px;
+            background: rgba(40, 12, 0, 0.72);
+            border-radius: 4px;
+            border: 1px solid rgba(212, 131, 10, 0.4);
+            overflow: hidden;
+        }
+        .section-inner { padding: 24px 26px; }
+        section h2 {
+            text-align: center;
+            font-size: 1.55em;
+            letter-spacing: 2px;
+            color: #F0C040;
+            margin-bottom: 18px;
+            font-variant: small-caps;
+        }
+        section p { font-family: Arial, sans-serif; font-size: 0.92em; line-height: 1.6; }
+
+        /* ---- Greeters ---- */
+        .welcome-text {
+            text-align: center;
+            font-size: 1.5em;
+            letter-spacing: 3px;
+            color: #F0C040;
+            margin-bottom: 22px;
+            font-variant: small-caps;
+        }
+        .greeters {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .greeter-card {
+            width: 150px;
+            text-align: center;
+        }
+        .greeter-img-wrap {
+            width: 140px;
+            height: 185px;
+            margin: 0 auto 10px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 3px solid #D4830A;
+            box-shadow: 0 4px 18px rgba(212,131,10,0.35);
+            background: #2a1000;
+            position: relative;
+        }
+        .greeter-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+        .greeter-label {
+            font-size: 0.82em;
+            color: #C8A06A;
+            font-family: Arial, sans-serif;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        .greeter-label strong {
+            display: block;
+            color: #F0C040;
+            font-style: normal;
+            font-size: 1.05em;
+            margin-bottom: 2px;
+        }
+
+        /* ---- Facts grid ---- */
+        .facts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+            gap: 14px;
+        }
+        .fact-card {
+            background: rgba(212,131,10,0.1);
+            border: 1px solid rgba(212,131,10,0.45);
+            border-left: 4px solid #D4830A;
+            border-radius: 4px;
+            padding: 14px;
+            font-family: Arial, sans-serif;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        .fact-card .fact-title {
+            color: #F0C040;
+            font-weight: bold;
+            font-size: 0.97em;
+            margin-bottom: 5px;
+            font-variant: small-caps;
+            letter-spacing: 1px;
+        }
+
+        /* ---- Figures ---- */
+        .figures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 14px;
+        }
+        .figure-card {
+            background: rgba(139,26,26,0.15);
+            border: 1px solid rgba(139,26,26,0.5);
+            border-top: 4px solid #8B1A1A;
+            border-radius: 4px;
+            padding: 14px;
+            font-family: Arial, sans-serif;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        .fig-name {
+            color: #F0C040;
+            font-weight: bold;
+            font-size: 1.05em;
+            margin-bottom: 2px;
+        }
+        .fig-country {
+            color: #D4830A;
+            font-size: 0.82em;
+            margin-bottom: 7px;
+            letter-spacing: 1px;
+        }
+
+        /* ---- Proverbs ---- */
+        .proverb {
+            background: rgba(212,131,10,0.08);
+            border-left: 5px solid #D4830A;
+            padding: 12px 18px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 1.05em;
+            font-style: italic;
+            color: #FFF5E6;
+            font-family: Georgia, serif;
+        }
+        .proverb .attr {
+            display: block;
+            font-style: normal;
+            color: #C8A06A;
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* ---- Quiz ---- */
+        .quiz-inner {
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 20px;
+        }
+        .quiz-question {
+            font-size: 1.1em;
+            margin-bottom: 16px;
+            min-height: 3em;
+            font-family: Georgia, serif;
+            color: #FFF5E6;
+            line-height: 1.5;
+        }
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .quiz-btn {
+            background: rgba(212,131,10,0.15);
+            border: 2px solid rgba(212,131,10,0.55);
+            color: #FFF5E6;
+            padding: 11px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.93em;
+            font-family: Arial, sans-serif;
+            transition: background 0.18s;
+            text-align: left;
+        }
+        .quiz-btn:hover:not(:disabled) { background: rgba(212,131,10,0.35); }
+        .quiz-btn.correct { background: rgba(44,95,46,0.7); border-color: #4CAF50; }
+        .quiz-btn.wrong   { background: rgba(139,26,26,0.65); border-color: #e74c3c; }
+        .quiz-btn:disabled { cursor: default; }
+        .quiz-status {
+            margin-top: 14px;
+            font-size: 0.97em;
+            min-height: 1.5em;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+        }
+        .score-lbl { color: #F0C040; font-weight: bold; font-family: Arial, sans-serif; }
+        .next-btn {
+            background: #D4830A;
+            color: #fff;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 5px;
+            font-size: 0.97em;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            font-family: Arial, sans-serif;
+        }
+        .next-btn:hover { background: #b86d08; }
+        .quiz-final {
+            text-align: center;
+            font-size: 1.2em;
+            padding: 24px;
+            display: none;
+            font-family: Georgia, serif;
+        }
+        .restart-btn {
+            background: #2C5F2E;
+            color: #fff;
+            border: none;
+            padding: 10px 26px;
+            border-radius: 5px;
+            font-size: 0.97em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 14px;
+            font-family: Arial, sans-serif;
+        }
+        .restart-btn:hover { background: #1d3e1f; }
+
+        /* ---- Flashcards ---- */
+        .flashcard-wrap { perspective: 900px; }
+        .flashcard {
+            width: 100%;
+            max-width: 360px;
+            height: 155px;
+            margin: 16px auto;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+            padding: 20px;
+            text-align: center;
+        }
+        .fc-front {
+            background: linear-gradient(135deg, rgba(44,95,46,0.45), rgba(44,95,46,0.15));
+            border: 2px solid #2C5F2E;
+        }
+        .fc-back {
+            background: linear-gradient(135deg, rgba(212,131,10,0.45), rgba(212,131,10,0.15));
+            border: 2px solid #D4830A;
+            transform: rotateY(180deg);
+        }
+        .fc-label { font-size: 0.75em; color: #999; font-family: Arial, sans-serif; letter-spacing: 2px; margin-bottom: 6px; }
+        .fc-main { font-size: 1.7em; font-weight: bold; font-family: Georgia, serif; }
+        .fc-back .fc-main { color: #F0C040; }
+        .fc-hint { text-align: center; color: #888; font-size: 0.82em; font-family: Arial, sans-serif; }
+        .card-nav { display: flex; justify-content: center; gap: 16px; margin-top: 12px; }
+        .card-nav button {
+            background: rgba(212,131,10,0.18);
+            border: 1px solid #D4830A;
+            color: #F0C040;
+            padding: 8px 22px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.93em;
+            font-family: Arial, sans-serif;
+        }
+        .card-nav button:hover { background: rgba(212,131,10,0.38); }
+        .card-counter { text-align: center; color: #888; font-size: 0.85em; margin-top: 8px; font-family: Arial, sans-serif; }
+
+        /* ---- Word scramble game ---- */
+        .scramble-word {
+            font-size: 2.4em;
+            letter-spacing: 8px;
+            text-align: center;
+            color: #F0C040;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+        .scramble-hint { text-align: center; color: #C8A06A; font-size: 0.88em; font-family: Arial, sans-serif; margin-bottom: 10px; }
+        .scramble-input-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .scramble-input {
+            background: rgba(0,0,0,0.4);
+            border: 2px solid #D4830A;
+            color: #FFF5E6;
+            padding: 8px 14px;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            width: 200px;
+            text-transform: uppercase;
+        }
+        .scramble-input:focus { outline: none; border-color: #F0C040; }
+        .scramble-submit {
+            background: #D4830A;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 5px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+        .scramble-submit:hover { background: #b86d08; }
+        .scramble-feedback {
+            text-align: center;
+            min-height: 1.5em;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 0.95em;
+        }
+        .scramble-skip {
+            background: transparent;
+            border: 1px solid #666;
+            color: #aaa;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            margin-top: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .scramble-skip:hover { border-color: #D4830A; color: #D4830A; }
+        .scramble-score { text-align: center; color: #F0C040; font-weight: bold; font-family: Arial, sans-serif; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="kente"></div>
+
+<div class="page-header">
+    <h1>&#127758; The African Experience</h1>
+    <div class="subtitle">The Motherland &mdash; Cradle of Civilization</div>
+</div>
+<a class="back-link" href="index.html">&#8592; Back to the Treasure Trove</a>
+
+<!-- Greeters -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <div class="welcome-text">Welcome &mdash; You Are Seen Here</div>
+        <div class="greeters">
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/7533320/pexels-photo-7533320.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Akwaaba!"</strong>You are welcome<br><em>(Twi &mdash; Ghana)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/7562644/pexels-photo-7562644.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Karibu!"</strong>You are welcome<br><em>(Swahili &mdash; East Africa)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/5648103/pexels-photo-5648103.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Sawubona!"</strong>I see you<br><em>(Zulu &mdash; South Africa)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/33844626/pexels-photo-33844626.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Muraho!"</strong>Hello<br><em>(Kinyarwanda &mdash; Rwanda)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/18236482/pexels-photo-18236482.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Sannu!"</strong>Welcome<br><em>(Hausa &mdash; Nigeria/Niger)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/18236484/pexels-photo-18236484.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Bonjour!"</strong>Good day<br><em>(Francophone Africa)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/6077567/pexels-photo-6077567.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Dumela!"</strong>Greetings<br><em>(Sesotho &mdash; Lesotho)</em></div>
+            </div>
+            <div class="greeter-card">
+                <div class="greeter-img-wrap">
+                    <img src="https://images.pexels.com/photos/6311269/pexels-photo-6311269.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="Black professional in suit">
+                </div>
+                <div class="greeter-label"><strong>"Merhaba!"</strong>Hello<br><em>(Arabic &mdash; North Africa)</em></div>
+            </div>
+        </div>
+
+        <div style="margin-top:30px;padding:22px 24px;background:rgba(212,131,10,0.1);border:1px solid rgba(212,131,10,0.35);border-left:5px solid #D4830A;border-radius:0 8px 8px 0;font-family:Georgia,serif;font-size:1.05em;line-height:1.8;color:#FFF5E6;">
+            <p>Being Black is something I carry with me everywhere I go — not as a burden, but as an inheritance. When I look in the mirror, I see centuries of people who survived things that should have broken them, and didn't. I see my grandmother's hands, my grandfather's quiet dignity, the whole long chain of folks who got up every morning and kept going. That's not small. That's enormous.</p>
+            <p style="margin-top:14px;">There's a particular kind of pride that comes from knowing your roots go deeper than anyone can easily count. Africa isn't just a place on a map — it's the origin point. The cradle. Every human being on this planet traces a line back to this continent, but we get to trace it closer, feel it in the cadence of certain music, in how we greet each other, in the way a room changes when Black people are comfortable in it. That warmth is real. That culture is earned.</p>
+            <p style="margin-top:14px;">I'm not going to pretend there aren't hard days. There are. The world has not always made it easy to be Black in a suit, to walk into a room and be taken seriously before you've said a word. But what I've learned from watching the men and women who came before me is this: you suit up anyway. You walk in anyway. You speak with the full weight of everything you carry, and you make them reckon with it. That's what it means to be Black and excellent — not performing for anyone else's comfort, but simply being, completely and unapologetically, who you are.</p>
+            <p style="margin-top:14px;color:#D4830A;font-style:italic;font-size:0.95em;">— Written in the spirit of every Black man who ever got dressed in the morning and decided today was worth showing up for.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Africa Facts -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <h2>&#127758; Africa at a Glance</h2>
+        <div class="facts-grid">
+            <div class="fact-card">
+                <div class="fact-title">54 Countries</div>
+                Africa has more countries than any other continent, spanning 30.3 million km² — three times the size of the United States.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">Birthplace of Humanity</div>
+                The oldest <em>Homo sapiens</em> fossils ever found were discovered in Jebel Irhoud, Morocco — roughly 315,000 years old. All humans trace their ancestry here.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">2,000+ Languages</div>
+                Africa contains about one-third of all the world's languages. Nigeria alone has over 500 distinct languages spoken within its borders.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">The Mighty Nile</div>
+                The Nile stretches 6,650 km and flows through 11 countries. Ancient Egyptians called it "Ar" (black) — for the rich, dark silt it deposited each year.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">Sudan Has More Pyramids</div>
+                Sudan has between 200–255 ancient pyramids — far more than Egypt's 118. Built by the Nubian kingdoms of Kush and Meroë between 700 BCE and 350 CE.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">Ethiopia: Uncolonized</div>
+                Ethiopia famously defeated Italy at the Battle of Adwa (1896), becoming a symbol of African resistance and independence that inspired liberation movements worldwide.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">University of Timbuktu</div>
+                The University of Sankoré in Timbuktu, Mali, was one of the world's great medieval universities. At its peak it held 25,000 students and 700,000 manuscripts.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">Mansa Musa's Wealth</div>
+                When 14th-century Mali Emperor Mansa Musa made his pilgrimage to Mecca, he carried so much gold that he single-handedly caused inflation across Egypt and the Middle East.
+            </div>
+            <div class="fact-card">
+                <div class="fact-title">Great Rift Valley</div>
+                The East African Rift is a 6,000 km geological crack creating some of Earth's deepest lakes — Tanganyika reaches 1,470 meters deep, the second deepest lake on Earth.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Legendary Figures -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <h2>&#11088; Legendary Figures</h2>
+        <div class="figures-grid">
+            <div class="figure-card">
+                <div class="fig-name">Nelson Mandela</div>
+                <div class="fig-country">South Africa &#127462;&#127466;</div>
+                Anti-apartheid revolutionary, imprisoned 27 years on Robben Island. Released in 1990, he led negotiations to end apartheid and became South Africa's first democratically elected Black president in 1994.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Wangari Maathai</div>
+                <div class="fig-country">Kenya &#127472;&#127466;</div>
+                First African woman to win the Nobel Peace Prize (2004). Founded the Green Belt Movement, which planted over 51 million trees and empowered thousands of rural women across Kenya.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Kwame Nkrumah</div>
+                <div class="fig-country">Ghana &#127468;&#127469;</div>
+                Led Ghana to independence in 1957 — the first sub-Saharan country to break from colonial rule. His vision of Pan-Africanism inspired freedom movements across the continent.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Miriam Makeba</div>
+                <div class="fig-country">South Africa &#127462;&#127466;</div>
+                "Mama Africa." Her voice carried African music to the world stage. Exiled for speaking against apartheid, she continued performing and advocating for freedom until her final breath in 2008.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Mansa Musa I</div>
+                <div class="fig-country">Mali Empire &#127474;&#127473;</div>
+                Emperor of the Mali Empire (1312–1337) and considered one of the wealthiest people in all of human history. Under his rule, Timbuktu became a global center of Islamic scholarship.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Chimamanda Ngozi Adichie</div>
+                <div class="fig-country">Nigeria &#127475;&#127468;</div>
+                Author of <em>Purple Hibiscus</em> and <em>Half of a Yellow Sun</em>. Her TED Talk "The Danger of a Single Story" has over 30 million views and reshaped global conversations about representation and narrative.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Shaka Zulu</div>
+                <div class="fig-country">Zulu Kingdom &#127462;&#127466;</div>
+                Military genius who transformed the Zulu nation from a small clan into one of the most powerful kingdoms in southern Africa in the early 19th century. Revolutionized African military tactics entirely.
+            </div>
+            <div class="figure-card">
+                <div class="fig-name">Thomas Sankara</div>
+                <div class="fig-country">Burkina Faso &#127463;&#127467;</div>
+                "Africa's Che Guevara." President of Burkina Faso (1983–1987) who launched radical programs for food self-sufficiency, women's emancipation, and anti-corruption — all before age 38.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Proverbs -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <h2>&#128218; Words of the Ancestors</h2>
+        <div class="proverb">
+            "Until the lion learns to write, every story will glorify the hunter."
+            <span class="attr">— Pan-African proverb &mdash; on the power of telling your own story.</span>
+        </div>
+        <div class="proverb">
+            "It takes a village to raise a child."
+            <span class="attr">— Pan-African proverb &mdash; community is the foundation of everything.</span>
+        </div>
+        <div class="proverb">
+            "If you want to go fast, go alone. If you want to go far, go together."
+            <span class="attr">— African proverb &mdash; on collective strength over individual speed.</span>
+        </div>
+        <div class="proverb">
+            "The axe forgets, but the tree remembers."
+            <span class="attr">— African proverb &mdash; those who cause harm often forget; those who suffer never do.</span>
+        </div>
+        <div class="proverb">
+            "Rain does not fall on one roof alone."
+            <span class="attr">— Cameroonian proverb &mdash; trouble and joy are shared experiences.</span>
+        </div>
+        <div class="proverb">
+            "A child who is not embraced by the village will burn it down to feel its warmth."
+            <span class="attr">— African proverb &mdash; community inclusion is not optional; it is survival.</span>
+        </div>
+        <div class="proverb">
+            "However long the night, the dawn will break."
+            <span class="attr">— African proverb &mdash; no suffering is permanent; perseverance is rewarded.</span>
+        </div>
+    </div>
+</section>
+
+<!-- Africa Quiz -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <h2>&#127919; Africa Quiz</h2>
+        <p style="text-align:center;color:#C8A06A;margin-bottom:16px;font-family:Arial,sans-serif;">10 questions &mdash; how well do you know the motherland?</p>
+        <div class="quiz-inner">
+            <div id="quiz-content">
+                <div class="quiz-question" id="quiz-question"></div>
+                <div class="quiz-options" id="quiz-options"></div>
+                <div class="quiz-status" id="quiz-status"></div>
+                <div class="quiz-footer">
+                    <span class="score-lbl" id="score-lbl">Score: 0 / 0</span>
+                    <button class="next-btn" id="next-btn">Next &#10151;</button>
+                </div>
+            </div>
+            <div class="quiz-final" id="quiz-final">
+                <div id="final-msg"></div>
+                <button class="restart-btn" id="restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Capital City Flashcards -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <h2>&#127183; Capital City Flashcards</h2>
+        <p style="text-align:center;color:#C8A06A;font-family:Arial,sans-serif;margin-bottom:10px;">Click the card to reveal the capital. 20 countries to learn!</p>
+        <div class="flashcard-wrap">
+            <p class="fc-hint" id="fc-hint" style="text-align:center;color:#888;font-family:Arial,sans-serif;font-size:0.85em;margin-bottom:6px;">Click card to flip</p>
+            <div class="flashcard" id="flashcard">
+                <div class="fc-face fc-front">
+                    <div class="fc-label">COUNTRY</div>
+                    <div class="fc-main" id="fc-country">Nigeria</div>
+                </div>
+                <div class="fc-face fc-back">
+                    <div class="fc-label">CAPITAL CITY</div>
+                    <div class="fc-main" id="fc-capital">Abuja</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-nav">
+            <button id="prev-card">&#8592; Prev</button>
+            <button id="next-card">Next &#8594;</button>
+        </div>
+        <div class="card-counter" id="card-counter">Card 1 of 20</div>
+    </div>
+</section>
+
+<!-- Word Scramble -->
+<section>
+    <div class="kente"></div>
+    <div class="section-inner">
+        <h2>&#129327; African Country Scramble</h2>
+        <p style="text-align:center;color:#C8A06A;font-family:Arial,sans-serif;margin-bottom:14px;">Unscramble the letters to spell an African country!</p>
+        <div class="scramble-word" id="scramble-display"></div>
+        <div class="scramble-hint" id="scramble-hint"></div>
+        <div class="scramble-input-row">
+            <input class="scramble-input" type="text" id="scramble-input" placeholder="YOUR ANSWER" autocomplete="off">
+            <button class="scramble-submit" id="scramble-submit">Check</button>
+        </div>
+        <div class="scramble-feedback" id="scramble-feedback"></div>
+        <button class="scramble-skip" id="scramble-skip">Skip / Show Answer</button>
+        <div class="scramble-score" id="scramble-score">Score: 0 correct</div>
+    </div>
+</section>
+
+<section style="text-align:center;padding:16px;">
+    <a href="index.html" style="color:#F0C040;font-family:Arial,sans-serif;text-decoration:none;">&#8592; Back to the Treasure Trove</a>
+</section>
+
+<div class="kente"></div>
+
+<script>
+// ===================== QUIZ =====================
+const quizData = [
+    { q: "Which is the largest country in Africa by area?",
+      opts: ["Sudan","Algeria","DR Congo","Libya"], ans: 1 },
+    { q: "What is the capital city of Nigeria?",
+      opts: ["Lagos","Kano","Abuja","Ibadan"], ans: 2 },
+    { q: "Which African country has more ancient pyramids than Egypt?",
+      opts: ["Libya","Ethiopia","Sudan","Tunisia"], ans: 2 },
+    { q: "How many countries are on the African continent?",
+      opts: ["47","50","54","57"], ans: 2 },
+    { q: "Which African country was never fully colonized by a European power?",
+      opts: ["Ghana","Ethiopia","Kenya","Senegal"], ans: 1 },
+    { q: "The ancient University of Sankoré was located in which city?",
+      opts: ["Nairobi","Cairo","Timbuktu","Khartoum"], ans: 2 },
+    { q: "Which country is the world's largest producer of cocoa?",
+      opts: ["Ghana","Nigeria","Côte d'Ivoire","Cameroon"], ans: 2 },
+    { q: "Who was the Emperor of Mali whose 1324 pilgrimage flooded Egypt with gold?",
+      opts: ["Sundiata Keita","Askia Muhammad","Mansa Musa","Shaka Zulu"], ans: 2 },
+    { q: "What is the most widely spoken language across Africa?",
+      opts: ["Swahili","French","English","Arabic"], ans: 3 },
+    { q: "Lake Victoria borders Uganda, Tanzania, and which third country?",
+      opts: ["Rwanda","Kenya","Ethiopia","DR Congo"], ans: 1 },
+];
+
+let qIdx = 0, qScore = 0, qAnswered = false;
+
+function renderQ() {
+    qAnswered = false;
+    const d = quizData[qIdx];
+    document.getElementById('quiz-question').textContent = `Q${qIdx+1} of ${quizData.length}: ${d.q}`;
+    document.getElementById('quiz-status').textContent = '';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('score-lbl').textContent = `Score: ${qScore} / ${qIdx}`;
+    const opts = document.getElementById('quiz-options');
+    opts.innerHTML = '';
+    d.opts.forEach((o, i) => {
+        const b = document.createElement('button');
+        b.className = 'quiz-btn';
+        b.textContent = o;
+        b.addEventListener('click', () => pickAnswer(i));
+        opts.appendChild(b);
+    });
+}
+
+function pickAnswer(i) {
+    if (qAnswered) return;
+    qAnswered = true;
+    const d = quizData[qIdx];
+    const btns = document.querySelectorAll('.quiz-btn');
+    btns.forEach(b => b.disabled = true);
+    const status = document.getElementById('quiz-status');
+    if (i === d.ans) {
+        btns[i].classList.add('correct');
+        status.textContent = '✅ Correct!';
+        status.style.color = '#4CAF50';
+        qScore++;
+    } else {
+        btns[i].classList.add('wrong');
+        btns[d.ans].classList.add('correct');
+        status.textContent = `❌ The answer is "${d.opts[d.ans]}"`;
+        status.style.color = '#e74c3c';
+    }
+    document.getElementById('score-lbl').textContent = `Score: ${qScore} / ${qIdx+1}`;
+    document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+    qIdx++;
+    if (qIdx < quizData.length) {
+        renderQ();
+    } else {
+        document.getElementById('quiz-content').style.display = 'none';
+        const fin = document.getElementById('quiz-final');
+        fin.style.display = 'block';
+        const pct = Math.round(qScore / quizData.length * 100);
+        const msgs = [
+            [100, '🏆 Perfect! You are a true Africa scholar!'],
+            [80,  '🌍 Excellent! You know the motherland well!'],
+            [60,  '👍 Solid effort — keep exploring Africa!'],
+            [0,   '📚 Time to dive deeper into African history!']
+        ];
+        document.getElementById('final-msg').textContent =
+            `${(msgs.find(([t]) => pct >= t) || msgs[3])[1]} (${qScore}/${quizData.length})`;
+    }
+});
+
+document.getElementById('restart-btn').addEventListener('click', () => {
+    qIdx = 0; qScore = 0;
+    document.getElementById('quiz-content').style.display = 'block';
+    document.getElementById('quiz-final').style.display = 'none';
+    renderQ();
+});
+
+renderQ();
+
+
+// ===================== FLASHCARDS =====================
+const capitals = [
+    ["Nigeria","Abuja"],["Kenya","Nairobi"],["Ghana","Accra"],
+    ["South Africa","Pretoria / Cape Town"],["Egypt","Cairo"],
+    ["Ethiopia","Addis Ababa"],["Morocco","Rabat"],["Tanzania","Dodoma"],
+    ["Senegal","Dakar"],["Rwanda","Kigali"],["Uganda","Kampala"],
+    ["Zimbabwe","Harare"],["Mozambique","Maputo"],["Cameroon","Yaoundé"],
+    ["Côte d'Ivoire","Yamoussoukro"],["Tunisia","Tunis"],
+    ["Algeria","Algiers"],["Angola","Luanda"],["Mali","Bamako"],
+    ["Zambia","Lusaka"],
+];
+let cardIdx = 0;
+const fc = document.getElementById('flashcard');
+
+function showCard() {
+    fc.classList.remove('flipped');
+    document.getElementById('fc-hint').textContent = 'Click card to flip';
+    document.getElementById('fc-country').textContent = capitals[cardIdx][0];
+    document.getElementById('fc-capital').textContent = capitals[cardIdx][1];
+    document.getElementById('card-counter').textContent = `Card ${cardIdx+1} of ${capitals.length}`;
+}
+fc.addEventListener('click', () => {
+    fc.classList.toggle('flipped');
+    document.getElementById('fc-hint').textContent = fc.classList.contains('flipped') ? 'Click to flip back' : 'Click card to flip';
+});
+document.getElementById('prev-card').addEventListener('click', () => { cardIdx = (cardIdx-1+capitals.length)%capitals.length; showCard(); });
+document.getElementById('next-card').addEventListener('click', () => { cardIdx = (cardIdx+1)%capitals.length; showCard(); });
+showCard();
+
+
+// ===================== WORD SCRAMBLE =====================
+const scrambleWords = [
+    { word: "NIGERIA",     hint: "West Africa, most populous country on the continent" },
+    { word: "ETHIOPIA",    hint: "Horn of Africa, never colonized, ancient empire" },
+    { word: "GHANA",       hint: "West Africa, first sub-Saharan country to gain independence" },
+    { word: "SENEGAL",     hint: "West Africa, Dakar is its capital" },
+    { word: "ZIMBABWE",    hint: "Southern Africa, home of Victoria Falls (shared)" },
+    { word: "RWANDA",      hint: "Land of a Thousand Hills, East Africa" },
+    { word: "KENYA",       hint: "Home of the Maasai and the Great Rift Valley" },
+    { word: "ANGOLA",      hint: "Southwest Africa, Luanda is its capital" },
+    { word: "CAMEROON",    hint: "Central-West Africa, called 'Africa in miniature'" },
+    { word: "TANZANIA",    hint: "East Africa, home to Mount Kilimanjaro" },
+    { word: "ZAMBIA",      hint: "Landlocked, named after the Zambezi River" },
+    { word: "MALI",        hint: "Saharan West Africa, home of Timbuktu" },
+    { word: "UGANDA",      hint: "East Africa, 'Pearl of Africa,' source of the Nile" },
+    { word: "MOROCCO",     hint: "Northwest Africa, gateway to the Sahara" },
+    { word: "MOZAMBIQUE",  hint: "Southeast Africa, long Indian Ocean coastline" },
+];
+
+let scrambleIdx = 0, scrambleScore = 0;
+
+function scramble(word) {
+    const arr = word.split('');
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    const res = arr.join('');
+    return res === word ? scramble(word) : res;
+}
+
+function loadScramble() {
+    const entry = scrambleWords[scrambleIdx % scrambleWords.length];
+    document.getElementById('scramble-display').textContent = scramble(entry.word);
+    document.getElementById('scramble-hint').textContent = `Hint: ${entry.hint}`;
+    document.getElementById('scramble-input').value = '';
+    document.getElementById('scramble-feedback').textContent = '';
+    document.getElementById('scramble-input').focus();
+}
+
+document.getElementById('scramble-submit').addEventListener('click', checkScramble);
+document.getElementById('scramble-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkScramble(); });
+
+function checkScramble() {
+    const entry = scrambleWords[scrambleIdx % scrambleWords.length];
+    const guess = document.getElementById('scramble-input').value.trim().toUpperCase();
+    const fb = document.getElementById('scramble-feedback');
+    if (guess === entry.word) {
+        scrambleScore++;
+        fb.textContent = '✅ Correct!';
+        fb.style.color = '#4CAF50';
+        document.getElementById('scramble-score').textContent = `Score: ${scrambleScore} correct`;
+        scrambleIdx++;
+        setTimeout(loadScramble, 900);
+    } else {
+        fb.textContent = '❌ Not quite — try again!';
+        fb.style.color = '#e74c3c';
+    }
+}
+
+document.getElementById('scramble-skip').addEventListener('click', () => {
+    const entry = scrambleWords[scrambleIdx % scrambleWords.length];
+    const fb = document.getElementById('scramble-feedback');
+    fb.textContent = `Answer: ${entry.word}`;
+    fb.style.color = '#C8A06A';
+    scrambleIdx++;
+    setTimeout(loadScramble, 1200);
+});
+
+loadScramble();
+</script>
+</body>
+</html>
