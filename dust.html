@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dust</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #111;
+            color: #fff;
+            font-family: "Courier New", Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+        #toolbar {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            border-bottom: 1px solid #333;
+        }
+        .btn {
+            padding: 3px 10px;
+            border: 1px solid #444;
+            background: none;
+            color: #888;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .btn.active, .btn:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+        .btn.active {
+            background: #222;
+        }
+        .sep { color: #444; font-size: 0.8em; }
+        #info {
+            font-size: 0.75em;
+            color: #555;
+        }
+        #canvas {
+            cursor: crosshair;
+            display: block;
+            image-rendering: pixelated;
+        }
+        .back {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.8em;
+        }
+        .back:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <a href="index.html" class="back">&lt; back</a>
+        <span class="sep">|</span>
+        <button class="btn active" data-type="1">sand</button>
+        <button class="btn" data-type="2">water</button>
+        <button class="btn" data-type="3">fire</button>
+        <button class="btn" data-type="5">gunpowder</button>
+        <button class="btn" data-type="6">oil</button>
+        <button class="btn" data-type="7">plant</button>
+        <button class="btn" data-type="4">wall</button>
+        <button class="btn" data-type="0">erase</button>
+        <span class="sep">|</span>
+        <button class="btn" id="clearBtn">clear</button>
+        <span class="sep">|</span>
+        <span id="info">brush: <span id="brushSizeLabel">3</span> &nbsp;(scroll to resize)</span>
+    </div>
+    <canvas id="canvas"></canvas>
+
+<script>
+const EMPTY = 0, SAND = 1, WATER = 2, FIRE = 3, WALL = 4,
+      GUNPOWDER = 5, OIL = 6, PLANT = 7, SMOKE = 8;
+
+const CELL = 4;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let COLS, ROWS;
+let typeGrid, lifeGrid, movedGrid, colorGrid;
+
+function resize() {
+    const tb = document.getElementById('toolbar');
+    canvas.width  = Math.floor(window.innerWidth / CELL) * CELL;
+    canvas.height = Math.floor((window.innerHeight - tb.offsetHeight) / CELL) * CELL;
+    COLS = canvas.width  / CELL;
+    ROWS = canvas.height / CELL;
+    initGrid();
+}
+
+function initGrid() {
+    const n = COLS * ROWS;
+    typeGrid  = new Uint8Array(n);
+    lifeGrid  = new Uint8Array(n);
+    movedGrid = new Uint8Array(n);
+    colorGrid = new Uint32Array(n);
+}
+
+const idx = (x, y) => y * COLS + x;
+const inBounds = (x, y) => x >= 0 && x < COLS && y >= 0 && y < ROWS;
+const get = (x, y) => inBounds(x, y) ? typeGrid[idx(x, y)] : -1;
+
+function swap(x1, y1, x2, y2) {
+    const i1 = idx(x1, y1), i2 = idx(x2, y2);
+    let t = typeGrid[i1];  typeGrid[i1]  = typeGrid[i2];  typeGrid[i2]  = t;
+    t = colorGrid[i1]; colorGrid[i1] = colorGrid[i2]; colorGrid[i2] = t;
+    t = lifeGrid[i1];  lifeGrid[i1]  = lifeGrid[i2];  lifeGrid[i2]  = t;
+    movedGrid[i2] = 1;
+}
+
+function place(x, y, t) {
+    if (!inBounds(x, y)) return;
+    const i = idx(x, y);
+    typeGrid[i]  = t;
+    lifeGrid[i]  = 0;
+    colorGrid[i] = makeColor(t);
+}
+
+function vary(v, d) { return Math.max(0, Math.min(255, v + Math.floor((Math.random() - 0.5) * d * 2))); }
+function rgb(r, g, b) { return (0xFF << 24) | (b << 16) | (g << 8) | r; }
+
+function makeColor(t) {
+    switch (t) {
+        case SAND:      return rgb(vary(210,20), vary(180,20), vary(100,20));
+        case WATER:     return rgb(vary(40,15),  vary(100,25), vary(220,20));
+        case FIRE:      return rgb(vary(240,15), vary(Math.random()<0.5?60:120,40), 0);
+        case WALL:      return rgb(vary(140,15), vary(140,15), vary(140,15));
+        case GUNPOWDER: return rgb(vary(75,15),  vary(75,15),  vary(75,15));
+        case OIL:       return rgb(vary(100,15), vary(65,15),  vary(25,10));
+        case PLANT:     return rgb(vary(30,20),  vary(140,25), vary(30,20));
+        case SMOKE:     return rgb(vary(170,25), vary(170,25), vary(170,25));
+        default:        return 0;
+    }
+}
+
+const FLAMMABLE = new Set([GUNPOWDER, OIL, PLANT]);
+
+function update() {
+    movedGrid.fill(0);
+    const dir = Math.random() < 0.5 ? 1 : -1;
+
+    for (let y = ROWS - 1; y >= 0; y--) {
+        const x0 = dir > 0 ? 0 : COLS - 1;
+        for (let xi = 0; xi < COLS; xi++) {
+            const x = x0 + xi * dir;
+            const i = idx(x, y);
+            if (movedGrid[i]) continue;
+            switch (typeGrid[i]) {
+                case SAND:      updateSand(x, y);      break;
+                case WATER:     updateWater(x, y);     break;
+                case FIRE:      updateFire(x, y);      break;
+                case GUNPOWDER: updateGunpowder(x, y); break;
+                case OIL:       updateOil(x, y);       break;
+                case SMOKE:     updateSmoke(x, y);     break;
+                case PLANT:     updatePlant(x, y);     break;
+            }
+        }
+    }
+}
+
+function updateSand(x, y) {
+    const below = get(x, y+1);
+    if (below === EMPTY || below === WATER) { swap(x, y, x, y+1); return; }
+    const d = Math.random() < 0.5 ? 1 : -1;
+    const dl = get(x+d, y+1), dr = get(x-d, y+1);
+    if (dl === EMPTY || dl === WATER) { swap(x, y, x+d, y+1); return; }
+    if (dr === EMPTY || dr === WATER) { swap(x, y, x-d, y+1); }
+}
+
+function updateWater(x, y) {
+    if (get(x, y+1) === EMPTY) { swap(x, y, x, y+1); return; }
+    const d = Math.random() < 0.5 ? 1 : -1;
+    if (get(x+d, y+1) === EMPTY) { swap(x, y, x+d, y+1); return; }
+    if (get(x-d, y+1) === EMPTY) { swap(x, y, x-d, y+1); return; }
+    for (let s = 1; s <= 4; s++) {
+        if (get(x+d*s, y) === EMPTY) { swap(x, y, x+d*s, y); return; }
+        if (typeGrid[idx(x+d*s, y)] !== WATER && get(x+d*s, y) !== EMPTY) break;
+    }
+    for (let s = 1; s <= 4; s++) {
+        if (get(x-d*s, y) === EMPTY) { swap(x, y, x-d*s, y); return; }
+        if (typeGrid[idx(x-d*s, y)] !== WATER && get(x-d*s, y) !== EMPTY) break;
+    }
+}
+
+function updateFire(x, y) {
+    const i = idx(x, y);
+    lifeGrid[i]++;
+    colorGrid[i] = makeColor(FIRE);
+
+    const nb = [[x-1,y],[x+1,y],[x,y-1],[x,y+1],[x-1,y-1],[x+1,y-1]];
+    for (const [nx, ny] of nb) {
+        if (!inBounds(nx, ny)) continue;
+        const ni = idx(nx, ny);
+        if (FLAMMABLE.has(typeGrid[ni]) && Math.random() < 0.04) {
+            typeGrid[ni] = FIRE; lifeGrid[ni] = 0; colorGrid[ni] = makeColor(FIRE);
+        }
+        if (typeGrid[ni] === WATER && Math.random() < 0.008) {
+            typeGrid[ni] = SMOKE; colorGrid[ni] = makeColor(SMOKE);
+        }
+    }
+
+    if (Math.random() < 0.35 && get(x, y-1) === EMPTY) {
+        swap(x, y, x, y-1);
+        if (Math.random() < 0.35) place(x, y, SMOKE);
+        return;
+    }
+
+    if (lifeGrid[i] > 30 + Math.random() * 50) {
+        place(x, y, Math.random() < 0.4 ? SMOKE : EMPTY);
+    }
+}
+
+function updateGunpowder(x, y) {
+    const nb = [[x-1,y],[x+1,y],[x,y-1],[x,y+1]];
+    for (const [nx, ny] of nb) {
+        if (get(nx, ny) === FIRE) { explode(x, y, 6); return; }
+    }
+    updateSand(x, y);
+}
+
+function explode(cx, cy, r) {
+    for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+            if (dx*dx + dy*dy > r*r) continue;
+            const nx = cx+dx, ny = cy+dy;
+            if (!inBounds(nx, ny) || typeGrid[idx(nx,ny)] === WALL) continue;
+            place(nx, ny, Math.random() < 0.65 ? FIRE : EMPTY);
+        }
+    }
+}
+
+function updateOil(x, y) {
+    if (get(x, y+1) === EMPTY) { swap(x, y, x, y+1); return; }
+    if (get(x, y+1) === WATER) { swap(x, y, x, y+1); return; }
+    const d = Math.random() < 0.5 ? 1 : -1;
+    if (get(x+d, y+1) === EMPTY) { swap(x, y, x+d, y+1); return; }
+    if (get(x-d, y+1) === EMPTY) { swap(x, y, x-d, y+1); return; }
+    if (get(x+d, y) === EMPTY) { swap(x, y, x+d, y); return; }
+    if (get(x-d, y) === EMPTY) { swap(x, y, x-d, y); }
+}
+
+function updateSmoke(x, y) {
+    const i = idx(x, y);
+    lifeGrid[i]++;
+    if (lifeGrid[i] > 80 + Math.random() * 80) { place(x, y, EMPTY); return; }
+    if (get(x, y-1) === EMPTY) { swap(x, y, x, y-1); return; }
+    const d = Math.random() < 0.5 ? 1 : -1;
+    if (get(x+d, y-1) === EMPTY) { swap(x, y, x+d, y-1); return; }
+    if (get(x-d, y-1) === EMPTY) { swap(x, y, x-d, y-1); return; }
+    if (get(x+d, y) === EMPTY) swap(x, y, x+d, y);
+}
+
+function updatePlant(x, y) {
+    if (Math.random() < 0.0008) {
+        const dirs = [[x-1,y],[x+1,y],[x,y-1],[x,y+1]];
+        const [nx, ny] = dirs[Math.floor(Math.random() * 4)];
+        const t = get(nx, ny);
+        if (t === EMPTY || t === WATER) place(nx, ny, PLANT);
+    }
+}
+
+// ---- Render ----
+function render() {
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            const i = idx(x, y);
+            if (typeGrid[i] === EMPTY) continue;
+            const c = colorGrid[i];
+            const r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
+            const px = x * CELL, py = y * CELL;
+            for (let dy = 0; dy < CELL; dy++) {
+                let p = 4 * ((py + dy) * canvas.width + px);
+                for (let dx = 0; dx < CELL; dx++) {
+                    data[p++] = r; data[p++] = g; data[p++] = b; data[p++] = 255;
+                }
+            }
+        }
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+
+// ---- Input ----
+let selectedType = SAND;
+let brushSize = 3;
+let isDrawing = false;
+let lastX = -1, lastY = -1;
+
+document.querySelectorAll('.btn[data-type]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn[data-type]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedType = parseInt(btn.dataset.type);
+    });
+});
+
+document.getElementById('clearBtn').addEventListener('click', initGrid);
+
+function getCell(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return [
+        Math.floor((clientX - rect.left) / CELL),
+        Math.floor((clientY - rect.top)  / CELL)
+    ];
+}
+
+function paintAt(cx, cy) {
+    const r2 = brushSize * brushSize;
+    for (let dy = -brushSize; dy <= brushSize; dy++) {
+        for (let dx = -brushSize; dx <= brushSize; dx++) {
+            if (dx*dx + dy*dy <= r2) place(cx+dx, cy+dy, selectedType);
+        }
+    }
+}
+
+function paintLine(x0, y0, x1, y1) {
+    const steps = Math.max(Math.abs(x1-x0), Math.abs(y1-y0), 1);
+    for (let s = 0; s <= steps; s++) {
+        paintAt(
+            Math.round(x0 + (x1-x0) * s/steps),
+            Math.round(y0 + (y1-y0) * s/steps)
+        );
+    }
+}
+
+canvas.addEventListener('mousedown', e => {
+    isDrawing = true;
+    const [x, y] = getCell(e.clientX, e.clientY);
+    paintAt(x, y); lastX = x; lastY = y;
+});
+canvas.addEventListener('mouseup',    () => isDrawing = false);
+canvas.addEventListener('mouseleave', () => isDrawing = false);
+canvas.addEventListener('mousemove',  e => {
+    if (!isDrawing) return;
+    const [x, y] = getCell(e.clientX, e.clientY);
+    paintLine(lastX, lastY, x, y);
+    lastX = x; lastY = y;
+});
+
+canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    brushSize = Math.max(1, Math.min(20, brushSize - Math.sign(e.deltaY)));
+    document.getElementById('brushSizeLabel').textContent = brushSize;
+}, { passive: false });
+
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault(); isDrawing = true;
+    const [x, y] = getCell(e.touches[0].clientX, e.touches[0].clientY);
+    paintAt(x, y); lastX = x; lastY = y;
+}, { passive: false });
+canvas.addEventListener('touchend', () => isDrawing = false);
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const [x, y] = getCell(e.touches[0].clientX, e.touches[0].clientY);
+    paintLine(lastX, lastY, x, y); lastX = x; lastY = y;
+}, { passive: false });
+
+// ---- Loop ----
+function loop() {
+    update();
+    render();
+    requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize', () => { resize(); });
+resize();
+loop();
+</script>
+</body>
+</html>

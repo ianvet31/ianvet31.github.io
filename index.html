@@ -3,456 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ian Website</title>
-    <link rel="stylesheet" href="hammy.css">
+    <title>~ ian's page ~</title>
     <style>
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: url('imgs/junglebackground.png') no-repeat center center fixed;
-            background-size: cover;
+            background-color: #000;
             color: #fff;
-        }
-        h1, h2 {
-            text-align: center;
-        }
-        section {
-            margin: 20px auto;
-            padding: 20px;
-            max-width: 800px;
-            background: rgba(0, 0, 0, 0.437);
-            border-radius: 10px;
-        }
-        a {
-            color: #00ffcc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .container {
-            text-align: center;
-        }
-        pre {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        .blog-entry {
-            margin-bottom: 20px;
-        }
-
-        /* Cube CSS */
-        .scene {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto;
-            perspective: 1000px;
-        }
-        .cube {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transform: rotateX(0deg) rotateY(0deg);
-            animation: rotate 5s infinite linear;
-        }
-        .face {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #000;
-            box-sizing: border-box;
-            font-size: 5px;
-            color: #000;
+            font-family: "Courier New", Courier, monospace;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        .front  { transform: rotateY(0deg) translateZ(25px); }
-        .back   { transform: rotateY(180deg) translateZ(25px); }
-        .left   { transform: rotateY(-90deg) translateZ(25px); }
-        .right  { transform: rotateY(90deg) translateZ(25px); }
-        .top    { transform: rotateX(90deg) translateZ(25px); }
-        .bottom { transform: rotateX(-90deg) translateZ(25px); }
-
-        @keyframes rotate {
-            from {
-                transform: rotateX(0deg) rotateY(0deg);
-            }
-            to {
-                transform: rotateX(360deg) rotateY(360deg);
-            }
+            min-height: 100vh;
         }
 
-        /* Dice Dot Styling */
-        .dot {
-            width: 5px;
-            height: 5px;
-            background-color: black;
-            border-radius: 50%;
-            position: absolute;
+        ::selection {
+            background: #fff;
+            color: #000;
         }
 
-        /* Dot positions */
-        .center {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .page {
+            max-width: 600px;
+            width: 90%;
+            padding: 40px 20px;
         }
-        .top-left {
-            top: 20%;
-            left: 20%;
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .top-right {
-            top: 20%;
-            right: 20%;
+
+        .header pre {
+            margin: 0;
+            font-size: 10px;
+            line-height: 1.1;
+            color: #fff;
         }
-        .bottom-left {
-            bottom: 20%;
-            left: 20%;
+
+        h1 {
+            font-size: 1.4em;
+            text-align: center;
+            margin: 20px 0 5px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
         }
-        .bottom-right {
-            bottom: 20%;
-            right: 20%;
+
+        .tagline {
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 30px;
         }
-        .center-left {
-            top: 50%;
-            left: 20%;
-            transform: translateY(-50%);
+
+        hr {
+            border: none;
+            border-top: 1px dashed #555;
+            margin: 20px 0;
         }
-        .center-right {
-            top: 50%;
-            right: 20%;
-            transform: translateY(-50%);
+
+        .links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .links li {
+            padding: 6px 0;
+        }
+
+        .links li::before {
+            content: "> ";
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #000;
+            background-color: #fff;
+        }
+
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+
+        @keyframes blink-animation {
+            to { visibility: hidden; }
+        }
+
+        .visitor-count {
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 30px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.75em;
+            color: #999;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: #fff;
+            animation: blink-animation 1s steps(2, start) infinite;
+            vertical-align: text-bottom;
+            margin-left: 2px;
+        }
+
+        .section-title {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 25px 0 10px;
+        }
+
+        .lab-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            border: 1px solid #fff;
+            color: #fff;
+            background: none;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.1s;
+        }
+
+        .lab-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0px #fff; }
+            50% { transform: scale(1.05); box-shadow: 0 0 12px #fff; }
         }
     </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <header>
-        <h1>The treasure trove</h1>
-    </header>
-
-    <!-- Navigation Links -->
-    <section>
-        <h2>Navigation</h2>
-        <div class="container">
-            <a href="http://www.google.com">Search</a> |
-            <a href="http://www.github.com/ianvet31">What we're workin' on</a> |
-            <a href="cubes.html">The Cubes</a> |
-            <a href="temp.html">Test</a> |
-            <a href="fluidsim.html">Fluid Sim</a> |
-            <a href="africa.html">The African Experience</a>
+    <div class="page">
+        <div class="header">
+<pre>
+  _             _
+ (_)           | |
+  _  __ _ _ __ | |
+ | |/ _` | '_ \| |
+ | | (_| | | | |_|
+ |_|\__,_|_| |_(_)
+</pre>
         </div>
-    </section>
 
-    <!-- Rotating Cube Section -->
-    <section>
-        <h2>Have at thee</h2>
-        <div class="scene">
-            <div class="cube">
-                <div class="face front">
-                    <div class="dot center"></div>
-                </div>
-                <div class="face back">
-                    <div class="dot top-left"></div>
-                    <div class="dot bottom-right"></div>
-                </div>
-                <div class="face left">
-                    <div class="dot top-left"></div>
-                    <div class="dot center"></div>
-                    <div class="dot bottom-right"></div>
-                </div>
-                <div class="face right">
-                    <div class="dot top-left"></div>
-                    <div class="dot top-right"></div>
-                    <div class="dot bottom-left"></div>
-                    <div class="dot bottom-right"></div>
-                </div>
-                <div class="face top">
-                    <div class="dot top-left"></div>
-                    <div class="dot top-right"></div>
-                    <div class="dot bottom-left"></div>
-                    <div class="dot bottom-right"></div>
-                    <div class="dot center"></div>
-                </div>
-                <div class="face bottom">
-                    <div class="dot top-left"></div>
-                    <div class="dot top-right"></div>
-                    <div class="dot bottom-left"></div>
-                    <div class="dot bottom-right"></div>
-                    <div class="dot center-left"></div>
-                    <div class="dot center-right"></div>
-                </div>
+        <h1>welcome</h1>
+        <p class="tagline">you have reached ian's corner of the internet<span class="cursor"></span></p>
+
+        <hr>
+
+        <p class="section-title">-- navigation --</p>
+        <ul class="links">
+            <li><a href="https://github.com/ianvet31">github</a></li>
+            <li><a href="dust.html">dust game</a></li>
+            <li><a href="fluidsim.html">fluid simulation</a></li>
+            <li><a href="cubes.html">the cubes</a></li>
+            <li><a href="temp.html">elephant walker</a></li>
+        </ul>
+
+        <hr>
+
+        <p class="section-title">-- the lab --</p>
+        <p style="font-size:0.9em;">the old experimental zone lives on.</p>
+        <a href="old.html" class="lab-btn">[ enter the experimental zone ]</a>
+
+        <hr>
+
+        <p class="section-title">-- work poop counter --</p>
+        <div style="text-align:center;">
+<pre style="display:inline-block; text-align:left; line-height:1.3; margin: 10px 0;">
+        _____
+      /      \
+     (____/\  )
+      |___  U?(____
+      _\L.   |      \     ___
+    / /"""\ /.-'     |   |\  |
+   ( /  _/u     |    \___|_)_|
+    \|  \\      /   / \_(___ __)
+     |   \\    /   /  |  |    |
+     |    )  _/   /   )  |    |
+     _\__/.-'    /___(   |    |
+  _/  __________/     \  |    |
+ //  /  (              ) |    |
+( \__|___\    \______ /__|____|
+ \    (___\   |______)_/
+  \   |\   \  \     /
+   \  | \__ )  )___/
+    \  \  )/  /__(
+___ |  /_//___|   \_________
+  _/  ( / OUuuu    \
+ `----'(____________)
+</pre>
+            <br>
+            <p style="font-size:0.85em; color:#999; margin:4px 0;">poops taken at work, globally tracked</p>
+            <p style="font-size:2em; margin: 10px 0; letter-spacing:2px;">
+                <span id="poop-count">...</span> <span style="font-size:0.5em; color:#999;">total</span>
+            </p>
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:12px;">
+                <span class="blink" style="letter-spacing:-2px;">--&gt;</span>
+                <button id="poop-btn" class="lab-btn" style="margin-top:0;">[ i just pooped at work ]</button>
+                <span class="blink" style="letter-spacing:-2px;">&lt;--</span>
             </div>
+            <p id="poop-msg" style="font-size:0.8em; color:#666; min-height:1.2em; margin-top:8px;"></p>
         </div>
-    </section>
 
-    <!-- Image and ASCII Art -->
-    <section>
-        <h2>Fun</h2>
-        <div class="container">
-            <img src="imgs/seesaw.gif" alt="Image Description">
+        <hr>
+
+        <div class="visitor-count">
+            visitors: <span id="count">???</span>
         </div>
-        <pre>
-			.' `'.__
-                         /      \ `'"-,
-        .-''''--...__..-/ .     |      \
-      .'               ; :'     '.  a   |
-     /                 | :.       \     =\
-    ;                   \':.      /  ,-.__;.-;`
-   /|     .              '--._   /-.7`._..-;`
-  ; |       '                |`-'      \  =|
-  |/\        .   -' /     /  ;         |  =/
-  (( ;.       ,_  .:|     | /     /\   | =|
-   ) / `\     | `""`;     / |    | /   / =/
-     | ::|    |      \    \ \    \ `--' =/
-    /  '/\    /       )    |/     `-...-`
-   /    | |  `\    /-'    /;
-   \  ,,/ |    \   D    .'  \
-jgs `""`   \  nnh  D_.-'L__nnh
-            `"""`
-        </pre>
-    </section>
 
-    <!-- Notes Section -->
-    <section>
-        <h2>Jot Down Some Notes</h2>
-        <label for="tbuser">Write something:</label>
-        <input type="text" id="tbuser" placeholder="WRITE" maxlength="1000">
-        <input type="button" id="btn1" value="Add it">
-        <p class="output" id="output1"></p>
-    </section>
-
-
-    <!-- Video Section -->
-    <section>
-        <h2>Mario Bailando</h2>
-        <video autoplay loop controls>
-            <source src="imgs/mario.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </section>
-
-    <!-- Elephant Photos -->
-    <section>
-        <h2>Elephant Pics</h2>
-        <div>
-            <input type="button" id="e_button" value="More elephant photos!">
+        <div class="footer">
+            <p>best viewed at 800x600 | est. 2023</p>
+            <p>~ end of transmission ~</p>
         </div>
-        <div>
-            <img src="imgs/e1.jpg" id="imger" alt="Elephant">
-        </div>
-    </section>
-
-
-    <!-- Interactive Song Builder -->
-    <section>
-        <h2>Interactive Song Builder</h2>
-        <div id="song-builder">
-            <div class="image-container">
-                <img src="imgs/rap.gif" alt="Image Description">
-            </div>
-            <div>
-                <label for="audio-selector">Select an audio file:</label>
-                <select id="audio-selector">
-                    <option value="sounds/3yeets.mp3">3 yeets</option>
-                    <option value="sounds/21n.mp3">Whats 9 + 10</option>
-                    <option value="sounds/aaaaaa.mp3">aaaaaa</option>
-                    <option value="sounds/amoggus.mp3">amogus</option>
-                    <option value="sounds/bigfart.mp3">fart</option>
-                    <option value="sounds/bongo.mp3">bongo</option>
-                    <option value="sounds/bruh.mp3">bruh</option>
-                    <option value="sounds/fart.mp3">fart2</option>
-                    <option value="sounds/fartnitecard.mp3">fortnitecard</option>
-                    <option value="sounds/klonk.mp3">klonck</option>
-                    <option value="sounds/metronotrust.mp3">metro</option>
-                    <option value="sounds/punch.mp3">punch</option>
-                    <option value="sounds/oof.mp3">oof</option>
-                    <option value="sounds/wockyslush.mp3">wocky sluch</option>
-                </select>
-                <button id="add-audio">Add to Sequence</button>
-                <button id="clear-sequence">Clear Sequence</button>
-            </div>
-            <div>
-                <h3>Song Sequence</h3>
-                <ul id="song-sequence"></ul>
-                <button id="play-song">Play Song</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Blog Section -->
-    <section>
-        <h2>Blog</h2>
-        <div class="blog-entry">
-            <em>09/18/2023</em>
-            <p>Golgotha</p>
-        </div>
-        <div class="blog-entry">
-            <em>09/26/2023</em>
-            <p>Hoping dinosaurs come back</p>
-        </div>
-        <div class="blog-entry">
-            <em>12/20/2023</em>
-            <p>Got the job I'm coolin' 8)</p>
-        </div>
-    </section>
-
-    <!-- Datasets -->
-    <section>
-        <h2>Datasets</h2>
-        <a href="sentiment_data.csv" download="sentiment_data.csv">Sentiment analysis data (News Headlines)</a><br>
-        <a href="S30.csv" download="S30.csv">Movie ratings matrix (STAT598)</a>
-    </section>
-
-    <!-- 3D Cube -->
-    <section>
-        <h2>3D Cube</h2>
-        <div class="scene">
-            <div class="cube">
-                <div class="face front">1</div>
-                <div class="face back">2</div>
-                <div class="face left">3</div>
-                <div class="face right">4</div>
-                <div class="face top">5</div>
-                <div class="face bottom">6</div>
-            </div>
-        </div>
-    </section>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const audioSelector = document.getElementById("audio-selector");
-            const addAudioButton = document.getElementById("add-audio");
-            const clearSequenceButton = document.getElementById("clear-sequence"); // New button
-            const songSequence = document.getElementById("song-sequence");
-            const playSongButton = document.getElementById("play-song");
-            const audioElements = [];
-            let currentAudioIndex = 0;
-
-            // Event listener for adding audio to the sequence
-            addAudioButton.addEventListener("click", function () {
-                const selectedAudio = audioSelector.value;
-                if (selectedAudio) {
-                    const listItem = document.createElement("li");
-                    listItem.textContent = selectedAudio;
-                    songSequence.appendChild(listItem);
-                    const audio = new Audio(selectedAudio);
-                    audio.addEventListener("ended", playNextAudio);
-                    audioElements.push(audio);
-                }
-            });
-
-            // Event listener for clearing the sequence
-            clearSequenceButton.addEventListener("click", function () {
-                audioElements.forEach((audio) => audio.pause());
-                audioElements.length = 0;
-                currentAudioIndex = 0;
-                songSequence.innerHTML = ''; // Clear the list
-            });
-
-            // Event listener for playing the song
-            playSongButton.addEventListener("click", function () {
-                if (audioElements.length > 0) {
-                    playNextAudio();
-                }
-            });
-
-            function playNextAudio() {
-                if (currentAudioIndex < audioElements.length) {
-                    audioElements[currentAudioIndex].play();
-                    currentAudioIndex++;
-                }
-            }
-        });
+        var n = localStorage.getItem("visits");
+        n = n ? parseInt(n) + 1 : 1;
+        localStorage.setItem("visits", n);
+        document.getElementById("count").textContent = String(n).padStart(6, "0");
     </script>
 
     <script>
-        const butt2 = document.getElementById('btn2');
-        const txt1 = document.getElementById('tbuser');
-        const butt = document.getElementById('btn1');
-        const out1 = document.getElementById('output1');
+        const NAMESPACE = "ianvet31-github-io";
+        const KEY = "workpoops";
 
-        function load() {
-            out1.innerHTML = localStorage.getItem("userDetails");
-        }
-
-        function funny() {
-            out1.innerHTML += txt1.value;
-            var currbook = out1.innerHTML;
-            localStorage.setItem("userDetails", currbook);
-        }
-
-        butt.addEventListener('click', funny);
-        butt2.addEventListener('click', load);
-
-        const canvas = document.getElementById('drawing-pad');
-        const context = canvas.getContext('2d');
-        let isDrawing = false;
-
-        canvas.addEventListener('mousedown', () => {
-            isDrawing = true;
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-            context.beginPath();
-        });
-
-        canvas.addEventListener('mousemove', draw);
-
-        function draw(event) {
-            if (!isDrawing) return;
-            context.lineWidth = 5;
-            context.lineCap = 'round';
-            context.strokeStyle = 'black';
-
-            context.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
-            context.stroke();
-            context.beginPath();
-            context.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
-        }
-
-        const clearButton = document.getElementById('clear-button');
-        clearButton.addEventListener('click', () => {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-        });
-
-        const saveButton = document.getElementById('save-button');
-        saveButton.addEventListener('click', () => {
-            const image = canvas.toDataURL("image/png");
-            const a = document.createElement('a');
-            a.href = image;
-            a.download = 'drawing.png';
-            a.click();
-        });
-
-        // Function to fetch stock information from the Alpha Vantage API
-        function fetchStockInfo() {
-            const apiKey = '2FK1G6PPJW9YU9WS'; // Replace with your Alpha Vantage API key
-            const symbol = 'AAPL'; // Replace with the stock symbol you want to track
-            const apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&apikey=${apiKey}`;
-
-            fetch(apiUrl)
-                .then(response => response.json())
+        function fetchPoopCount() {
+            fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`)
+                .then(r => r.json())
                 .then(data => {
-                    const latestData = data['Time Series (1min)'];
-                    const timestamps = Object.keys(latestData);
-                    const latestTimestamp = timestamps[0];
-                    const stockPrice = latestData[latestTimestamp]['1. open'];
-                    document.getElementById('stock-price').textContent = stockPrice;
+                    document.getElementById("poop-count").textContent = data.value ?? "?";
                 })
-                .catch(error => {
-                    console.error('Error fetching stock information:', error);
+                .catch(() => {
+                    document.getElementById("poop-count").textContent = "?";
                 });
         }
 
-        // Call the fetchStockInfo function to load stock information when the page loads
-        window.addEventListener('load', fetchStockInfo);
+        document.getElementById("poop-btn").addEventListener("click", function () {
+            this.disabled = true;
+            const msg = document.getElementById("poop-msg");
+            msg.textContent = "logging...";
+            fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById("poop-count").textContent = data.value;
+                    msg.textContent = "logged. godspeed.";
+                    setTimeout(() => { msg.textContent = ""; this.disabled = false; }, 3000);
+                })
+                .catch(() => {
+                    msg.textContent = "failed to log. poop anyway.";
+                    this.disabled = false;
+                });
+        });
+
+        fetchPoopCount();
     </script>
 </body>
 </html>
