@@ -243,14 +243,13 @@ ___ |  /_//___|   \_________
     </script>
 
     <script>
-        const NAMESPACE = "ianvet31-github-io";
-        const KEY = "workpoops";
+        const DB = "https://workpooper-98587-default-rtdb.firebaseio.com";
 
         function fetchPoopCount() {
-            fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`)
+            fetch(`${DB}/workpoops.json`)
                 .then(r => r.json())
-                .then(data => {
-                    document.getElementById("poop-count").textContent = data.value ?? "?";
+                .then(val => {
+                    document.getElementById("poop-count").textContent = val ?? 0;
                 })
                 .catch(() => {
                     document.getElementById("poop-count").textContent = "?";
@@ -258,19 +257,27 @@ ___ |  /_//___|   \_________
         }
 
         document.getElementById("poop-btn").addEventListener("click", function () {
-            this.disabled = true;
+            const btn = this;
+            btn.disabled = true;
             const msg = document.getElementById("poop-msg");
             msg.textContent = "logging...";
-            fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`)
+            fetch(`${DB}/workpoops.json`)
                 .then(r => r.json())
-                .then(data => {
-                    document.getElementById("poop-count").textContent = data.value;
+                .then(val => {
+                    const next = (val || 0) + 1;
+                    return fetch(`${DB}/workpoops.json`, {
+                        method: "PUT",
+                        body: JSON.stringify(next)
+                    }).then(() => next);
+                })
+                .then(next => {
+                    document.getElementById("poop-count").textContent = next;
                     msg.textContent = "logged. godspeed.";
-                    setTimeout(() => { msg.textContent = ""; this.disabled = false; }, 3000);
+                    setTimeout(() => { msg.textContent = ""; btn.disabled = false; }, 3000);
                 })
                 .catch(() => {
                     msg.textContent = "failed to log. poop anyway.";
-                    this.disabled = false;
+                    btn.disabled = false;
                 });
         });
 
