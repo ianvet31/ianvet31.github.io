@@ -196,29 +196,7 @@ ___ |  /_//___|   \_________
 </pre>
             <br>
 
-            <div style="border:1px solid #fff; padding:16px; margin:16px 0; display:inline-block; min-width:260px;">
-                <p style="font-size:0.75em; color:#666; margin:0 0 8px; letter-spacing:2px; text-transform:uppercase;">// global metrics</p>
-                <div style="display:flex; justify-content:space-around; gap:24px;">
-                    <div>
-                        <p style="font-size:0.75em; color:#999; margin:0;">total poops</p>
-                        <p style="font-size:2em; margin:4px 0; letter-spacing:2px;"><span id="poop-count">...</span></p>
-                    </div>
-                    <div style="border-left:1px solid #333; margin: 0 4px;"></div>
-                    <div>
-                        <p style="font-size:0.75em; color:#999; margin:0;">dookie dollars</p>
-                        <p style="font-size:2em; margin:4px 0; letter-spacing:2px;">$<span id="dookie-dollars">...</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:12px;">
-                <span class="blink" style="letter-spacing:-2px;">--&gt;</span>
-                <button id="poop-btn" class="lab-btn" style="margin-top:0;">[ i just pooped at work ]</button>
-                <span class="blink" style="letter-spacing:-2px;">&lt;--</span>
-            </div>
-            <p id="poop-msg" style="font-size:0.8em; color:#666; min-height:1.2em; margin-top:8px;"></p>
-
-            <div style="margin-top:16px; font-size:0.85em; color:#888; display:flex; flex-direction:column; gap:6px; align-items:center;">
+            <div style="margin-top:12px; font-size:0.85em; color:#888; display:flex; flex-direction:column; gap:6px; align-items:center;">
                 <label>salary (optional):&nbsp;
                     $<input id="salary-amt" type="number" min="0" placeholder="0"
                         style="width:80px; background:#000; color:#fff; border:1px solid #444; font-family:'Courier New',monospace; font-size:1em; padding:2px 4px;">
@@ -235,8 +213,28 @@ ___ |  /_//___|   \_________
                 </label>
                 <p id="input-error" style="color:#fff; font-size:0.85em; min-height:1em; margin:0;"></p>
             </div>
-            <div style="margin-top:12px;">
-                <p style="font-size:0.75em; color:#555; margin:0;">your contribution: $<span id="my-dookie-dollars">0.00</span> &nbsp;(<span id="my-poop-count">0</span> personal poops × <span id="poop-min-label">10</span> min avg)</p>
+
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:16px;">
+                <span class="blink" style="letter-spacing:-2px;">--&gt;</span>
+                <button id="poop-btn" class="lab-btn" style="margin-top:0;">[ i just pooped at work ]</button>
+                <span class="blink" style="letter-spacing:-2px;">&lt;--</span>
+            </div>
+            <p id="poop-msg" style="font-size:0.8em; color:#666; min-height:1.2em; margin-top:8px;"></p>
+
+            <div style="border:1px solid #fff; padding:16px; margin:16px 0; display:inline-block; min-width:260px;">
+                <p style="font-size:0.75em; color:#666; margin:0 0 8px; letter-spacing:2px; text-transform:uppercase;">// global metrics</p>
+                <div style="display:flex; justify-content:space-around; gap:24px;">
+                    <div>
+                        <p style="font-size:0.75em; color:#999; margin:0;">total poops</p>
+                        <p style="font-size:2em; margin:4px 0; letter-spacing:2px;"><span id="poop-count">...</span></p>
+                    </div>
+                    <div style="border-left:1px solid #333; margin:0 4px;"></div>
+                    <div>
+                        <p style="font-size:0.75em; color:#999; margin:0;">dookie dollars</p>
+                        <p style="font-size:2em; margin:4px 0; letter-spacing:2px;">$<span id="dookie-dollars">...</span></p>
+                    </div>
+                </div>
+                <p style="font-size:0.75em; color:#555; margin:8px 0 0;">your contribution: $<span id="my-dookie-dollars">0.00</span> &nbsp;(<span id="my-poop-count">0</span> poops × <span id="poop-min-label">10</span> min)</p>
             </div>
 
             <canvas id="poop-map" style="width:100%; margin-top:16px; border:1px solid #333; image-rendering:pixelated;"></canvas>
@@ -320,16 +318,8 @@ ___ |  /_//___|   \_________
             const hourly  = getHourlyRate();
             const minutes = getPoopMinutes();
             const err = document.getElementById("input-error");
-            if (hourly > 10000) {
-                err.textContent = "be for real. no one makes $10k/hr.";
-                return false;
-            }
-            if (minutes > 90) {
-                err.textContent = "be for real. 90+ min is not a work poop, that's a crisis.";
-                return false;
-            }
-            if (minutes < 1) {
-                err.textContent = "be for real. sub-minute poops don't count.";
+            if (hourly > 10000 || minutes > 90 || minutes < 1) {
+                err.textContent = "be for real.";
                 return false;
             }
             err.textContent = "";
