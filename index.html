@@ -264,9 +264,10 @@ ___ |  /_//___|   \_________
                 // get approximate location from IP (no GPS prompt)
                 let lat = null, lng = null;
                 try {
-                    const geo = await fetch("https://ipwho.is/").then(r => r.json());
-                    if (geo.success) { lat = Math.round(geo.latitude * 10) / 10; lng = Math.round(geo.longitude * 10) / 10; }
-                } catch (e) {}
+                    const geo = await fetch("https://ipapi.co/json/").then(r => r.json());
+                    if (geo.latitude) { lat = Math.round(geo.latitude * 10) / 10; lng = Math.round(geo.longitude * 10) / 10; }
+                    console.log("geo response:", geo);
+                } catch (e) { console.error("geo failed:", e); }
 
                 // increment counter
                 const cur = await fetch(`${DB}/workpoops.json`).then(r => r.json());
