@@ -154,7 +154,7 @@
 <body>
     <div class="page">
         <div class="header">
-<pre style="font-size:0.45em; line-height:1.2; overflow-x:auto;">
+<pre id="welcome-art" style="font-size:0.45em; line-height:1.2; overflow-x:hidden; white-space:pre;">
 __/\\\______________/\\\__/\\\\\\\\\\\\\\\__/\\\____________________/\\\\\\\\\_______/\\\\\_______/\\\\____________/\\\\__/\\\\\\\\\\\\\\\_
  _\/\\\_____________\/\\\_\/\\\///////////__\/\\\_________________/\\\////////______/\\\///\\\____\/\\\\\\________/\\\\\\_\/\\\///////////__
   _\/\\\_____________\/\\\_\/\\\_____________\/\\\_______________/\\\/_____________/\\\/__\///\\\__\/\\\//\\\____/\\\//\\\_\/\\\_____________
@@ -544,6 +544,24 @@ ___ |  /_//___|   \_________
 
         fetchPoopCount();
         drawPoopMap();
+
+        // Scale welcome ASCII art to fit viewport width
+        (function scaleWelcomeArt() {
+            const art = document.getElementById('welcome-art');
+            if (!art) return;
+            function scale() {
+                art.style.fontSize = '';
+                const available = art.parentElement.clientWidth;
+                const natural = art.scrollWidth;
+                if (natural > available) {
+                    const ratio = available / natural;
+                    const current = parseFloat(getComputedStyle(art).fontSize);
+                    art.style.fontSize = (ratio * current) + 'px';
+                }
+            }
+            scale();
+            window.addEventListener('resize', scale);
+        })();
     </script>
 </body>
 </html>
