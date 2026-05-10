@@ -206,7 +206,7 @@ ___ |  /_//___|   \_________
             </div>
             <p id="poop-msg" style="font-size:0.8em; color:#666; min-height:1.2em; margin-top:8px;"></p>
 
-            <div style="margin-top:16px; font-size:0.85em; color:#888;">
+            <div style="margin-top:16px; font-size:0.85em; color:#888; display:flex; flex-direction:column; gap:6px; align-items:center;">
                 <label>salary (optional):&nbsp;
                     $<input id="salary-amt" type="number" min="0" placeholder="0"
                         style="width:80px; background:#000; color:#fff; border:1px solid #444; font-family:'Courier New',monospace; font-size:1em; padding:2px 4px;">
@@ -216,13 +216,18 @@ ___ |  /_//___|   \_________
                         <option value="year">year</option>
                     </select>
                 </label>
+                <label>poop duration (optional):&nbsp;
+                    <input id="poop-minutes" type="number" min="1" placeholder="10"
+                        style="width:50px; background:#000; color:#fff; border:1px solid #444; font-family:'Courier New',monospace; font-size:1em; padding:2px 4px;">
+                    &nbsp;min
+                </label>
             </div>
             <div style="margin-top:12px;">
                 <p style="font-size:0.8em; color:#666; margin:0;">global dookie dollars earned</p>
                 <p style="font-size:1.6em; margin:4px 0; letter-spacing:2px;">
                     $<span id="dookie-dollars">...</span>
                 </p>
-                <p style="font-size:0.75em; color:#555; margin:0;">your contribution: $<span id="my-dookie-dollars">0.00</span> &nbsp;(<span id="my-poop-count">0</span> personal poops × 10 min avg)</p>
+                <p style="font-size:0.75em; color:#555; margin:0;">your contribution: $<span id="my-dookie-dollars">0.00</span> &nbsp;(<span id="my-poop-count">0</span> personal poops × <span id="poop-min-label">10</span> min avg)</p>
             </div>
 
             <canvas id="poop-map" style="width:100%; margin-top:16px; border:1px solid #333; image-rendering:pixelated;"></canvas>
@@ -275,11 +280,16 @@ ___ |  /_//___|   \_________
             return type === "year" ? amt / 2080 : amt;
         }
 
+        function getPoopMinutes() {
+            return parseFloat(document.getElementById("poop-minutes").value) || POOP_MINUTES;
+        }
+
         function calcPersonalDookies() {
             const myPoops = parseInt(localStorage.getItem("myPoops") || "0");
-            const personal = myPoops * getHourlyRate() * (POOP_MINUTES / 60);
+            const personal = myPoops * getHourlyRate() * (getPoopMinutes() / 60);
             document.getElementById("my-dookie-dollars").textContent = personal.toFixed(2);
             document.getElementById("my-poop-count").textContent = myPoops;
+            document.getElementById("poop-min-label").textContent = getPoopMinutes();
         }
 
         function fetchGlobalDookieDollars() {
@@ -298,18 +308,22 @@ ___ |  /_//___|   \_________
         }
 
         function saveAndCalc() {
-            localStorage.setItem("salaryAmt",  document.getElementById("salary-amt").value);
-            localStorage.setItem("salaryType", document.getElementById("salary-type").value);
+            localStorage.setItem("salaryAmt",   document.getElementById("salary-amt").value);
+            localStorage.setItem("salaryType",  document.getElementById("salary-type").value);
+            localStorage.setItem("poopMinutes", document.getElementById("poop-minutes").value);
             calcPersonalDookies();
         }
 
-        // restore saved salary
-        const savedAmt  = localStorage.getItem("salaryAmt");
-        const savedType = localStorage.getItem("salaryType");
-        if (savedAmt)  document.getElementById("salary-amt").value  = savedAmt;
-        if (savedType) document.getElementById("salary-type").value = savedType;
-        document.getElementById("salary-amt").addEventListener("input",  saveAndCalc);
+        // restore saved values
+        const savedAmt     = localStorage.getItem("salaryAmt");
+        const savedType    = localStorage.getItem("salaryType");
+        const savedMinutes = localStorage.getItem("poopMinutes");
+        if (savedAmt)     document.getElementById("salary-amt").value   = savedAmt;
+        if (savedType)    document.getElementById("salary-type").value  = savedType;
+        if (savedMinutes) document.getElementById("poop-minutes").value = savedMinutes;
+        document.getElementById("salary-amt").addEventListener("input",   saveAndCalc);
         document.getElementById("salary-type").addEventListener("change", saveAndCalc);
+        document.getElementById("poop-minutes").addEventListener("input", saveAndCalc);
         calcPersonalDookies();
         fetchGlobalDookieDollars();
 
@@ -360,7 +374,7 @@ ___ |  /_//___|   \_________
                 // increment personal count + add earnings to global total
                 const myPoops = parseInt(localStorage.getItem("myPoops") || "0") + 1;
                 localStorage.setItem("myPoops", myPoops);
-                const earned = getHourlyRate() * (POOP_MINUTES / 60);
+                const earned = getHourlyRate() * (getPoopMinutes() / 60);
                 calcPersonalDookies();
                 if (earned > 0) await addDookieDollars(earned);
 
