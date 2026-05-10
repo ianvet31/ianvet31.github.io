@@ -275,12 +275,19 @@ ___ |  /_//___|   \_________
 
                 // store location
                 if (lat !== null) {
-                    await fetch(`${DB}/poop_locations.json`, {
+                    const locRes = await fetch(`${DB}/poop_locations.json`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ lat, lng })
                     });
-                    drawPoopMap();
+                    if (!locRes.ok) {
+                        console.error("poop_locations write failed:", locRes.status, await locRes.text());
+                    } else {
+                        console.log("location stored:", lat, lng);
+                        drawPoopMap();
+                    }
+                } else {
+                    console.warn("no location from ipwho.is");
                 }
 
                 document.getElementById("poop-count").textContent = next;
