@@ -301,7 +301,8 @@ ___ |  /_//___|   \_________
         });
 
         // ---- map ----
-        const MAP_W = 480, MAP_H = 240;
+        const MAP_W = 480, MAP_H = 240, LEGEND_H = 28;
+        let worldCache = null;
 
         function project(lon, lat) {
             return [
@@ -327,12 +328,11 @@ ___ |  /_//___|   \_________
         async function drawPoopMap() {
             const canvas = document.getElementById("poop-map");
             canvas.width  = MAP_W;
-            canvas.height = MAP_H;
+            canvas.height = MAP_H + LEGEND_H;
             const ctx = canvas.getContext("2d");
 
-            // background
             ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, MAP_W, MAP_H);
+            ctx.fillRect(0, 0, MAP_W, MAP_H + LEGEND_H);
 
             // graticule lines
             ctx.strokeStyle = "#111";
@@ -346,29 +346,91 @@ ___ |  /_//___|   \_________
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(MAP_W, y); ctx.stroke();
             }
 
+            // fetch world atlas (cached) and locations in parallel
+            const [, locations] = await Promise.all([
+                (async () => {
+                    if (!worldCache) {
+                        try { worldCache = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json").then(r => r.json()); }
+                        catch (e) {}
+                    }
+                })(),
+                fetch(`${DB}/poop_locations.json?_=${Date.now()}`)
+                    .then(r => r.json())
+                    .then(locs => locs ? Object.values(locs) : [])
+                    .catch(() => [])
+            ]);
+
             // land
-            try {
-                const world = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json").then(r => r.json());
-                const land  = topojson.feature(world, world.objects.land);
-                ctx.fillStyle = "#333";
+            if (worldCache) {
+                ctx.fillStyle = "#2a2a2a";
+                const land = topojson.feature(worldCache, worldCache.objects.land);
                 for (const feature of land.features) {
                     const { type, coordinates } = feature.geometry;
-                    if (type === "Polygon")      drawRings(ctx, coordinates);
+                    if (type === "Polygon")           drawRings(ctx, coordinates);
                     else if (type === "MultiPolygon") coordinates.forEach(p => drawRings(ctx, p));
                 }
-            } catch (e) {}
+            }
 
-            // poop dots
-            try {
-                const locs = await fetch(`${DB}/poop_locations.json`).then(r => r.json());
-                if (locs) {
-                    Object.values(locs).forEach(({ lat, lng }) => {
-                        const [x, y] = project(lng, lat);
-                        ctx.fillStyle = "#fff";
-                        ctx.fillRect(x - 1, y - 1, 3, 3);
-                    });
+            // density heatmap
+            if (locations.length > 0) {
+                const density = new Float32Array(MAP_W * MAP_H);
+                const SPREAD = 18;
+                for (const { lat, lng } of locations) {
+                    const [cx, cy] = project(lng, lat);
+                    for (let dy = -SPREAD; dy <= SPREAD; dy++) {
+                        for (let dx = -SPREAD; dx <= SPREAD; dx++) {
+                            const d2 = dx*dx + dy*dy;
+                            if (d2 > SPREAD*SPREAD) continue;
+                            const nx = cx+dx, ny = cy+dy;
+                            if (nx < 0 || nx >= MAP_W || ny < 0 || ny >= MAP_H) continue;
+                            density[ny * MAP_W + nx] += Math.exp(-d2 / (SPREAD*SPREAD / 4));
+                        }
+                    }
                 }
-            } catch (e) {}
+                let maxD = 0;
+                for (let i = 0; i < density.length; i++) if (density[i] > maxD) maxD = density[i];
+
+                const img = ctx.getImageData(0, 0, MAP_W, MAP_H);
+                const px = img.data;
+                for (let y = 0; y < MAP_H; y++) {
+                    for (let x = 0; x < MAP_W; x++) {
+                        const v = density[y * MAP_W + x];
+                        if (v <= 0) continue;
+                        const t = Math.pow(v / maxD, 0.5);
+                        const i = (y * MAP_W + x) * 4;
+                        px[i]   = Math.min(255, px[i]   + Math.round(t * 240));
+                        px[i+1] = Math.min(255, px[i+1] + Math.round(t * 240));
+                        px[i+2] = Math.min(255, px[i+2] + Math.round(t * 240));
+                        px[i+3] = 255;
+                    }
+                }
+                ctx.putImageData(img, 0, 0);
+            }
+
+            // legend
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, MAP_H); ctx.lineTo(MAP_W, MAP_H); ctx.stroke();
+
+            const lgX = 10, lgY = MAP_H + 7, lgW = 110, lgH = 7;
+            const grad = ctx.createLinearGradient(lgX, 0, lgX + lgW, 0);
+            grad.addColorStop(0, "#1a1a1a");
+            grad.addColorStop(0.4, "#666");
+            grad.addColorStop(1, "#fff");
+            ctx.fillStyle = grad;
+            ctx.fillRect(lgX, lgY, lgW, lgH);
+            ctx.strokeStyle = "#444";
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(lgX, lgY, lgW, lgH);
+
+            ctx.fillStyle = "#888";
+            ctx.font = "7px 'Courier New'";
+            ctx.fillText("low", lgX, lgY + lgH + 9);
+            ctx.fillText("high density", lgX + lgW - 46, lgY + lgH + 9);
+
+            ctx.fillStyle = "#555";
+            const label = `${locations.length} location${locations.length !== 1 ? "s" : ""} tracked`;
+            ctx.fillText(label, MAP_W - ctx.measureText(label).width - 8, MAP_H + 20);
         }
 
         fetchPoopCount();
