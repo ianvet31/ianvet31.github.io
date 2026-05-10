@@ -195,10 +195,22 @@ ___ |  /_//___|   \_________
  `----'(____________)
 </pre>
             <br>
-            <p style="font-size:0.85em; color:#999; margin:4px 0;">poops taken at work, globally tracked</p>
-            <p style="font-size:2em; margin: 10px 0; letter-spacing:2px;">
-                <span id="poop-count">...</span> <span style="font-size:0.5em; color:#999;">total</span>
-            </p>
+
+            <div style="border:1px solid #fff; padding:16px; margin:16px 0; display:inline-block; min-width:260px;">
+                <p style="font-size:0.75em; color:#666; margin:0 0 8px; letter-spacing:2px; text-transform:uppercase;">// global metrics</p>
+                <div style="display:flex; justify-content:space-around; gap:24px;">
+                    <div>
+                        <p style="font-size:0.75em; color:#999; margin:0;">total poops</p>
+                        <p style="font-size:2em; margin:4px 0; letter-spacing:2px;"><span id="poop-count">...</span></p>
+                    </div>
+                    <div style="border-left:1px solid #333; margin: 0 4px;"></div>
+                    <div>
+                        <p style="font-size:0.75em; color:#999; margin:0;">dookie dollars</p>
+                        <p style="font-size:2em; margin:4px 0; letter-spacing:2px;">$<span id="dookie-dollars">...</span></p>
+                    </div>
+                </div>
+            </div>
+
             <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:12px;">
                 <span class="blink" style="letter-spacing:-2px;">--&gt;</span>
                 <button id="poop-btn" class="lab-btn" style="margin-top:0;">[ i just pooped at work ]</button>
@@ -221,12 +233,9 @@ ___ |  /_//___|   \_________
                         style="width:50px; background:#000; color:#fff; border:1px solid #444; font-family:'Courier New',monospace; font-size:1em; padding:2px 4px;">
                     &nbsp;min
                 </label>
+                <p id="input-error" style="color:#fff; font-size:0.85em; min-height:1em; margin:0;"></p>
             </div>
             <div style="margin-top:12px;">
-                <p style="font-size:0.8em; color:#666; margin:0;">global dookie dollars earned</p>
-                <p style="font-size:1.6em; margin:4px 0; letter-spacing:2px;">
-                    $<span id="dookie-dollars">...</span>
-                </p>
                 <p style="font-size:0.75em; color:#555; margin:0;">your contribution: $<span id="my-dookie-dollars">0.00</span> &nbsp;(<span id="my-poop-count">0</span> personal poops × <span id="poop-min-label">10</span> min avg)</p>
             </div>
 
@@ -307,11 +316,31 @@ ___ |  /_//___|   \_________
             document.getElementById("dookie-dollars").textContent = next.toFixed(2);
         }
 
+        function validate() {
+            const hourly  = getHourlyRate();
+            const minutes = getPoopMinutes();
+            const err = document.getElementById("input-error");
+            if (hourly > 10000) {
+                err.textContent = "be for real. no one makes $10k/hr.";
+                return false;
+            }
+            if (minutes > 90) {
+                err.textContent = "be for real. 90+ min is not a work poop, that's a crisis.";
+                return false;
+            }
+            if (minutes < 1) {
+                err.textContent = "be for real. sub-minute poops don't count.";
+                return false;
+            }
+            err.textContent = "";
+            return true;
+        }
+
         function saveAndCalc() {
             localStorage.setItem("salaryAmt",   document.getElementById("salary-amt").value);
             localStorage.setItem("salaryType",  document.getElementById("salary-type").value);
             localStorage.setItem("poopMinutes", document.getElementById("poop-minutes").value);
-            calcPersonalDookies();
+            if (validate()) calcPersonalDookies();
         }
 
         // restore saved values
@@ -337,6 +366,7 @@ ___ |  /_//___|   \_________
 
         document.getElementById("poop-btn").addEventListener("click", async function () {
             const btn = this;
+            if (!validate()) return;
             btn.disabled = true;
             const msg = document.getElementById("poop-msg");
             msg.textContent = "logging...";
