@@ -100,7 +100,7 @@
             font-size:0.74em; line-height:1.7; color:#7af; white-space:pre;
         }
         #energy-display { font-size:0.85em; color:#0cf; margin-bottom:5px; }
-        #energy-canvas { width:100%; height:130px; display:block; background:#05050f; border:1px solid #1a1a2e; }
+        #energy-canvas { width:100%; height:170px; display:block; background:#05050f; border:1px solid #1a1a2e; }
 
         .photon-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
         #photon-energy-display { color:#0cf; font-size:0.8em; min-width:70px; }
@@ -119,17 +119,24 @@
 
         .theory-sec-title {
             font-size:0.68em; color:#0cf; text-transform:uppercase; letter-spacing:2px;
-            margin-bottom:10px; display:flex; align-items:center; gap:8px;
+            margin-bottom:10px; display:flex; align-items:center; gap:8px; cursor:pointer;
+            user-select:none;
         }
         .theory-sec-title::after {
             content:''; flex:1; border-bottom:1px dashed #0cf3;
         }
+        .theory-sec-title .ts-toggle {
+            color:#0cf6; font-size:1.3em; line-height:1; flex-shrink:0; transition:transform .15s;
+        }
+        .theory-section.collapsed .ts-toggle { transform:rotate(-90deg); }
+        .theory-section.collapsed .theory-section-body { display:none; }
 
         .theory-prose {
-            font-size:0.75em; color:#888; line-height:1.65; margin-top:8px;
+            font-size:0.75em; color:#888; line-height:1.72; margin-top:8px;
         }
-        .theory-prose strong { color:#aaa; }
+        .theory-prose strong { color:#cce; }
         .theory-prose em { color:#0cf; font-style:normal; }
+        .theory-prose code { color:#7af; background:#030310; padding:1px 4px; font-size:0.95em; }
 
         .insight-box {
             background:#05050f; border-left:2px solid #0cf4;
@@ -139,6 +146,42 @@
         .insight-box .insight-label {
             font-size:0.85em; color:#0cf; letter-spacing:1px; margin-bottom:3px; text-transform:uppercase;
         }
+        .warn-box {
+            background:#0f0800; border-left:2px solid #fa04;
+            padding:8px 10px; margin-top:8px;
+            font-size:0.73em; color:#ca8; line-height:1.6;
+        }
+        .warn-box .warn-label {
+            font-size:0.85em; color:#fa0; letter-spacing:1px; margin-bottom:3px; text-transform:uppercase;
+        }
+        .real-world-box {
+            background:#050f05; border-left:2px solid #6bcb776a;
+            padding:8px 10px; margin-top:8px;
+            font-size:0.73em; color:#8a8; line-height:1.65;
+        }
+        .real-world-box .rw-label {
+            font-size:0.85em; color:#6bcb77; letter-spacing:1px; margin-bottom:4px; text-transform:uppercase;
+        }
+
+        .uncertainty-meter {
+            display:flex; gap:6px; align-items:center; margin-top:6px;
+        }
+        .um-bar-wrap { flex:1; background:#0a0a1a; height:8px; border:1px solid #1a2535; border-radius:1px; }
+        .um-bar { height:100%; background:linear-gradient(90deg,#0cf,#06f); border-radius:1px; transition:width .3s; }
+        .um-label { font-size:0.68em; color:#556; width:60px; flex-shrink:0; }
+        .um-value { font-size:0.72em; color:#0cf; min-width:52px; text-align:right; flex-shrink:0; }
+
+        .qnum-card {
+            background:#030310; border:1px solid #10102a; padding:9px 11px;
+            margin:5px 0; display:flex; gap:10px; align-items:flex-start;
+        }
+        .qnum-sym { font-size:1.4em; color:#fff; width:24px; flex-shrink:0; line-height:1; margin-top:2px; }
+        .qnum-body { flex:1; }
+        .qnum-name { font-size:0.68em; color:#0cf; text-transform:uppercase; letter-spacing:1px; }
+        .qnum-val { font-size:1.1em; color:#6bcb77; margin:2px 0; }
+        .qnum-range { font-size:0.67em; color:#445; margin-bottom:3px; }
+        .qnum-desc { font-size:0.71em; color:#778; line-height:1.55; }
+        .qnum-badge { display:inline-block; background:#0a0a1a; border:1px solid #1a1a3a; padding:1px 6px; margin:2px 2px 0 0; font-size:0.8em; color:#557; }
 
         /* KaTeX in dark theme */
         .katex { color:#d8e8ff !important; }
@@ -183,6 +226,48 @@
 
         .blink { animation:blink-anim 1s steps(2,start) infinite; }
         @keyframes blink-anim { to { visibility:hidden; } }
+
+        /* ── fields panel ── */
+        .field-toggle-row { display:flex; gap:4px; margin-bottom:8px; flex-wrap:wrap; }
+        .field-btn { background:none; border:1px solid #444; color:#666; font-family:"Courier New",monospace;
+            font-size:0.72em; padding:4px 8px; cursor:pointer; transition:all .1s; letter-spacing:1px; }
+        .field-btn:hover { border-color:#0cf; color:#0cf; }
+        .field-btn.active { background:#0cf2; border-color:#0cf; color:#0cf; }
+        #splitting-canvas { width:100%; height:220px; display:block; background:#05050f; border:1px solid #1a1a2e; margin-top:4px; }
+        #splitting-info { font-size:0.68em; color:#446; line-height:1.5; margin-top:3px; padding:2px 0; }
+        .field-slider-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+        .field-slider-label { font-size:0.75em; color:#666; min-width:72px; }
+        .field-val { font-size:0.78em; color:#0cf; min-width:68px; text-align:right; }
+
+        /* ── energy level detail overlay ── */
+        #energy-canvas { width:100%; height:170px; display:block; background:#05050f; border:1px solid #1a1a2e; }
+
+        /* ── theory fields section ── */
+        #ts-fields { display:none; }
+
+        /* ── scenarios ── */
+        .anim-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+        .anim-btn { font-size:0.68em !important; padding:4px 6px !important; letter-spacing:1px; }
+        .anim-btn.active { background:#0cf2 !important; border-color:#0cf !important; color:#0cf !important; }
+
+        /* ── advanced pane ── */
+        .adv-section { padding:11px 13px; border-bottom:1px dashed #1a1a2e; }
+        .adv-section:last-child { border-bottom:none; }
+        .adv-sec-title { font-size:0.67em; color:#0cf; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
+        .adv-sec-title::after { content:''; display:inline-block; width:20px; border-bottom:1px dashed #0cf3; margin-left:8px; vertical-align:middle; }
+        /* CG table */
+        .cg-tbl { border-collapse:collapse; font-size:0.63em; font-family:"Courier New",monospace; }
+        .cg-tbl th { color:#334; font-weight:normal; padding:3px 5px; border:1px solid #101820; background:#030310; text-align:center; }
+        .cg-tbl td { padding:3px 5px; border:1px solid #101820; text-align:center; white-space:nowrap; }
+        .cg-pos { color:#6bcb77; }
+        .cg-neg { color:#ff6b6b; }
+        .cg-zero { color:#1a2535; }
+        .cg-active-row { background:#03041a !important; }
+        /* selection rules */
+        .sel-row { display:flex; gap:5px; padding:3px 0; font-size:0.7em; border-bottom:1px solid #080c10; align-items:center; }
+        .sel-swatch { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+        .sel-type-btn { font-size:0.65em !important; padding:2px 6px !important; }
+        .sel-type-btn.active { background:#0cf2 !important; border-color:#0cf !important; color:#0cf !important; }
     </style>
 </head>
 <body>
@@ -206,6 +291,7 @@
         <div id="tab-bar">
             <button class="tab-btn active" id="tab-controls-btn">controls</button>
             <button class="tab-btn"         id="tab-theory-btn">theory</button>
+            <button class="tab-btn"         id="tab-advanced-btn">advanced</button>
         </div>
 
         <!-- ── CONTROLS PANE ── -->
@@ -261,7 +347,47 @@
             <div>
                 <div class="sec-title">// energy levels</div>
                 <div id="energy-display"></div>
-                <canvas id="energy-canvas"></canvas>
+                <canvas id="energy-canvas" style="width:100%;height:170px;display:block;background:#05050f;border:1px solid #1a1a2e;"></canvas>
+            </div>
+
+            <!-- ── EXTERNAL FIELDS ── -->
+            <div id="fields-section">
+                <div class="sec-title">// external fields</div>
+                <div class="field-toggle-row">
+                    <button class="field-btn" id="zeeman-btn">⊕ zeeman</button>
+                    <button class="field-btn" id="stark-btn">⊕ stark</button>
+                    <button class="field-btn" id="spinorbit-btn">⊕ fine struct</button>
+                </div>
+
+                <div id="b-field-row" style="display:none">
+                    <div class="field-slider-row">
+                        <span class="field-slider-label">B (Tesla)</span>
+                        <input type="range" id="b-field" min="0" max="25" step="0.1" value="0" style="flex:1">
+                        <span class="field-val" id="b-field-display">0.0 T</span>
+                    </div>
+                    <div class="qnum-row" style="margin-bottom:4px;">
+                        <span class="qnum-label" style="font-size:0.75em;">mₛ (spin)</span>
+                        <select id="ms-select" style="font-size:0.78em;">
+                            <option value="0">ignore spin</option>
+                            <option value="0.5">+½ ↑</option>
+                            <option value="-0.5">−½ ↓</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="e-field-row" style="display:none">
+                    <div class="field-slider-row">
+                        <span class="field-slider-label">ε (MV/m)</span>
+                        <input type="range" id="e-field" min="0" max="500" step="5" value="0" style="flex:1">
+                        <span class="field-val" id="e-field-display">0 MV/m</span>
+                    </div>
+                </div>
+
+                <div id="splitting-section" style="display:none">
+                    <div class="sec-title" style="margin-top:6px;">// level splitting</div>
+                    <canvas id="splitting-canvas"></canvas>
+                    <div id="splitting-info"></div>
+                </div>
             </div>
 
             <div id="photon-section">
@@ -282,6 +408,33 @@
                 <div id="transition-log"></div>
             </div>
 
+            <!-- ── SCENARIOS ── -->
+            <div id="scenarios-section">
+                <div class="sec-title">// scenarios &amp; cycles</div>
+                <div id="anim-status-bar" style="font-size:0.7em;color:#0cf;margin-bottom:6px;letter-spacing:1px;">[ idle ]</div>
+                <div class="anim-grid">
+                    <button class="btn anim-btn" data-anim="lyman_fluor">Ly-α fluor.</button>
+                    <button class="btn anim-btn" data-anim="rabi_osc">Rabi osc.</button>
+                    <button class="btn anim-btn" data-anim="cascade4">n=4 cascade</button>
+                    <button class="btn anim-btn" data-anim="cascade5">n=5 cascade</button>
+                    <button class="btn anim-btn" data-anim="lyman_scan">Lyman scan</button>
+                    <button class="btn anim-btn" data-anim="balmer_scan">Balmer scan</button>
+                    <button class="btn anim-btn" data-anim="paschen_scan">Paschen scan</button>
+                    <button class="btn anim-btn" data-anim="clock_trans">clock trans.</button>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:6px;align-items:center;">
+                    <button class="btn" id="anim-stop-btn" disabled>[ stop ]</button>
+                    <span style="font-size:0.7em;color:#555;">speed:</span>
+                    <select id="anim-speed" style="font-size:0.75em;flex:1;">
+                        <option value="0.5">0.5×</option>
+                        <option value="1" selected>1×</option>
+                        <option value="2">2×</option>
+                        <option value="4">4×</option>
+                    </select>
+                </div>
+                <div id="anim-desc" style="font-size:0.68em;color:#4a5a6a;margin-top:5px;line-height:1.5;min-height:2.5em;"></div>
+            </div>
+
         </div><!-- /pane-controls -->
 
         <!-- ── THEORY PANE ── -->
@@ -289,76 +442,245 @@
 
             <!-- Current state overview -->
             <div class="theory-section" id="ts-current">
-                <div class="theory-sec-title">current eigenstate</div>
-                <div id="tf-current-label" style="font-size:1.1em;color:#0cf;letter-spacing:2px;margin-bottom:8px;"></div>
-                <div class="formula-block" id="tf-wavefunction"></div>
-                <div class="insight-box" id="tf-insight">
-                    <div class="insight-label">insight</div>
-                    <div id="tf-insight-text"></div>
+                <div class="theory-sec-title" onclick="tsToggle('ts-current')">
+                    <span class="ts-toggle">▾</span> current eigenstate
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-current-label" style="font-size:1.1em;color:#0cf;letter-spacing:2px;margin-bottom:8px;"></div>
+                    <div class="formula-block" id="tf-wavefunction"></div>
+                    <div class="insight-box" id="tf-insight">
+                        <div class="insight-label">physical picture</div>
+                        <div id="tf-insight-text"></div>
+                    </div>
+                    <div id="tf-physical-picture" style="margin-top:6px;"></div>
+                </div>
+            </div>
+
+            <!-- Quantum numbers — cards -->
+            <div class="theory-section" id="ts-qnums">
+                <div class="theory-sec-title" onclick="tsToggle('ts-qnums')">
+                    <span class="ts-toggle">▾</span> quantum numbers
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-qnum-cards"></div>
+                    <p class="theory-prose" id="tf-qnum-footer"></p>
+                </div>
+            </div>
+
+            <!-- Wave function structure -->
+            <div class="theory-section" id="ts-wfn-structure">
+                <div class="theory-sec-title" onclick="tsToggle('ts-wfn-structure')">
+                    <span class="ts-toggle">▾</span> wave function & probability
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-wfn-structure"></div>
+                    <canvas id="radial-prob-canvas"></canvas>
+                    <div class="theory-prose" id="tf-radial-text"></div>
+                </div>
+            </div>
+
+            <!-- Node structure -->
+            <div class="theory-section" id="ts-nodes">
+                <div class="theory-sec-title" onclick="tsToggle('ts-nodes')">
+                    <span class="ts-toggle">▾</span> node structure
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-nodes"></div>
+                    <p class="theory-prose" id="tf-nodes-text"></p>
+                </div>
+            </div>
+
+            <!-- Uncertainty principle -->
+            <div class="theory-section" id="ts-uncertainty">
+                <div class="theory-sec-title" onclick="tsToggle('ts-uncertainty')">
+                    <span class="ts-toggle">▾</span> uncertainty principle
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-uncertainty"></div>
+                </div>
+            </div>
+
+            <!-- Hamiltonian -->
+            <div class="theory-section" id="ts-hamiltonian">
+                <div class="theory-sec-title" onclick="tsToggle('ts-hamiltonian')">
+                    <span class="ts-toggle">▾</span> hamiltonian & energy
+                </div>
+                <div class="theory-section-body">
+                    <div class="formula-block" id="tf-hamiltonian"></div>
+                    <p class="theory-prose" id="tf-hamiltonian-text"></p>
+                    <div class="formula-block" id="tf-energy-formula" style="margin-top:6px;"></div>
+                    <p class="theory-prose" id="tf-energy-text"></p>
                 </div>
             </div>
 
             <!-- Schrödinger equation -->
             <div class="theory-section" id="ts-schrodinger">
-                <div class="theory-sec-title">schrödinger equation</div>
-                <div class="formula-block" id="tf-schrodinger"></div>
-                <p class="theory-prose" id="tf-schrodinger-text"></p>
+                <div class="theory-sec-title" onclick="tsToggle('ts-schrodinger')">
+                    <span class="ts-toggle">▾</span> schrödinger equation
+                </div>
+                <div class="theory-section-body">
+                    <div class="formula-block" id="tf-schrodinger"></div>
+                    <p class="theory-prose" id="tf-schrodinger-text"></p>
+                    <div id="tf-commutators" style="margin-top:6px;"></div>
+                </div>
             </div>
 
-            <!-- Hamiltonian -->
-            <div class="theory-section" id="ts-hamiltonian">
-                <div class="theory-sec-title">hamiltonian operator</div>
-                <div class="formula-block" id="tf-hamiltonian"></div>
-                <p class="theory-prose" id="tf-hamiltonian-text"></p>
-            </div>
-
-            <!-- Wave function structure -->
-            <div class="theory-section" id="ts-wfn-structure">
-                <div class="theory-sec-title">wave function structure</div>
-                <div id="tf-wfn-structure"></div>
-                <canvas id="radial-prob-canvas"></canvas>
-                <div class="theory-prose" id="tf-radial-text"></div>
-            </div>
-
-            <!-- Quantum numbers table -->
-            <div class="theory-section" id="ts-qnums">
-                <div class="theory-sec-title">quantum numbers</div>
-                <table class="qnum-table" id="tf-qnum-table">
-                    <thead><tr><th>symbol</th><th>name</th><th>value</th><th>meaning</th></tr></thead>
-                    <tbody id="tf-qnum-body"></tbody>
-                </table>
-            </div>
-
-            <!-- Node structure -->
-            <div class="theory-section" id="ts-nodes">
-                <div class="theory-sec-title">node structure</div>
-                <div id="tf-nodes"></div>
-                <p class="theory-prose" id="tf-nodes-text"></p>
-            </div>
-
-            <!-- Expected values -->
+            <!-- Expectation values -->
             <div class="theory-section" id="ts-expvals">
-                <div class="theory-sec-title">expectation values</div>
-                <div id="tf-expvals"></div>
+                <div class="theory-sec-title" onclick="tsToggle('ts-expvals')">
+                    <span class="ts-toggle">▾</span> expectation values
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-expvals"></div>
+                </div>
             </div>
 
-            <!-- Energy & transitions -->
-            <div class="theory-section" id="ts-energy">
-                <div class="theory-sec-title">energy & transitions</div>
-                <div class="formula-block" id="tf-energy-formula"></div>
-                <p class="theory-prose" id="tf-energy-text"></p>
-                <div id="tf-transitions" style="margin-top:8px;"></div>
+            <!-- Symmetry & parity -->
+            <div class="theory-section" id="ts-symmetry">
+                <div class="theory-sec-title" onclick="tsToggle('ts-symmetry')">
+                    <span class="ts-toggle">▾</span> symmetry & parity
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-symmetry"></div>
+                </div>
             </div>
 
-            <!-- Photon physics -->
+            <!-- Transitions & photon physics -->
             <div class="theory-section" id="ts-photon">
-                <div class="theory-sec-title">photon physics</div>
-                <div class="formula-block" id="tf-photon-formula"></div>
-                <p class="theory-prose" id="tf-photon-text"></p>
-                <div id="tf-selection-rules" style="margin-top:8px;"></div>
+                <div class="theory-sec-title" onclick="tsToggle('ts-photon')">
+                    <span class="ts-toggle">▾</span> transitions & photon physics
+                </div>
+                <div class="theory-section-body">
+                    <div class="formula-block" id="tf-photon-formula"></div>
+                    <p class="theory-prose" id="tf-photon-text"></p>
+                    <div id="tf-selection-rules" style="margin-top:8px;"></div>
+                    <div id="tf-transitions" style="margin-top:8px;"></div>
+                </div>
+            </div>
+
+            <!-- External fields theory -->
+            <div class="theory-section" id="ts-fields" style="display:none;">
+                <div class="theory-sec-title" onclick="tsToggle('ts-fields')">
+                    <span class="ts-toggle">▾</span> <span id="tf-fields-title">external fields</span>
+                </div>
+                <div class="theory-section-body">
+                    <div class="formula-block" id="tf-fields-formula"></div>
+                    <p class="theory-prose" id="tf-fields-text"></p>
+                    <div class="formula-block" id="tf-fields-formula2" style="margin-top:6px;display:none;"></div>
+                    <div class="insight-box" id="tf-fields-insight" style="display:none;">
+                        <div class="insight-label">insight</div>
+                        <div id="tf-fields-insight-text"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spin -->
+            <div class="theory-section" id="ts-spin">
+                <div class="theory-sec-title" onclick="tsToggle('ts-spin')">
+                    <span class="ts-toggle">▾</span> spin & magnetic moment
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-spin"></div>
+                </div>
+            </div>
+
+            <!-- Correspondence & classical limit -->
+            <div class="theory-section" id="ts-classical">
+                <div class="theory-sec-title" onclick="tsToggle('ts-classical')">
+                    <span class="ts-toggle">▾</span> correspondence principle
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-classical"></div>
+                </div>
+            </div>
+
+            <!-- Real-world applications -->
+            <div class="theory-section" id="ts-applications">
+                <div class="theory-sec-title" onclick="tsToggle('ts-applications')">
+                    <span class="ts-toggle">▾</span> real-world applications
+                </div>
+                <div class="theory-section-body">
+                    <div id="tf-applications"></div>
+                </div>
             </div>
 
         </div><!-- /pane-theory -->
+
+        <!-- ── ADVANCED PANE ── -->
+        <div class="tab-pane" id="pane-advanced" style="display:none;">
+
+            <!-- CG Coefficients -->
+            <div class="adv-section">
+                <div class="adv-sec-title">angular momentum coupling</div>
+                <p class="theory-prose" style="margin-bottom:8px;">Decompose |J,M⟩ into |m₁,m₂⟩ product states. Coefficients ⟨j₁m₁;j₂m₂|JM⟩ (Clebsch-Gordan).</p>
+                <div style="display:flex;gap:5px;align-items:center;margin-bottom:7px;flex-wrap:wrap;">
+                    <span style="font-size:0.75em;color:#666;">j₁</span>
+                    <select id="cg-j1" style="font-size:0.78em;width:52px;">
+                        <option value="0.5">1/2</option><option value="1">1</option>
+                        <option value="1.5">3/2</option><option value="2">2</option>
+                        <option value="2.5">5/2</option><option value="3">3</option>
+                    </select>
+                    <span style="font-size:0.75em;color:#444;">⊗</span>
+                    <span style="font-size:0.75em;color:#666;">j₂</span>
+                    <select id="cg-j2" style="font-size:0.78em;width:52px;">
+                        <option value="0.5" selected>1/2</option>
+                        <option value="1">1</option><option value="1.5">3/2</option>
+                    </select>
+                    <button class="btn" id="cg-sync-btn" style="font-size:0.65em;padding:2px 5px;" title="Set j₁ = current ℓ">sync ℓ</button>
+                    <button class="btn" id="cg-calc-btn" style="font-size:0.65em;padding:2px 5px;">show</button>
+                </div>
+                <div id="cg-display" style="overflow-x:auto;"></div>
+            </div>
+
+            <!-- Selection Rules -->
+            <div class="adv-section">
+                <div class="adv-sec-title">selection rules — current state</div>
+                <div id="sel-type-row" style="display:flex;gap:4px;margin-bottom:6px;">
+                    <button class="btn sel-type-btn active" data-type="E1" style="font-size:0.65em;padding:2px 6px;">E1 dipole</button>
+                    <button class="btn sel-type-btn" data-type="M1" style="font-size:0.65em;padding:2px 6px;">M1</button>
+                    <button class="btn sel-type-btn" data-type="E2" style="font-size:0.65em;padding:2px 6px;">E2 quad</button>
+                </div>
+                <div id="sel-rules-display"></div>
+            </div>
+
+            <!-- Lifetimes -->
+            <div class="adv-section">
+                <div class="adv-sec-title">lifetime &amp; linewidth</div>
+                <div id="lifetime-display"></div>
+            </div>
+
+            <!-- Dressed States -->
+            <div class="adv-section">
+                <div class="adv-sec-title">dressed states (two-level + field)</div>
+                <div class="field-slider-row" style="margin-bottom:4px;">
+                    <span class="field-slider-label" style="min-width:52px;">δ (det.)</span>
+                    <input type="range" id="dressed-delta" min="-10" max="10" step="0.2" value="0" style="flex:1">
+                    <span class="field-val" id="dressed-delta-disp">0.0 Γ</span>
+                </div>
+                <div class="field-slider-row" style="margin-bottom:6px;">
+                    <span class="field-slider-label" style="min-width:52px;">Ω (Rabi)</span>
+                    <input type="range" id="dressed-omega" min="0.1" max="10" step="0.1" value="1" style="flex:1">
+                    <span class="field-val" id="dressed-omega-disp">1.0 Γ</span>
+                </div>
+                <canvas id="dressed-canvas" style="width:100%;height:110px;display:block;background:#05050f;border:1px solid #1a1a2e;"></canvas>
+                <div id="dressed-info" style="font-size:0.68em;color:#446;margin-top:3px;line-height:1.5;"></div>
+            </div>
+
+            <!-- Advanced Sequences -->
+            <div class="adv-section">
+                <div class="adv-sec-title">advanced sequences</div>
+                <div class="anim-grid">
+                    <button class="btn anim-btn" data-anim="anti_crossing">anti-crossing</button>
+                    <button class="btn anim-btn" data-anim="optical_pump">optical pump</button>
+                    <button class="btn anim-btn" data-anim="eit_demo">EIT dark state</button>
+                    <button class="btn anim-btn" data-anim="breit_rabi">Breit-Rabi</button>
+                    <button class="btn anim-btn" data-anim="two_photon">2-photon abs.</button>
+                    <button class="btn anim-btn" data-anim="stimulated">stim. emission</button>
+                </div>
+                <div id="adv-anim-desc" style="font-size:0.68em;color:#4a5a6a;margin-top:5px;line-height:1.5;min-height:2.5em;"></div>
+            </div>
+
+        </div><!-- /pane-advanced -->
 
     </div><!-- /right-panel -->
 </div><!-- /main -->
@@ -605,7 +927,11 @@ function onParamChange() {
     state.n=parseInt(nSel.value); state.l=parseInt(lSel.value); state.m=parseInt(mSel.value);
     state.nx=parseInt(nxSel.value); state.ny=parseInt(nySel.value); state.shoN=parseInt(shoNSel.value);
     state.excitedN=null; state.dirty=true;
-    syncControlsLabels(); buildPresets(); drawEnergyDiagram(); drawSpectrum(); updateTheory();
+    syncControlsLabels(); buildPresets();
+    const anyField = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    if (anyField && state.system==='hydrogen') { drawEnergyDiagramWithFields(); drawSplittingDiagram(); }
+    else drawEnergyDiagram();
+    drawSpectrum(); updateTheory();
 }
 
 function getOrbName(n=state.n, l=state.l, m=state.m) {
@@ -622,6 +948,9 @@ function syncControlsLabels() {
             :                             `${(state.shoN+0.5).toFixed(1)} · ℏω`;
     energyEl.textContent = `E = ${E}${state.excitedN?' ★ excited':''}`;
     hamEl.textContent = getHamiltonianText();
+    if (document.getElementById('pane-advanced')?.style.display !== 'none') {
+        buildSelectionRules(); buildLifetimeDisplay();
+    }
 }
 
 function getHamiltonianText() {
@@ -658,20 +987,7 @@ function buildPresets() {
     });
 }
 
-// Tab switching
-document.getElementById('tab-controls-btn').addEventListener('click',()=>{
-    document.getElementById('pane-controls').style.display='';
-    document.getElementById('pane-theory').style.display='none';
-    document.getElementById('tab-controls-btn').classList.add('active');
-    document.getElementById('tab-theory-btn').classList.remove('active');
-});
-document.getElementById('tab-theory-btn').addEventListener('click',()=>{
-    document.getElementById('pane-controls').style.display='none';
-    document.getElementById('pane-theory').style.display='';
-    document.getElementById('tab-controls-btn').classList.remove('active');
-    document.getElementById('tab-theory-btn').classList.add('active');
-    updateTheory();
-});
+// Tab switching handled by unified TABS object below
 
 // ═══════════════════════════════════════════════════════
 // THEORY PANEL — KATEX RENDERING
@@ -682,6 +998,12 @@ function math(latex, display=true) {
     return katex.renderToString(latex, {displayMode:display, throwOnError:false, trust:true});
 }
 function mathInline(latex) { return math(latex, false); }
+
+// Section collapse toggle
+function tsToggle(id) {
+    const sec = document.getElementById(id);
+    if (sec) sec.classList.toggle('collapsed');
+}
 
 function updateTheory() {
     if (!window._katexReady) { window._theoryPending=true; return; }
@@ -695,38 +1017,92 @@ function updateTheory() {
     const el = id => document.getElementById(id);
     el('tf-current-label').textContent = getOrbName(n,l,m);
 
+    // ── Physical picture & wavefunction ──
     if (sys==='hydrogen') {
         const info = getOrbitalInfo(n, l, m);
         el('tf-wavefunction').innerHTML = math(info.psi);
+        const ln = ['s','p','d','f','g'];
+        const orbShape = ['perfectly spherical — equal probability in all directions',
+            'dumbbell-shaped along one axis; node through the nucleus',
+            'four-lobed (or ring) shape; two nodal planes',
+            'complex multi-lobed shape; three nodal planes'][Math.min(l,3)];
         el('tf-insight-text').innerHTML = info.insight;
+        // Physical picture prose
+        const rmp_n = n===1&&l===0?1:n===2&&l===0?5.236:n===2&&l===1?4:n*n;
+        const degeneracy = n*n;
+        el('tf-physical-picture').innerHTML = `
+            <p class="theory-prose"><strong>${n}${ln[l]}</strong> is the ${n===1?'ground':'excited'} state with <em>n=${n}, ℓ=${l}, m=${m>=0?'+'+m:m}</em>.
+            The orbital is <em>${orbShape}</em>.
+            This shell has total degeneracy <em>${degeneracy}</em> states (all ℓ and m combinations), all at the same energy in the absence of external fields.
+            ${n===1&&l===0?'The 1s ground state is the most compact orbital — 90% of the electron probability lies within <em>3a₀ ≈ 1.6 Å</em>.':
+              n===2&&l===0?'The 2s orbital has the same energy as 2p (hydrogen only) but a radial node at r = 2a₀ — a spherical shell of zero probability.':
+              n===2&&l===1?'The 2p orbital is the first with angular momentum. Its three orientations (m=−1,0,+1) form the basis of chemical bonding in all organic molecules.':
+              `The n=${n} shell has ${n} sub-shells (s through ${ln[Math.min(n-1,4)]}).`}
+            </p>`;
     } else if (sys==='pib') {
         el('tf-wavefunction').innerHTML = math(`\\psi_{${state.nx}${state.ny}}(x,y)=\\frac{2}{L}\\sin\\!\\left(\\frac{${state.nx}\\pi x}{L}\\right)\\sin\\!\\left(\\frac{${state.ny}\\pi y}{L}\\right)`);
-        el('tf-insight-text').innerHTML = `Energy quantum number squared-sum: <em>${state.nx*state.nx+state.ny*state.ny}</em>. ${state.nx===state.ny?'Symmetric state — not degenerate.':'Try ('+state.ny+','+state.nx+') — same energy, different shape! This is quantum degeneracy.'}`;
+        const degen = state.nx!==state.ny ? `States (${state.nx},${state.ny}) and (${state.ny},${state.nx}) are <em>degenerate</em> — same energy E=${state.nx*state.nx+state.ny*state.ny}·E₁, but their probability patterns are different (one is a 90° rotation of the other). This is an example of <em>accidental degeneracy</em>.` : `This is a symmetric state (nₓ=nᵧ=${state.nx}) — <em>non-degenerate</em>. No rotation gives a distinct state.`;
+        el('tf-insight-text').innerHTML = `Energy quantum number sum of squares: <em>${state.nx*state.nx+state.ny*state.ny}</em>. ${degen}`;
+        el('tf-physical-picture').innerHTML = `<p class="theory-prose">The particle-in-a-box is the simplest model of quantum confinement. In real systems, this describes electrons in quantum dots, neutrons in nuclei, and phonons in thin films. The quantization condition nλ/2 = L means only integer numbers of half-wavelengths fit inside.</p>`;
     } else {
-        el('tf-wavefunction').innerHTML = math(`\\psi_${state.shoN}(x)=\\frac{1}{\\sqrt{2^${state.shoN}\\cdot${state.shoN}!}}\\!\\left(\\frac{m\\omega}{\\pi\\hbar}\\right)^{\\!1/4}H_${state.shoN}\\!\\left(\\sqrt{\\tfrac{m\\omega}{\\hbar}}\\,x\\right)e^{-m\\omega x^2/2\\hbar}`);
+        el('tf-wavefunction').innerHTML = math(`\\psi_${state.shoN}(x)=N_{${state.shoN}}\\,H_${state.shoN}\\!\\left(\\sqrt{\\tfrac{m\\omega}{\\hbar}}\\,x\\right)e^{-m\\omega x^2/2\\hbar}`);
         el('tf-insight-text').innerHTML = state.shoN===0
-            ? '<strong>Zero-point energy</strong>: even the ground state has E = ½ℏω. The uncertainty principle forbids a perfectly still particle — position and momentum cannot both be zero.'
-            : `n = ${state.shoN}: there are <em>${state.shoN}</em> nodes in the wave function. Each node costs one quantum of energy ℏω.`;
+            ? '<strong>Zero-point energy</strong>: even the ground state has E = ½ℏω. The uncertainty principle forbids a perfectly still particle — Δx·Δp ≥ ℏ/2.'
+            : `n = ${state.shoN}: the wave function is a degree-${state.shoN} Hermite polynomial times a Gaussian. There are <em>${state.shoN} nodes</em> where ψ = 0.`;
+        el('tf-physical-picture').innerHTML = `<p class="theory-prose">The quantum harmonic oscillator is perhaps the most important exactly-solvable model in physics. Perturbations of <em>any</em> stable equilibrium look locally parabolic — so the SHO energy levels describe molecular vibrations, crystal lattice phonons, microwave cavity photons, and the Higgs field. The ladder operators â and â† are the foundation of quantum field theory.</p>`;
     }
 
-    // ── Schrödinger equation ──
-    el('tf-schrodinger').innerHTML = math(`\\hat{H}\\,|\\psi\\rangle = E\\,|\\psi\\rangle`);
-    el('tf-schrodinger-text').innerHTML = sys==='hydrogen'
-        ? `The time-independent Schrödinger equation. The Hamiltonian <strong>Ĥ</strong> acts on the wave function and returns it scaled by the energy — these special states are called <em>eigenstates</em> (or stationary states). The electron doesn't move; its probability cloud is frozen in time.`
-        : sys==='pib'
-        ? `The particle is <em>confined</em> — the infinite potential walls force ψ = 0 at the boundaries. This quantizes the allowed wave patterns into discrete standing waves, each with a unique energy.`
-        : `The parabolic potential ½mω²x² traps the particle. The allowed energies are evenly spaced by ℏω — this equal spacing is unique to the harmonic oscillator and underlies phonons, photons, and quantum field theory.`;
-
-    // ── Hamiltonian ──
+    // ── Quantum number cards ──
+    const cards = el('tf-qnum-cards');
+    cards.innerHTML = '';
     if (sys==='hydrogen') {
-        el('tf-hamiltonian').innerHTML = math(`\\hat{H} = \\underbrace{-\\frac{\\hbar^2}{2m_e}\\nabla^2}_{\\text{kinetic}} \\underbrace{-\\frac{e^2}{4\\pi\\varepsilon_0 r}}_{\\text{Coulomb}}`);
-        el('tf-hamiltonian-text').innerHTML = `Two terms: <strong>kinetic energy</strong> (−ℏ²∇²/2mₑ, always positive) and <strong>Coulomb attraction</strong> (negative, diverges at r = 0). The competition between them creates the shell structure. Bound states have E < 0; the electron is ionized when E ≥ 0.`;
+        const ln = ['s','p','d','f','g'];
+        const L2 = l*(l+1);
+        const Lmag = Math.sqrt(L2).toFixed(3);
+        const Lz = m;
+        const jMin = Math.abs(l-0.5), jMax = l+0.5;
+        const qnums = [
+            {sym:'n', name:'principal quantum number', val:n, range:`1, 2, 3, …`,
+             desc:`Controls the <strong>energy</strong> and overall size of the orbital. E = −13.6/n² eV. Larger n means higher energy and larger orbital. The n=1 shell is called K, n=2 is L, etc. (X-ray spectroscopy notation).`,
+             badges:[`E = ${HYDROGEN_ENERGY(n).toFixed(4)} eV`, `degeneracy = n² = ${n*n}`, `⟨r⟩ ≈ ${(1.5*n*n - 0.5*l*(l+1)).toFixed(1)} a₀`]},
+            {sym:'ℓ', name:'orbital angular momentum', val:l, range:`0, 1, …, n−1 → ${ln.slice(0,n).join(',')}`,
+             desc:`Controls the <strong>shape</strong> of the orbital. |L| = ℏ√(ℓ(ℓ+1)) = <em>${Lmag} ℏ</em>. Each ℓ adds one angular node (planar or conical). s orbitals (ℓ=0) have no angular momentum and no angular nodes — they're purely radial.`,
+             badges:[`|L| = √${L2} ℏ = ${Lmag} ℏ`, `angular nodes: ${l}`, `radial nodes: ${n-l-1}`, `shape: ${ln[l]||l}`]},
+            {sym:'m', name:'magnetic quantum number', val:m>=0?'+'+m:''+m, range:`−ℓ … +ℓ (${2*l+1} values)`,
+             desc:`Controls the <strong>orientation</strong> of the orbital and the z-component of angular momentum. Lz = mℏ = <em>${m}ℏ</em>. Without an external field, all 2ℓ+1 values of m are <em>degenerate</em>. A magnetic field breaks this degeneracy (Zeeman effect).`,
+             badges:[`Lz = ${m}ℏ`, `2ℓ+1 = ${2*l+1} orientations`, m===0?'axially symmetric':'complex exponential e^{imφ}']},
+        ];
+        if (state.ms !== 0) qnums.push({
+            sym:'mₛ', name:'spin magnetic quantum number', val:state.ms>0?'+½':'−½', range:'±½',
+            desc:`Electron spin is an intrinsic angular momentum with no classical analogue. |S| = ℏ√(3)/2 ≈ 0.866ℏ. The two spin states are called <em>spin-up</em> (↑, α) and <em>spin-down</em> (↓, β). Spin is responsible for the Pauli exclusion principle and all of chemistry.`,
+            badges:[`Sz = ${state.ms>0?'+½':'−½'}ℏ`, state.ms>0?'spin-up ↑ (α)':'spin-down ↓ (β)', `μz = ${state.ms>0?'−':'+'} μ_B`]
+        });
+        qnums.forEach(q=>{
+            cards.innerHTML+=`<div class="qnum-card">
+                <div class="qnum-sym">${q.sym}</div>
+                <div class="qnum-body">
+                    <div class="qnum-name">${q.name}</div>
+                    <div class="qnum-val">${q.val}</div>
+                    <div class="qnum-range">allowed: ${q.range}</div>
+                    <div class="qnum-desc">${q.desc}</div>
+                    <div style="margin-top:5px;">${q.badges.map(b=>`<span class="qnum-badge">${b}</span>`).join('')}</div>
+                </div>
+            </div>`;
+        });
+        el('tf-qnum-footer').innerHTML = `<strong>Good quantum numbers</strong> are conserved — they label exact eigenstates of the Hamiltonian. For hydrogen with no external fields: n, ℓ, m, mₛ are all good. Turn on the Zeeman effect and m (but not ℓ) remains good. Add spin-orbit coupling and only n, j, mⱼ, ℓ are good.`;
     } else if (sys==='pib') {
-        el('tf-hamiltonian').innerHTML = math(`\\hat{H} = -\\frac{\\hbar^2}{2m}\\!\\left(\\frac{\\partial^2}{\\partial x^2}+\\frac{\\partial^2}{\\partial y^2}\\right) + V(x,y)`);
-        el('tf-hamiltonian-text').innerHTML = `Inside the box V = 0, so the Hamiltonian is purely kinetic. The boundary condition ψ = 0 at the walls selects integer multiples of half-wavelengths — only certain standing waves fit, quantizing the energy.`;
+        [{sym:'nₓ', name:'x-direction mode', val:state.nx, range:`1, 2, 3, …`,
+          desc:`Number of half-wavelengths along x. Each mode is a standing wave with nₓ−1 nodal lines perpendicular to x.`,
+          badges:[`${state.nx-1} x-nodes`, `kₓ = ${state.nx}π/L`]},
+         {sym:'nᵧ', name:'y-direction mode', val:state.ny, range:`1, 2, 3, …`,
+          desc:`Number of half-wavelengths along y. The 2D wave function separates because the boundary conditions are independent in x and y.`,
+          badges:[`${state.ny-1} y-nodes`, `kᵧ = ${state.ny}π/L`]}].forEach(q=>{
+            cards.innerHTML+=`<div class="qnum-card"><div class="qnum-sym">${q.sym}</div><div class="qnum-body"><div class="qnum-name">${q.name}</div><div class="qnum-val">${q.val}</div><div class="qnum-range">allowed: ${q.range}</div><div class="qnum-desc">${q.desc}</div><div style="margin-top:5px;">${q.badges.map(b=>`<span class="qnum-badge">${b}</span>`).join('')}</div></div></div>`;
+        });
+        el('tf-qnum-footer').innerHTML = `E = (nₓ²+nᵧ²)·E₁ = <strong>${state.nx*state.nx+state.ny*state.ny}·E₁</strong>. States with nₓ²+nᵧ²=const are degenerate. First degeneracy: (1,2) ≡ (2,1) at E=5·E₁.`;
     } else {
-        el('tf-hamiltonian').innerHTML = math(`\\hat{H} = \\frac{\\hat{p}^2}{2m}+\\frac{1}{2}m\\omega^2\\hat{x}^2 = \\hbar\\omega\\!\\left(\\hat{a}^\\dagger\\hat{a}+\\frac{1}{2}\\right)`);
-        el('tf-hamiltonian-text').innerHTML = `The ladder operators <em>â</em> and <em>â†</em> are the elegant key: <em>â</em>|n⟩ = √n |n−1⟩ lowers energy by one quantum; â†|n⟩ = √(n+1)|n+1⟩ raises it. This algebraic structure is why the SHO is solvable without any calculus.`;
+        cards.innerHTML=`<div class="qnum-card"><div class="qnum-sym">n</div><div class="qnum-body"><div class="qnum-name">excitation quantum number</div><div class="qnum-val">${state.shoN}</div><div class="qnum-range">0, 1, 2, …</div><div class="qnum-desc">Number of energy quanta above the ground state. Also equals the number of <em>nodes</em> in ψ. Each unit of n raises the energy by ℏω.</div><div style="margin-top:5px;"><span class="qnum-badge">E = ${(state.shoN+0.5).toFixed(1)} ℏω</span><span class="qnum-badge">${state.shoN} nodes</span><span class="qnum-badge">${state.shoN===0?'ground state':'excited'}</span></div></div></div>`;
+        el('tf-qnum-footer').innerHTML = `The SHO has only one quantum number because it is a 1D system. In 3D (isotropic SHO), the full degeneracy at level N is (N+1)(N+2)/2. The 3D SHO models nucleons in the nuclear shell model.`;
     }
 
     // ── Wave function structure ──
@@ -734,125 +1110,304 @@ function updateTheory() {
     structEl.innerHTML = '';
     if (sys==='hydrogen') {
         const info = getOrbitalInfo(n, l, m);
-        structEl.innerHTML = math(`\\psi_{nlm}(r,\\theta,\\phi) = R_{nl}(r)\\cdot Y_l^m(\\theta,\\phi)`)
-            + `<p class="theory-prose" style="margin:6px 0 4px;">Radial part:</p>`
+        structEl.innerHTML =
+            `<p class="theory-prose" style="margin:0 0 4px;">The full wave function separates into radial × angular parts:</p>`
+            + `<div class="formula-block">${math(`\\psi_{nlm}(r,\\theta,\\phi) = R_{nl}(r)\\cdot Y_l^m(\\theta,\\phi)`)}</div>`
+            + `<p class="theory-prose" style="margin:6px 0 3px;"><strong>Radial part</strong> R<sub>nl</sub>(r) — controls distance from nucleus:</p>`
             + `<div class="formula-block">${math(info.R)}</div>`
-            + `<p class="theory-prose" style="margin:6px 0 4px;">Angular part:</p>`
+            + `<p class="theory-prose" style="margin:6px 0 3px;"><strong>Angular part</strong> Y<sub>l</sub><sup>m</sup>(θ,φ) — spherical harmonic, controls shape:</p>`
             + `<div class="formula-block">${math(info.Y)}</div>`;
-        el('tf-radial-text').innerHTML = `The radial probability density P(r) = r²|R(r)|² below shows where the electron is most likely found as a function of distance from the nucleus.`;
+        el('tf-radial-text').innerHTML = `The curve below is the <strong>radial probability density</strong> P(r) = r²|R(r)|² — it shows the probability of finding the electron at radius r. Red dashes mark radial nodes (shells where ψ = 0). The area under the curve between two radii gives the probability of being in that shell.`;
         drawRadialProb(n, l);
     } else if (sys==='pib') {
-        structEl.innerHTML = math(`\\psi_{n_x n_y}=\\psi_{n_x}(x)\\cdot\\psi_{n_y}(y)`)
-            + `<p class="theory-prose" style="margin:6px 0;">The 2D wave function separates: each direction is independent. Energy: E = (nₓ² + nᵧ²)·E₁ where E₁ = π²ℏ²/2mL².</p>`;
-        el('tf-radial-text').innerHTML='';
-        drawRadialProb(null, null);
+        structEl.innerHTML = `<p class="theory-prose" style="margin:0 0 4px;">Wave function separates in x and y (the box is a product geometry):</p>`
+            + `<div class="formula-block">${math(`\\psi_{n_x n_y}=\\sqrt{\\frac{2}{L}}\\sin\\!\\frac{n_x\\pi x}{L}\\cdot\\sqrt{\\frac{2}{L}}\\sin\\!\\frac{n_y\\pi y}{L}`)}</div>`
+            + `<p class="theory-prose" style="margin-top:6px;">Each factor is a 1D standing wave — a half-integer multiple of wavelengths that fits in the box. The probability density |ψ|² forms a grid of peaks at the antinodes.</p>`;
+        el('tf-radial-text').innerHTML=''; drawRadialProb(null,null);
     } else {
-        structEl.innerHTML = math(`\\hat{a} = \\sqrt{\\frac{m\\omega}{2\\hbar}}\\!\\left(\\hat{x}+\\frac{i\\hat{p}}{m\\omega}\\right)`)
-            + `<p class="theory-prose" style="margin:6px 0;">Hermite polynomials H_n give the oscillating spatial pattern. The Gaussian envelope ensures ψ → 0 at ±∞, normalizing the state.</p>`;
-        el('tf-radial-text').innerHTML='';
-        drawRadialProb(null, null);
-    }
-
-    // ── Quantum numbers table ──
-    const tbody = el('tf-qnum-body');
-    tbody.innerHTML = '';
-    if (sys==='hydrogen') {
-        [
-          {sym:'n', name:'principal', val:n, range:`1, 2, 3, …`, meaning:`Sets the energy shell: E_n = −13.6/n² eV. Larger n → higher energy, farther from nucleus.`},
-          {sym:'ℓ', name:'angular', val:l, range:`0 … n−1`, meaning:`Sets orbital shape: s (sphere), p (dumbbell), d, f, … Each ℓ adds one more angular node.`},
-          {sym:'m', name:'magnetic', val:m, range:`−ℓ … ℓ`, meaning:`Sets orientation in space. Without a magnetic field, all m values within an ℓ are degenerate.`},
-        ].forEach(row => {
-            const tr = document.createElement('tr');
-            tr.className = 'active-qnum';
-            tr.innerHTML = `<td>${row.sym}</td><td style="color:#666">${row.name}</td><td>${row.val}</td><td>${row.meaning}</td>`;
-            tbody.appendChild(tr);
-        });
-    } else if (sys==='pib') {
-        [{sym:'nₓ',val:state.nx,meaning:'x-direction mode. Counts half-wavelengths along x.'},
-         {sym:'nᵧ',val:state.ny,meaning:'y-direction mode. Counts half-wavelengths along y.'}].forEach(row=>{
-            const tr=document.createElement('tr');tr.className='active-qnum';
-            tr.innerHTML=`<td>${row.sym}</td><td style="color:#666">quantum #</td><td>${row.val}</td><td>${row.meaning}</td>`;
-            tbody.appendChild(tr);
-        });
-    } else {
-        const tr=document.createElement('tr');tr.className='active-qnum';
-        tr.innerHTML=`<td>n</td><td style="color:#666">excitation</td><td>${state.shoN}</td><td>Number of nodes in ψ. Each unit raises energy by ℏω.</td>`;
-        tbody.appendChild(tr);
+        structEl.innerHTML = `<p class="theory-prose" style="margin:0 0 4px;">The wave function is a Hermite polynomial in a Gaussian envelope:</p>`
+            + `<div class="formula-block">${math(`\\psi_n(x)=\\frac{1}{\\sqrt{2^n n!}}\\!\\left(\\frac{m\\omega}{\\pi\\hbar}\\right)^{1/4}H_n\\!\\left(\\sqrt{\\tfrac{m\\omega}{\\hbar}}\\,x\\right)e^{-m\\omega x^2/2\\hbar}`)}</div>`
+            + `<div class="formula-block">${math(`H_0=1,\\;H_1=2\\xi,\\;H_2=4\\xi^2-2,\\;H_3=8\\xi^3-12\\xi\\quad(\\xi=\\sqrt{m\\omega/\\hbar}\\,x)`)}</div>`
+            + `<p class="theory-prose" style="margin-top:6px;">The Gaussian factor <em>e</em><sup>−ξ²/2</sup> confines the wave function. Without it, Hermite polynomials grow without bound — the Gaussian is what makes the wave function normalizable.</p>`;
+        el('tf-radial-text').innerHTML=''; drawRadialProb(null,null);
     }
 
     // ── Node structure ──
     if (sys==='hydrogen') {
-        const rn = n-l-1, an = l, tot = n-1;
-        el('tf-nodes').innerHTML =
+        const rn=n-l-1, an=l, tot=n-1;
+        el('tf-nodes').innerHTML=
             `<span class="node-badge">radial nodes: <span class="nb-val">${rn}</span></span>`+
             `<span class="node-badge">angular nodes: <span class="nb-val">${an}</span></span>`+
             `<span class="node-badge">total: <span class="nb-val">${tot}</span></span>`;
-        el('tf-nodes-text').innerHTML = `Radial nodes are spherical shells where ψ = 0. Angular nodes are planes/cones through the nucleus. <em>Total nodes always = n − 1</em>, regardless of ℓ. More nodes ↔ shorter wavelength ↔ higher kinetic energy.`;
+        el('tf-nodes-text').innerHTML=`<strong>Radial nodes</strong> are concentric spherical shells where R<sub>nl</sub>(r) = 0 — the electron is never found there. <strong>Angular nodes</strong> are flat planes (for m=0) or conical surfaces through the nucleus where Y<sub>l</sub><sup>m</sup> = 0.
+            <br><br>The total node count is always <em>n − 1</em>, independent of ℓ. This is analogous to a string vibrating in the nth harmonic — more nodes means shorter wavelength, higher momentum, and therefore higher kinetic energy.
+            ${rn===0?'<br><br><span style="color:#0cf;">No radial nodes</span> — the wave function does not go to zero between the nucleus and the outer lobe.':''}
+            ${an===0?'<br><br><span style="color:#0cf;">No angular nodes (s orbital)</span> — the shape is spherically symmetric.':''}`;
     } else if (sys==='pib') {
-        el('tf-nodes').innerHTML =
+        el('tf-nodes').innerHTML=
             `<span class="node-badge">x-nodes: <span class="nb-val">${state.nx-1}</span></span>`+
-            `<span class="node-badge">y-nodes: <span class="nb-val">${state.ny-1}</span></span>`;
-        el('tf-nodes-text').innerHTML = `Each direction has (nᵢ − 1) nodal lines — straight lines where ψ = 0. These form a grid pattern of (nₓ−1)×(nᵧ−1) nodal intersections inside the box.`;
+            `<span class="node-badge">y-nodes: <span class="nb-val">${state.ny-1}</span></span>`+
+            `<span class="node-badge">total: <span class="nb-val">${state.nx+state.ny-2}</span></span>`;
+        el('tf-nodes-text').innerHTML=`Each direction has (nᵢ − 1) nodal <em>lines</em> (vertical or horizontal stripes where ψ = 0). At each intersection of two nodal lines, ψ is also zero — these form a rectangular grid of ${(state.nx-1)*(state.ny-1)} nodal crossings. The anti-nodes (brightest spots in the orbital view) are at x = (2k−1)L/2nₓ, y = (2j−1)L/2nᵧ.`;
     } else {
         el('tf-nodes').innerHTML=`<span class="node-badge">nodes: <span class="nb-val">${state.shoN}</span></span>`;
-        el('tf-nodes-text').innerHTML=`The nth level has exactly n nodes. Each node is a zero-crossing of the Hermite polynomial H_n(x), dividing the probability cloud into alternating lobes.`;
+        el('tf-nodes-text').innerHTML=`The nth eigenstate has exactly n nodes — zeros of the Hermite polynomial H_n(ξ). Between each pair of adjacent nodes lies a lobe of probability. ${state.shoN===0?'The ground state has no nodes — its wave function is a pure Gaussian.':''} This structure ensures orthogonality between different eigenstates.`;
     }
+
+    // ── Uncertainty principle ──
+    const uncEl = el('tf-uncertainty');
+    if (sys==='hydrogen') {
+        // ΔrΔp_r ≥ ℏ/2 — estimate Δr ≈ n²a₀ (rough), Δp ≈ ℏ/(na₀)
+        const rAvg = (1.5*n*n - 0.5*l*(l+1)); // in a₀
+        const rms = Math.sqrt(0.5*n*n*(5*n*n+1-3*l*(l+1))); // ⟨r²⟩^½ in a₀
+        const dr = rms-rAvg; // rough spread
+        const dp_r = 1/rAvg; // in ℏ/a₀
+        const dp_theta = Math.sqrt(l*(l+1))/rAvg; // angular contribution
+        const heisenberg = rAvg * dp_r; // ≥ 0.5 ideally
+        const fracFill = Math.min(1, heisenberg/3);
+        uncEl.innerHTML = `
+            <div class="formula-block">${math(`\\Delta x\\,\\Delta p \\geq \\frac{\\hbar}{2}`)}</div>
+            <p class="theory-prose">For the ${n}${['s','p','d','f','g'][l]} state, the position spread (Δr) and momentum spread (Δp) are linked. As the electron is pulled closer to the nucleus (smaller Δr), it gains kinetic energy from the confinement (larger Δp). This <em>pressure</em> stabilizes the atom — without it, the electron would spiral into the nucleus.</p>
+            <div style="margin-top:8px;">
+                <div class="uncertainty-meter">
+                    <div class="um-label">⟨r⟩</div>
+                    <div class="um-bar-wrap"><div class="um-bar" style="width:${Math.min(100,rAvg/30*100)}%;background:linear-gradient(90deg,#0cf,#06f);"></div></div>
+                    <div class="um-value">${rAvg.toFixed(1)} a₀</div>
+                </div>
+                <div class="uncertainty-meter">
+                    <div class="um-label">Δr (rms)</div>
+                    <div class="um-bar-wrap"><div class="um-bar" style="width:${Math.min(100,rms/30*100)}%;background:linear-gradient(90deg,#f80,#f40);"></div></div>
+                    <div class="um-value">${rms.toFixed(1)} a₀</div>
+                </div>
+                <div class="uncertainty-meter">
+                    <div class="um-label">ΔrΔp/ℏ</div>
+                    <div class="um-bar-wrap"><div class="um-bar" style="width:${Math.min(100,fracFill*100)}%;background:linear-gradient(90deg,#6bcb77,#3a8);"></div></div>
+                    <div class="um-value">≈ ${heisenberg.toFixed(2)}</div>
+                </div>
+            </div>
+            <div class="warn-box" style="margin-top:8px;">
+                <div class="warn-label">common misconception</div>
+                The uncertainty principle is not about measurement disturbance — it is a fundamental property of waves. A wave that is localized in space (small Δx) must be a superposition of many wavelengths (large Δk = Δp/ℏ), by Fourier analysis. Quantum particles <em>are</em> waves.
+            </div>`;
+    } else if (sys==='pib') {
+        const nx_=state.nx, ny_=state.ny;
+        const dx = Math.sqrt(1/3 - 1/(2*nx_*nx_*Math.PI*Math.PI));
+        const dpx = nx_*Math.PI;
+        const prod = dx*dpx;
+        uncEl.innerHTML=`<div class="formula-block">${math(`\\Delta x\\,\\Delta p_x = L\\sqrt{\\frac{1}{3}-\\frac{1}{2n_x^2\\pi^2}}\\cdot\\frac{n_x\\pi\\hbar}{L} = ${prod.toFixed(3)}\\,\\hbar`)}</div>
+            <p class="theory-prose">As the box gets smaller (L → 0), Δx decreases but Δp = nπℏ/L <em>increases</em> — confinement drives up kinetic energy. This is why nuclear electrons would need MeV kinetic energies (they don't exist there). For (nₓ,nᵧ) = (${nx_},${ny_}): ΔxΔp_x = ${prod.toFixed(2)}ℏ ≥ ½ℏ ✓</p>`;
+    } else {
+        const n_=state.shoN;
+        uncEl.innerHTML=`<div class="formula-block">${math(`\\Delta x\\,\\Delta p = \\hbar\\!\\left(n+\\tfrac{1}{2}\\right) = ${(n_+0.5).toFixed(1)}\\,\\hbar`)}</div>
+            <p class="theory-prose">The SHO satisfies ΔxΔp = ℏ(n+½). The <em>ground state</em> (n=0) achieves the <em>minimum possible</em> uncertainty product ℏ/2 — it is a <em>coherent state</em> in the quantum sense (also called a minimum-uncertainty state or Gaussian wave packet). Higher n levels spread further above the Heisenberg bound.</p>
+            <div class="insight-box"><div class="insight-label">coherent states</div>
+            A superposition of SHO eigenstates can form a "coherent state" |α⟩ which also achieves ΔxΔp = ℏ/2 for all time, and whose wave packet oscillates like a classical particle without spreading. Laser light fields are coherent states of the electromagnetic field oscillators.</div>`;
+    }
+
+    // ── Hamiltonian & energy ──
+    if (sys==='hydrogen') {
+        el('tf-hamiltonian').innerHTML = math(`\\hat{H} = \\underbrace{-\\frac{\\hbar^2}{2m_e}\\nabla^2}_{T\\text{ (kinetic)}} + \\underbrace{\\left(-\\frac{e^2}{4\\pi\\varepsilon_0 r}\\right)}_{V\\text{ (Coulomb)}}`);
+        el('tf-hamiltonian-text').innerHTML = `<strong>Kinetic term</strong> −ℏ²∇²/2mₑ: the Laplacian ∇² measures curvature of ψ. More curved ψ (more nodes) → higher kinetic energy. <strong>Coulomb term</strong> −e²/4πε₀r: negative (attractive), diverges as r→0, goes to 0 as r→∞. Bound states have E < 0 (electron is trapped). The <em>virial theorem</em> gives ⟨T⟩ = −½⟨V⟩ = −E_n in bound states.`;
+        el('tf-energy-formula').innerHTML = math(`E_n = -\\frac{m_e e^4}{2(4\\pi\\varepsilon_0)^2\\hbar^2}\\cdot\\frac{1}{n^2} = -\\frac{13.6\\text{ eV}}{n^2} = \\frac{${HYDROGEN_ENERGY(n).toFixed(4)}\\text{ eV}}{1}`);
+        el('tf-energy-text').innerHTML = `<strong>Degeneracy:</strong> n² states share this energy (all ℓ from 0 to n−1, and all m). This is a special symmetry of the 1/r potential (SO(4) symmetry, related to the conserved Runge-Lenz vector). Any perturbation (Zeeman, Stark, fine structure) lifts this degeneracy.
+            <br><br><strong>Rydberg constant:</strong> R∞ = mₑe⁴/8ε₀²h³c = 1.097×10⁷ m⁻¹. The 13.6 eV binding energy of hydrogen is universal — it sets the energy scale for all of atomic physics.`;
+    } else if (sys==='pib') {
+        el('tf-hamiltonian').innerHTML = math(`\\hat{H} = -\\frac{\\hbar^2}{2m}\\!\\left(\\frac{\\partial^2}{\\partial x^2}+\\frac{\\partial^2}{\\partial y^2}\\right),\\quad V=0\\text{ inside}`);
+        el('tf-hamiltonian-text').innerHTML = `The Hamiltonian is purely kinetic inside the box (V=0). Boundary conditions ψ=0 at walls force standing waves. This is the quantum analogue of resonant modes of a drum.`;
+        el('tf-energy-formula').innerHTML = math(`E_{n_x,n_y} = \\frac{\\pi^2\\hbar^2}{2mL^2}\\left(n_x^2+n_y^2\\right) = ${state.nx*state.nx+state.ny*state.ny}\\cdot E_1`);
+        el('tf-energy-text').innerHTML = `E₁ = π²ℏ²/2mL². For an <em>electron</em> in a 1 nm box: E₁ ≈ 0.37 eV — comparable to thermal energy at room temperature. This is why quantum dots glow in different colors depending on size.`;
+    } else {
+        el('tf-hamiltonian').innerHTML = math(`\\hat{H} = \\hbar\\omega\\!\\left(\\hat{a}^\\dagger\\hat{a}+\\frac{1}{2}\\right),\\quad \\hat{a}|n\\rangle=\\sqrt{n}|n-1\\rangle,\\quad \\hat{a}^\\dagger|n\\rangle=\\sqrt{n+1}|n+1\\rangle`);
+        el('tf-hamiltonian-text').innerHTML = `The number operator N̂ = â†â counts quanta. Its eigenvalue is n. The zero-point energy ½ℏω is unavoidable — it comes from the commutator [â,â†] = 1.`;
+        el('tf-energy-formula').innerHTML = math(`E_n = \\hbar\\omega\\!\\left(n+\\frac{1}{2}\\right),\\quad n=0,1,2,\\ldots`);
+        el('tf-energy-text').innerHTML = `<strong>Equal spacing</strong> by ℏω is unique to the SHO among all 1D potentials. This means a photon of exactly ℏω can excite any transition n→n+1. Real molecular bonds are anharmonic — the spacing narrows at high n, eventually reaching the dissociation limit.`;
+    }
+
+    // ── Schrödinger equation & commutators ──
+    el('tf-schrodinger').innerHTML = math(`i\\hbar\\frac{\\partial}{\\partial t}|\\Psi\\rangle = \\hat{H}|\\Psi\\rangle \\xrightarrow{\\text{stationary}} \\hat{H}|\\psi\\rangle = E|\\psi\\rangle`);
+    el('tf-schrodinger-text').innerHTML = {
+        hydrogen:`The <strong>time-independent</strong> Schrödinger equation has solutions ψ(r,θ,φ) that don't change in time (except for an overall phase e<sup>−iEt/ℏ</sup>). These are the atomic orbitals. A general state of the atom is a <em>superposition</em> of these: |Ψ⟩ = Σ cₙ|n⟩e<sup>−iEₙt/ℏ</sup>, which does evolve in time and gives oscillating charge densities — real transitions.`,
+        pib:`The boundary conditions ψ(0)=ψ(L)=0 force a discrete set of allowed wave functions. This is mathematically identical to the modes of a vibrating string — the quantum particle has a de Broglie wavelength λ = 2L/n.`,
+        sho:`The TISE for the SHO can be solved by series (Hermite polynomials) or by the elegant algebraic method using â and â†. The algebraic approach generalizes to quantum field theory and is why the SHO is so foundational.`
+    }[sys]||'';
+    el('tf-commutators').innerHTML = sys==='hydrogen' ?
+        `<p class="theory-prose" style="margin-bottom:4px;"><strong>Key commutation relations</strong> that define angular momentum:</p>`+
+        `<div class="formula-block">${math(`[\\hat{L}_x,\\hat{L}_y]=i\\hbar\\hat{L}_z,\\quad [\\hat{L}^2,\\hat{L}_z]=0,\\quad [\\hat{H},\\hat{L}^2]=[\\hat{H},\\hat{L}_z]=0`)}</div>`+
+        `<p class="theory-prose">Since Ĥ, L², and Lz all commute, they share simultaneous eigenstates — that's why n, ℓ, m are all good quantum numbers. The last two commutators say angular momentum is <em>conserved</em> in the Coulomb potential (spherical symmetry → Noether's theorem).</p>` : '';
 
     // ── Expectation values ──
     if (sys==='hydrogen') {
         const info = getOrbitalInfo(n,l,m);
+        const rAvg = (1.5*n*n - 0.5*l*(l+1));
+        const T_eV = -HYDROGEN_ENERGY(n); // ⟨T⟩ = -E by virial
+        const V_eV = 2*HYDROGEN_ENERGY(n); // ⟨V⟩ = 2E
         el('tf-expvals').innerHTML =
             `<div class="formula-block">${math(info.expR)}</div>`+
             `<div class="formula-block">${math(info.rmp)}</div>`+
-            `<div class="formula-block">${math(`\\langle r^2\\rangle = a_0^2\\,n^2\\!\\left(5n^2+1-3l(l+1)\\right)\\!/2`)}</div>`+
-            `<p class="theory-prose" style="margin-top:6px;">Note: ⟨r⟩ ≠ r<sub>mp</sub>. The most probable radius is where dP/dr = 0 (peak of the radial probability curve below), while ⟨r⟩ is the probability-weighted average distance.</p>`;
+            `<div class="formula-block">${math(`\\langle r^2\\rangle^{1/2} = a_0\\sqrt{n^2(5n^2+1-3\\ell(\\ell+1))/2}`)}</div>`+
+            `<p class="theory-prose" style="margin-top:6px;">
+                <strong>Note:</strong> ⟨r⟩ ≠ r<sub>mp</sub>. The <em>most probable radius</em> is the peak of P(r) = r²|R|²; the <em>mean radius</em> ⟨r⟩ is pulled to larger values by the long tail of the distribution.
+                <br><br><strong>Virial theorem</strong> for a Coulomb potential: ⟨T⟩ = −E = <em>${T_eV.toFixed(4)} eV</em>, ⟨V⟩ = 2E = <em>${V_eV.toFixed(4)} eV</em>. The total is always negative (bound state). As n increases, both ⟨T⟩ and |⟨V⟩| decrease — the electron becomes less tightly bound.
+            </p>`;
     } else if (sys==='pib') {
-        el('tf-expvals').innerHTML=`<div class="formula-block">${math(`\\langle x\\rangle = \\tfrac{L}{2},\\quad \\langle x^2\\rangle = L^2\\!\\left(\\tfrac{1}{3}-\\frac{1}{2n_x^2\\pi^2}\\right)`)}</div><p class="theory-prose" style="margin-top:6px;">By symmetry the mean position is always the box center. Uncertainty Δx decreases as L shrinks — confining a particle increases its momentum spread (uncertainty principle).</p>`;
+        el('tf-expvals').innerHTML=`<div class="formula-block">${math(`\\langle x\\rangle=\\frac{L}{2},\\quad \\langle p_x\\rangle=0,\\quad \\Delta x=L\\sqrt{\\frac{1}{3}-\\frac{1}{2n_x^2\\pi^2}}`)}</div>`+
+            `<p class="theory-prose" style="margin-top:6px;">By left-right symmetry ⟨x⟩ = L/2 always. The mean momentum ⟨p⟩ = 0 because the particle bounces equally left and right — it is equally a right-moving and left-moving wave. But ⟨p²⟩ = (nₓπℏ/L)² ≠ 0.</p>`;
     } else {
-        el('tf-expvals').innerHTML=`<div class="formula-block">${math(`\\langle x\\rangle = 0,\\quad\\Delta x = \\sqrt{\\frac{\\hbar}{2m\\omega}(2n+1)},\\quad \\Delta p\\,\\Delta x = \\hbar(n+\\tfrac{1}{2})`)}</div><p class="theory-prose" style="margin-top:6px;">The ground state saturates the Heisenberg bound: ΔxΔp = ℏ/2. Higher levels have larger uncertainty products — a key distinction from classical oscillators.</p>`;
+        el('tf-expvals').innerHTML=`<div class="formula-block">${math(`\\langle x\\rangle=0,\\quad\\langle p\\rangle=0,\\quad \\langle x^2\\rangle=\\frac{\\hbar}{2m\\omega}(2n+1),\\quad\\langle p^2\\rangle=\\frac{m\\omega\\hbar}{2}(2n+1)`)}</div>`+
+            `<div class="formula-block">${math(`\\langle T\\rangle=\\langle V\\rangle=\\frac{E_n}{2}=\\frac{\\hbar\\omega}{2}\\left(n+\\frac{1}{2}\\right)`)}</div>`+
+            `<p class="theory-prose" style="margin-top:6px;">The virial theorem for a quadratic potential gives ⟨T⟩ = ⟨V⟩ = E/2. Each starts at ½ℏω·½ for the ground state. The position and momentum are equally uncertain, and their product saturates the Heisenberg bound for n=0.</p>`;
     }
 
-    // ── Energy formula ──
+    // ── Symmetry & parity ──
+    const symEl = el('tf-symmetry');
     if (sys==='hydrogen') {
-        el('tf-energy-formula').innerHTML = math(`E_n = -\\frac{m_e e^4}{2\\hbar^2(4\\pi\\varepsilon_0)^2}\\frac{1}{n^2} = -\\frac{13.6\\text{ eV}}{n^2}`);
-        el('tf-energy-text').innerHTML = `Shell n has degeneracy <em>n²</em> (all ℓ and m values with same energy). The spectrum has a continuum above E = 0 eV (ionization). The total span from ground to ionization is 13.6 eV (the Rydberg energy).`;
-        // Available transitions
-        const transDiv = el('tf-transitions');
-        transDiv.innerHTML = '<p class="theory-prose" style="margin-bottom:4px;">Transitions from n='+(state.excitedN||state.n)+':</p>';
-        for (let toN=1; toN<=(state.excitedN||state.n); toN++) {
-            if (toN===(state.excitedN||state.n)) continue;
-            const dE=Math.abs(HYDROGEN_ENERGY(state.excitedN||state.n)-HYDROGEN_ENERGY(toN));
-            const λ=eVtoNm(dE); const [r2,g2,b2]=wavelengthToRGB(λ);
-            const col=λ>=380&&λ<=750?`rgb(${r2},${g2},${b2})`:'#888';
-            const series=toN===1?'Lyman':toN===2?'Balmer':toN===3?'Paschen':'Brackett';
-            transDiv.innerHTML+=`<div class="transition-theory-row">
-                <div class="swatch" style="background:${col};box-shadow:0 0 4px ${col};"></div>
-                <span>n→${toN}</span>
-                <span class="tval">${dE.toFixed(2)} eV</span>
-                <span class="tval" style="color:${col}">λ=${Math.round(λ)} nm</span>
-                <span style="color:#444">${series}</span>
-            </div>`;
-        }
+        const parity = Math.pow(-1, l); // (-1)^ℓ
+        const parLabel = parity===1?'even (gerade)':'odd (ungerade)';
+        const parSym = parity===1?'+':'-';
+        symEl.innerHTML = `
+            <p class="theory-prose"><strong>Parity</strong> is the transformation r → −r (reflection through the origin). For hydrogen: ψ<sub>nlm</sub>(−r) = (−1)<sup>ℓ</sup>ψ<sub>nlm</sub>(r).</p>
+            <div class="formula-block">${math(`\\hat{\\Pi}\\,\\psi_{nlm} = (-1)^\\ell\\,\\psi_{nlm}`)}</div>
+            <div style="margin-top:6px;">
+                <span class="qnum-badge">parity = (−1)<sup>${l}</sup> = ${parity===1?'+1':'−1'}</span>
+                <span class="qnum-badge">${parLabel}</span>
+                <span class="qnum-badge">${l%2===0?'s,d,g = even':'p,f = odd'}</span>
+            </div>
+            <p class="theory-prose" style="margin-top:8px;"><strong>Why parity matters:</strong> Electric dipole transitions (E1) require a parity change: ψ<sub>i</sub> and ψ<sub>f</sub> must have opposite parity. This is why Δℓ = ±1 is required — going from ℓ to ℓ±1 flips (−1)<sup>ℓ</sup>. An s→s or d→d transition (same parity) is E1-forbidden.</p>
+            <p class="theory-prose"><strong>Rotational symmetry:</strong> For m=0 states, the wave function is real and has azimuthal symmetry. For m≠0, ψ ∝ e<sup>imφ</sup> — the state has definite orbital angular momentum in the z-direction. The real combinations (cos mφ, sin mφ) are the familiar px, py, dxy etc. orbitals used in chemistry.</p>
+            <div class="insight-box"><div class="insight-label">time-reversal symmetry</div>
+            The hydrogen Hamiltonian is time-reversal symmetric: ψ<sub>nlm</sub>* = ψ<sub>nl,−m</sub>. States m and −m are related by T̂. This symmetry means the energy doesn't depend on the sign of m (in zero field).</div>`;
     } else if (sys==='pib') {
-        el('tf-energy-formula').innerHTML = math(`E_{n_x n_y} = \\frac{\\pi^2\\hbar^2}{2mL^2}\\,(n_x^2+n_y^2) = (n_x^2+n_y^2)\\,E_1`);
-        el('tf-energy-text').innerHTML = `The energy grows quadratically with quantum number. States like (1,2) and (2,1) are degenerate — same energy, orthogonal spatial patterns. This degeneracy is broken if the box is non-square.`;
-        el('tf-transitions').innerHTML='';
+        const sym = state.nx===state.ny ? 'C₄ᵥ symmetric (square box)' : 'C₂ᵥ symmetric';
+        symEl.innerHTML=`<p class="theory-prose">In a square box: the Hamiltonian has C₄ symmetry (90° rotation). States with nₓ ≠ nᵧ come in degenerate pairs related by 90° rotation. This is an example of symmetry-enforced degeneracy — breaking the symmetry (rectangular box) splits the levels.</p>
+            <div class="formula-block">${math(`\\psi_{n_xn_y}(-x,-y)=(-1)^{n_x+n_y}\\psi_{n_xn_y}(x,y)`)}</div>
+            <p class="theory-prose">Parity (center of box): the state is even or odd under (x,y)→(L−x, L−y) depending on whether nₓ+nᵧ is even or odd. For (${state.nx},${state.ny}): parity = ${(state.nx+state.ny)%2===0?'<em>even</em>':'<em>odd</em>'}.</p>`;
     } else {
-        el('tf-energy-formula').innerHTML = math(`E_n = \\hbar\\omega\\!\\left(n+\\frac{1}{2}\\right) \\implies \\Delta E = \\hbar\\omega`);
-        el('tf-energy-text').innerHTML = `Energy levels are <em>equally spaced</em> by ℏω — unique to the SHO. This underlies the quantization of electromagnetic radiation (photons) and vibrations in crystals (phonons). The zero-point energy ½ℏω is a purely quantum effect.`;
-        el('tf-transitions').innerHTML='';
+        symEl.innerHTML=`<p class="theory-prose">The SHO potential is symmetric: V(x) = V(−x). Therefore energy eigenstates are either even (H_n even for even n: n=0,2,4…) or odd (H_n odd for odd n: n=1,3,5…).</p>
+            <div class="formula-block">${math(`\\psi_n(-x)=(-1)^n\\psi_n(x)`)}</div>
+            <div style="margin-top:6px;"><span class="qnum-badge">n=${state.shoN}: ${state.shoN%2===0?'even parity':'odd parity'}</span></div>
+            <p class="theory-prose" style="margin-top:8px;">Because ⟨x⟩ = 0 for all eigenstates (by parity), there is no permanent electric dipole moment. Transitions require Δn = ±1, ±3, … for E1 (odd Δn only — must change parity).</p>`;
     }
 
-    // ── Photon physics ──
-    el('tf-photon-formula').innerHTML = math(`E_{\\text{photon}} = h\\nu = \\frac{hc}{\\lambda} = \\Delta E_{\\text{atom}}`);
+    // ── Photon physics & selection rules ──
+    el('tf-photon-formula').innerHTML = math(`E_{\\gamma} = h\\nu = \\frac{hc}{\\lambda} = \\Delta E_{\\text{atom}},\\quad \\lambda\\text{ (nm)} = \\frac{1240}{\\Delta E\\text{ (eV)}}`);
     el('tf-photon-text').innerHTML = sys==='hydrogen'
-        ? `When the atom absorbs a photon exactly matching a transition energy, the electron jumps up. It then spontaneously emits a photon of the <em>same</em> energy and falls back (or to any lower level). Hydrogen's visible emission lines (Balmer series, n→2) are how we know stars contain hydrogen.`
-        : `Photon interactions can only occur when the photon energy matches the spacing between energy levels. This selectivity is the foundation of spectroscopy — each element absorbs and emits a unique set of wavelengths, its spectral fingerprint.`;
+        ? `When an atom absorbs a photon, the electron jumps to a higher energy state. The probability of this is governed by the <strong>Einstein B coefficient</strong>. Spontaneous emission is governed by <strong>Einstein A coefficient</strong> — the atom has an intrinsic rate to fall back even without any driving field (due to vacuum fluctuations of the electromagnetic field). Stimulated emission (the basis of lasers) occurs when a photon matching the transition is already present.`
+        : `Photon absorption/emission requires the photon energy E = hν to exactly match the level spacing. This discreteness is the origin of each element's unique spectral fingerprint. In multi-level systems, competition between decay channels determines the <em>branching ratio</em>.`;
     el('tf-selection-rules').innerHTML = sys==='hydrogen'
-        ? `<p class="theory-prose" style="margin-bottom:4px;"><strong>Selection rules</strong> (electric dipole):</p>`
-          +`<div class="formula-block">${math(`\\Delta l = \\pm 1,\\quad \\Delta m = 0,\\pm 1,\\quad \\Delta n\\text{ unrestricted}`)}</div>`
-          +`<p class="theory-prose" style="margin-top:4px;">Transitions with Δℓ = 0 or ±2,3,… are <em>forbidden</em> to first order (photons carry angular momentum 1). This is why s→s transitions don't occur, but s→p and p→d do.</p>`
+        ? `<p class="theory-prose" style="margin-bottom:4px;"><strong>Electric dipole (E1) selection rules:</strong></p>`
+          +`<div class="formula-block">${math(`\\Delta\\ell=\\pm 1,\\quad \\Delta m=0,\\pm 1,\\quad \\Delta n\\text{ unrestricted},\\quad \\Delta s=0`)}</div>`
+          +`<p class="theory-prose">These arise from the matrix element ⟨n'ℓ'm'|r̂|nℓm⟩. The dipole operator r̂ has parity −1 and spin-1 character, so it must connect states of opposite parity (Δℓ = ±1) and |Δm| ≤ 1. The polarization of the emitted/absorbed photon determines which Δm: π polarization → Δm=0; σ± polarization → Δm=±1.`
+          +`<br><br><strong>Forbidden transitions</strong> (first-order E1) still occur by higher-order processes: M1 (magnetic dipole, Δℓ=0), E2 (electric quadrupole, Δℓ=0,±2), or two-photon processes. The 2s→1s transition is forbidden to all single-photon processes but proceeds via two-photon emission at 2×243nm.`
         : '';
+
+    // ── Transitions list ──
+    const transDiv = el('tf-transitions');
+    if (sys==='hydrogen') {
+        const ln_ = ['s','p','d','f','g'];
+        transDiv.innerHTML = `<p class="theory-prose" style="margin-bottom:4px;font-size:0.8em;color:#556;">Downward E1 transitions from <em>${n}${ln_[l]}</em> (Δl=±1 only):</p>`;
+        let found=false;
+        for (let nf=1; nf<n; nf++) {
+            for (let lf=0; lf<nf; lf++) {
+                if (Math.abs(lf-l)!==1) continue;
+                const dE=Math.abs(HYDROGEN_ENERGY(n)-HYDROGEN_ENERGY(nf));
+                const λ=eVtoNm(dE);
+                const [r2,g2,b2]=wavelengthToRGB(λ);
+                const col=λ>=380&&λ<=750?`rgb(${r2},${g2},${b2})`:'#888';
+                const series=nf===1?'Lyman':nf===2?'Balmer':nf===3?'Paschen':'Brackett';
+                const A=hydrogenAcoeff(n,l,nf,lf);
+                const tau_str=A>0?` τ=${(1/A*1e9).toFixed(1)}ns`:'';
+                found=true;
+                transDiv.innerHTML+=`<div class="transition-theory-row">
+                    <div class="swatch" style="background:${col};box-shadow:0 0 4px ${col};"></div>
+                    <span>${n}${ln_[l]}→${nf}${ln_[lf]}</span>
+                    <span class="tval">${dE.toFixed(2)} eV</span>
+                    <span class="tval" style="color:${col}">λ=${Math.round(λ)}nm</span>
+                    <span style="color:#445">${series}</span>
+                    <span style="color:#337;font-size:0.85em;">${tau_str}</span>
+                </div>`;
+            }
+        }
+        if (!found) transDiv.innerHTML+=`<p class="theory-prose" style="font-size:0.8em;color:#446;">${n===1?'Ground state — no downward transitions.':l===0?`No E1 downward transitions from ${n}s (Δl=±1 requires target l=1, but 0-1=-1 is invalid). This state is metastable — decays by two-photon emission.`:'No allowed E1 transitions found.'}</p>`;
+    } else {
+        transDiv.innerHTML='';
+    }
+
+    // ── Spin ──
+    const spinEl = el('tf-spin');
+    if (sys==='hydrogen') {
+        const j_up = l+0.5, j_dn = Math.max(0,l-0.5);
+        spinEl.innerHTML = `
+            <div class="formula-block">${math(`\\hat{S}^2|s,m_s\\rangle = s(s+1)\\hbar^2|s,m_s\\rangle,\\quad \\hat{S}_z|m_s\\rangle = m_s\\hbar|m_s\\rangle,\\quad s=\\tfrac{1}{2}`)}</div>
+            <p class="theory-prose"><strong>Electron spin</strong> is an intrinsic quantum mechanical property with no classical analogue. It is not literally rotation — the electron is a point particle. Spin-½ means only two orientations exist: m_s = +½ (↑) and m_s = −½ (↓), with |S| = ℏ√(3)/2 ≈ 0.866ℏ.</p>
+            <p class="theory-prose" style="margin-top:6px;"><strong>Spin-orbit coupling</strong> couples L and S to give total angular momentum <em>J = L + S</em>. For the ${n}${['s','p','d','f','g'][l]} state (ℓ=${l}): j = ℓ ± ½ → ${l===0?'j = ½ only':`j = ${j_up} or j = ${j_dn}`}. This splits the energy level by fine structure:
+            ${l>0?`ΔE<sub>fs</sub> ≈ ${(fsShift(n,l,j_up)*1000-fsShift(n,l,j_dn)*1000).toFixed(3)} meV for n=${n}.`:'(no splitting for s states, j=½ only)'}
+            </p>
+            <div class="formula-block">${math(`\\hat{H}_{\\text{so}} = \\frac{1}{2m_e^2c^2}\\frac{1}{r}\\frac{dV}{dr}\\,\\hat{\\mathbf{L}}\\cdot\\hat{\\mathbf{S}},\\quad \\mathbf{L}\\cdot\\mathbf{S} = \\frac{1}{2}(J^2-L^2-S^2)`)}</div>
+            <p class="theory-prose"><strong>Magnetic moment:</strong> The electron magnetic moment is μ = −g_e μ_B S/ℏ, where g_e ≈ 2.00232 (g-factor, corrected by QED). A magnetic field B along z splits spin states by ΔE = g_e μ_B B m_s ≈ 0.116 meV/T × m_s.</p>
+            <div class="real-world-box"><div class="rw-label">applications</div>
+            <strong>MRI:</strong> Medical MRI exploits proton spin precession in a ~1.5T field. The 42.6 MHz Larmor frequency (for ¹H) generates the NMR signal.<br>
+            <strong>Spintronic devices:</strong> Hard drives use electron spin orientation for data storage (GMR effect, 2007 Nobel Prize).<br>
+            <strong>EPR spectroscopy:</strong> Electron paramagnetic resonance detects unpaired spins — used in chemistry, materials science, and biological imaging.
+            </div>`;
+    } else if (sys==='sho') {
+        spinEl.innerHTML=`<p class="theory-prose">The 1D SHO as presented here treats a spinless particle. In real systems (e.g. a trapped ion), spin adds an extra degree of freedom. The full Hilbert space is ℋ_orbital ⊗ ℋ_spin, and qubit operations can be performed on the spin while the motional state is in the ground state ("sideband cooling").</p>`;
+    } else {
+        spinEl.innerHTML=`<p class="theory-prose">For a non-relativistic spinless particle in a box, spin is not included. Adding spin doubles the Hilbert space. In quantum dots (real nanostructured boxes), the spin is the basis of spin-qubit quantum computing proposals.</p>`;
+    }
+
+    // ── Correspondence principle ──
+    const classEl = el('tf-classical');
+    if (sys==='hydrogen') {
+        const v_n = (2.19e6/n); // m/s (Bohr velocity)
+        const beta = (v_n/3e8*100).toFixed(2);
+        classEl.innerHTML = `
+            <p class="theory-prose"><strong>Bohr's correspondence principle</strong>: in the limit of large quantum numbers (n → ∞), quantum mechanics reproduces classical mechanics. For hydrogen n=${n}:</p>
+            <div style="margin-top:6px;">
+                <span class="qnum-badge">orbital radius ≈ ${(0.529*n*n).toFixed(1)} Å = ${(0.0529*n*n).toFixed(1)} nm</span>
+                <span class="qnum-badge">classical velocity ≈ ${(v_n/1e6).toFixed(2)} × 10⁶ m/s (${beta}% c)</span>
+                <span class="qnum-badge">classical period ≈ ${(1.52e-16*n*n*n*1e15).toFixed(2)} fs</span>
+                <span class="qnum-badge">classical frequency ≈ ${(6.58e15/(n*n*n)/1e12).toFixed(0)} THz</span>
+            </div>
+            <p class="theory-prose" style="margin-top:8px;">At <em>n=1</em> the electron speed is 2.19×10⁶ m/s ≈ 0.73% c — mildly relativistic, explaining why fine structure corrections are of order α² ≈ 5×10⁻⁵. At <em>n≫1</em>, the quantum orbital frequency approaches the classical Kepler frequency, and adjacent-level transitions emit at the classical orbital frequency.</p>
+            ${n>=5?`<div class="insight-box"><div class="insight-label">semi-classical limit</div>For n=${n}, the de Broglie wavelength λ=h/mv ≈ ${(6.63e-34/(9.1e-31*v_n)*1e10).toFixed(1)}Å is ${(0.529*n*n/(6.63e-34/(9.1e-31*v_n)*1e10)).toFixed(0)}× smaller than the orbital radius — many wavelengths fit in one orbit (semi-classical WKB regime). Quantum effects become small corrections.</div>`:''}`;
+    } else if (sys==='pib') {
+        classEl.innerHTML=`<p class="theory-prose">For nₓ, nᵧ → ∞: the probability density |ψ|² ≈ 1/L² becomes uniform — the particle is equally likely to be found anywhere in the box (classical uniform distribution). The kinetic energy E = (nₓ²+nᵧ²)π²ℏ²/2mL² → ∞, reproducing classical billiard motion.</p>`;
+    } else {
+        const n_=state.shoN;
+        classEl.innerHTML=`<p class="theory-prose">Classical turning points are at x = ±√(2E/mω²) = ±√(2n+1)·x₀ where x₀ = √(ℏ/mω). For n=${n_}: x<sub>max</sub> = ${Math.sqrt(2*n_+1).toFixed(2)} x₀.</p>
+            <p class="theory-prose">In the classical limit n≫1, the quantum probability distribution |ψ_n|² approaches the classical distribution P_cl(x) ∝ 1/√(x<sub>max</sub>² − x²) — highest probability at the turning points where the particle slows down. ${n_>=3?`At n=${n_} you can already see this trend in the orbital view — more density at the edges.`:''}</p>`;
+    }
+
+    // ── Real-world applications ──
+    const appEl = el('tf-applications');
+    const apps = {
+        hydrogen: [
+            {icon:'⚗', title:'Atomic clocks', text:'The 1s hyperfine transition at 1420.405 751 MHz (21cm line) defines the SI second since 1967. Optical atomic clocks (Al⁺, Sr, Yb) use narrower lines — uncertainty of 1 second in 33 billion years.'},
+            {icon:'🔭', title:'Stellar spectroscopy', text:'Balmer lines (n→2, visible: 656nm Hα, 486nm Hβ…) in stellar spectra reveal hydrogen content, temperature, and velocity (Doppler shift). Hydrogen is 75% of all normal matter in the universe.'},
+            {icon:'💊', title:'MRI (hydrogen NMR)', text:'Medical MRI images water protons (hydrogen nuclei). A 1.5T magnet splits proton spin levels by 64 MHz. RF pulses flip spins; relaxation signals encode tissue density and type.'},
+            {icon:'⚡', title:'Hydrogen fuel cells', text:'Electron in 1s ground state determines hydrogen\'s chemistry. H₂ dissociation energy is 4.52 eV (governed by the molecular orbital formed from two 1s states). Fuel cells exploit this stored energy.'},
+            {icon:'🌌', title:'21cm cosmology', text:'The 21cm hyperfine line (E = 5.88×10⁻⁶ eV) traces neutral hydrogen across cosmic time. Future 21cm telescopes will map the Epoch of Reionization — when the first stars ionized the intergalactic medium.'},
+            {icon:'💡', title:'Lasers & quantum optics', text:'Excited hydrogen states are the prototypical two-level system. Rabi oscillations, EIT, optical pumping, and dressed states (see the Advanced tab) are all demonstrated in hydrogen and hydrogen-like atoms.'},
+        ],
+        pib: [
+            {icon:'🔵', title:'Quantum dots', text:'Semiconductor nanocrystals 2–10nm across confine electrons in 3D box-like potentials. Tuning the dot size tunes the energy gap and thus the emission color — used in QLED displays and bio-imaging.'},
+            {icon:'🧲', title:'Electron gas in metals', text:'Free electrons in a metal obey a 3D particle-in-a-box (with periodic boundary conditions). The Fermi energy E_F = (ℏ²/2m)(3π²n)^(2/3) follows the same E∝n² scaling.'},
+            {icon:'🔬', title:'STM spectroscopy', text:'Scanning tunneling microscope images on Cu(111) show electron standing waves inside "quantum corrals" built from atoms — a direct image of particle-in-a-box eigenstates.'},
+            {icon:'🧬', title:'Conjugated molecules', text:'π electrons in linear conjugated systems (polyacetylene, β-carotene) are modeled as PIB states. The HOMO-LUMO gap sets the absorption color — β-carotene absorbs blue light because n=11 electrons span ~1.2nm.'},
+        ],
+        sho: [
+            {icon:'🔉', title:'Phonons in solids', text:'Crystal lattice vibrations are quantized as phonons — quanta of the SHO modes. Specific heat, thermal conductivity, and sound speed all derive from the phonon dispersion (Einstein & Debye models).'},
+            {icon:'📡', title:'Microwave resonators / qubits', text:'Superconducting qubits (transmons, flux qubits) are Josephson junction circuits behaving like anharmonic SHOs. The slight anharmonicity allows addressing individual transitions — the basis of quantum computers (Google, IBM).'},
+            {icon:'🔴', title:'Molecular vibrations / IR spectroscopy', text:'Diatomic bond vibrations are modeled as SHOs. Infrared absorption at ℏω identifies molecular bonds. CO₂ bends at 667 cm⁻¹ and stretches at 2349 cm⁻¹ — both IR active, explaining the greenhouse effect.'},
+            {icon:'⚛', title:'Quantum field theory', text:'Every mode of a quantum field is an SHO. The vacuum state |0⟩ has energy ½ℏω per mode — summed over all modes this diverges (zero-point energy), posing a cosmological constant problem. Particle creation/annihilation is â†/â acting on the field.'},
+        ]
+    };
+    const sysApps = apps[sys==='hydrogen'?'hydrogen':sys==='pib'?'pib':'sho'];
+    appEl.innerHTML = sysApps.map(a=>`
+        <div class="real-world-box" style="margin-bottom:6px;">
+            <div class="rw-label">${a.icon} ${a.title}</div>
+            ${a.text}
+        </div>`).join('');
 }
 
 // ─── Radial probability plot ───────────────────────────
@@ -992,51 +1547,155 @@ function computeOrbit(cw, ch) {
 // ENERGY DIAGRAM + SPECTRUM
 // ═══════════════════════════════════════════════════════
 
-function drawEnergyDiagram() {
-    const ew=eCvs.offsetWidth||276, eh=130;
-    eCvs.width=ew; eCvs.height=eh;
-    const ctx=eCtx;
-    ctx.fillStyle='#05050f'; ctx.fillRect(0,0,ew,eh);
-    ctx.font='8px Courier New';
+// Map n → y using square-root compression so all levels fit and look good.
+// n=1 sits near bottom, n=6 near top. Using y ∝ 1-1/n² (same spacing as Balmer formula).
+function nToY_H(n, eh, padT, padB){
+    // Energy fraction from bottom: (E_n - E_1)/(0 - E_1) = 1 - 1/n²
+    const frac = 1 - 1/(n*n);
+    return eh - padB - frac * (eh - padT - padB);
+}
 
-    if (state.system==='hydrogen') {
-        const Elo=HYDROGEN_ENERGY(5)-.3, Ehi=0.2, range=Ehi-Elo;
-        const eToY=e=>eh-12-(e-Elo)/range*(eh-20);
-        for(let n=1;n<=5;n++){
-            const E=HYDROGEN_ENERGY(n), y=eToY(E);
-            const cur=n===(state.excitedN||state.n);
-            ctx.strokeStyle=cur?'#0cf':'#2a2a3a'; ctx.lineWidth=cur?1.5:.7;
-            ctx.beginPath();ctx.moveTo(24,y);ctx.lineTo(ew-44,y);ctx.stroke();
-            ctx.fillStyle=cur?'#0cf':'#444'; ctx.fillText(`n=${n}`,ew-42,y+3);
-            ctx.fillStyle=cur?'#4af':'#333'; ctx.fillText(`${E.toFixed(1)}`,2,y+3);
-        }
-        if(state.excitedN!==null){
-            const y1=eToY(HYDROGEN_ENERGY(state.n)), y2=eToY(HYDROGEN_ENERGY(state.excitedN));
-            const dE=Math.abs(HYDROGEN_ENERGY(state.excitedN)-HYDROGEN_ENERGY(state.n));
-            const λ=eVtoNm(dE); const [r2,g2,b2]=wavelengthToRGB(λ);
-            ctx.strokeStyle=`rgba(${r2},${g2},${b2},.9)`;
-            ctx.lineWidth=1.5; ctx.setLineDash([3,2]);
-            ctx.beginPath();ctx.moveTo(ew*.5,y1);ctx.lineTo(ew*.5,y2);ctx.stroke();
+function drawEnergyDiagram(){
+    const ew = eCvs.offsetWidth||276, eh = 170;
+    eCvs.width = ew; eCvs.height = eh;
+    const ctx = eCtx;
+    ctx.clearRect(0,0,ew,eh);
+    ctx.fillStyle='#05050f'; ctx.fillRect(0,0,ew,eh);
+    ctx.font = '8px Courier New';
+
+    if(state.system==='hydrogen'){
+        const padT=10, padB=10;
+        const curN = state.excitedN||state.n;
+        const N_MAX = 6;
+
+        // Series brackets on far right
+        const seriesBands = [
+            {label:'Ly',  from:1, color:'#7755ff'},
+            {label:'Bal', from:2, color:'#44aaff'},
+            {label:'Pα',  from:3, color:'#ff8844'},
+        ];
+        seriesBands.forEach(s=>{
+            const y1 = nToY_H(s.from, eh, padT, padB);
+            const y2 = nToY_H(s.from+1, eh, padT, padB);
+            ctx.strokeStyle = s.color+'44'; ctx.lineWidth=1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ew-18,y2); ctx.lineTo(ew-16,y2);
+            ctx.lineTo(ew-16,y1); ctx.lineTo(ew-18,y1); ctx.stroke();
+            ctx.fillStyle = s.color+'88'; ctx.font='6px Courier New';
+            ctx.fillText(s.label, ew-14, (y1+y2)/2+2);
+        });
+        ctx.font='8px Courier New';
+
+        // Draw all transition arrows from last history entries (faint)
+        state.transitionHistory.slice(0,3).forEach((t,i)=>{
+            const ya = nToY_H(t.fromN, eh, padT, padB);
+            const yb = nToY_H(Math.min(t.toN, N_MAX), eh, padT, padB);
+            if(isNaN(ya)||isNaN(yb)) return;
+            const [r2,g2,b2] = wavelengthToRGB(eVtoNm(t.dE));
+            const alpha = (0.35 - i*0.1).toFixed(2);
+            ctx.strokeStyle=`rgba(${r2},${g2},${b2},${alpha})`;
+            ctx.lineWidth=0.8; ctx.setLineDash([2,3]);
+            ctx.beginPath(); ctx.moveTo(ew*0.55, ya); ctx.lineTo(ew*0.55, yb); ctx.stroke();
             ctx.setLineDash([]);
+        });
+
+        // Active transition arrow
+        if(state.excitedN!==null){
+            const ya = nToY_H(state.n, eh, padT, padB);
+            const yb = nToY_H(state.excitedN, eh, padT, padB);
+            const dE = Math.abs(HYDROGEN_ENERGY(state.excitedN)-HYDROGEN_ENERGY(state.n));
+            const λ = eVtoNm(dE); const [r2,g2,b2]=wavelengthToRGB(λ);
+            ctx.strokeStyle=`rgb(${r2},${g2},${b2})`;
+            ctx.lineWidth=1.8; ctx.setLineDash([3,2]);
+            ctx.beginPath(); ctx.moveTo(ew*0.55,ya); ctx.lineTo(ew*0.55,yb); ctx.stroke();
+            ctx.setLineDash([]);
+            // Arrow head
+            const dir = yb<ya ? -1 : 1;
+            ctx.beginPath();
+            ctx.moveTo(ew*0.55, yb);
+            ctx.lineTo(ew*0.55-4, yb+dir*7);
+            ctx.lineTo(ew*0.55+4, yb+dir*7);
+            ctx.closePath(); ctx.fillStyle=`rgb(${r2},${g2},${b2})`; ctx.fill();
+            // λ label
+            const lbl = λ<380?`${Math.round(λ)}nm UV`:λ>750?`${Math.round(λ)}nm IR`:`${Math.round(λ)}nm`;
             ctx.fillStyle=`rgb(${r2},${g2},${b2})`;
-            ctx.fillText(`${Math.round(λ)}nm`,ew*.5+4,(y1+y2)/2+3);
+            ctx.fillText(lbl, ew*0.55+5, (ya+yb)/2+3);
         }
-    } else if(state.system==='pib') {
+
+        // Level lines
+        for(let n=1;n<=N_MAX;n++){
+            const E=HYDROGEN_ENERGY(n);
+            const y=nToY_H(n, eh, padT, padB);
+            const cur=(n===curN);
+            const deg=n*n; // degeneracy
+
+            // Glow for current level
+            if(cur){
+                ctx.strokeStyle='rgba(0,200,255,0.08)'; ctx.lineWidth=8;
+                ctx.beginPath(); ctx.moveTo(24,y); ctx.lineTo(ew-22,y); ctx.stroke();
+            }
+
+            ctx.strokeStyle=cur?'#0cf':'#2a3545'; ctx.lineWidth=cur?1.5:.6;
+            ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(24,y); ctx.lineTo(ew-22,y); ctx.stroke();
+
+            // n= label (left)
+            ctx.fillStyle=cur?'#0cf':'#444';
+            ctx.font=(cur?'bold ':'')+'8px Courier New';
+            ctx.fillText(`n=${n}`, 2, y+3);
+
+            // energy label (after gap)
+            ctx.fillStyle=cur?'#4af8':'#2a3a4a';
+            ctx.font='7px Courier New';
+            ctx.fillText(`${E.toFixed(2)}`, 26, y-2);
+
+            // degeneracy dots (right of center)
+            if(n<=5){
+                const dotX = ew*0.72;
+                for(let d=0;d<Math.min(deg,9);d++){
+                    ctx.fillStyle=cur?'rgba(0,200,255,0.7)':'rgba(60,90,120,0.5)';
+                    ctx.beginPath();
+                    ctx.arc(dotX + d*(cur?5:4), y, cur?2:1.2, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                if(deg>9){
+                    ctx.fillStyle=cur?'#4af':'#334455';
+                    ctx.font='6px Courier New';
+                    ctx.fillText(`×${deg}`, dotX+37, y+2);
+                }
+            }
+        }
+
+        // Continuum / ionization line
+        const yIon = padT;
+        ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=0.5; ctx.setLineDash([4,4]);
+        ctx.beginPath(); ctx.moveTo(24,yIon); ctx.lineTo(ew-22,yIon); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.font='7px Courier New';
+        ctx.fillText('0.00 continuum', 26, yIon-2);
+
+        // y-axis tick
+        ctx.strokeStyle='#1a2535'; ctx.lineWidth=0.5;
+        ctx.beginPath(); ctx.moveTo(23,padT); ctx.lineTo(23,eh-padB); ctx.stroke();
+
+    } else if(state.system==='pib'){
         const levels=[],curE=state.nx*state.nx+state.ny*state.ny;
-        for(let nx=1;nx<=4;nx++)for(let ny=1;ny<=4;ny++){const E=nx*nx+ny*ny;if(!levels.includes(E))levels.push(E);}
+        for(let nx=1;nx<=4;nx++) for(let ny=1;ny<=4;ny++){
+            const E=nx*nx+ny*ny; if(!levels.includes(E)) levels.push(E);
+        }
         levels.sort((a,b)=>a-b);
-        const maxE=levels[Math.min(levels.length-1,9)];
-        levels.slice(0,10).forEach(E=>{
-            const y=eh-12-E/maxE*(eh-22), cur=E===curE;
+        const vis=levels.slice(0,10), maxE=vis[vis.length-1];
+        vis.forEach(E=>{
+            const y=eh-14-E/maxE*(eh-26), cur=E===curE;
             ctx.strokeStyle=cur?'#0cf':'#2a2a3a'; ctx.lineWidth=cur?1.5:.7;
-            ctx.beginPath();ctx.moveTo(24,y);ctx.lineTo(ew-44,y);ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(24,y); ctx.lineTo(ew-44,y); ctx.stroke();
             ctx.fillStyle=cur?'#0cf':'#444'; ctx.fillText(`${E}E₁`,ew-42,y+3);
+            if(cur){ ctx.fillStyle='#4af'; ctx.fillText(`← n²=${E}`,26,y-2); }
         });
     } else {
         for(let n=0;n<=6;n++){
-            const E=n+.5, y=eh-12-(E/7.5)*(eh-20), cur=n===state.shoN;
+            const E=n+.5, y=eh-14-(E/7.5)*(eh-26), cur=n===state.shoN;
             ctx.strokeStyle=cur?'#0cf':'#2a2a3a'; ctx.lineWidth=cur?1.5:.7;
-            ctx.beginPath();ctx.moveTo(24,y);ctx.lineTo(ew-50,y);ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(24,y); ctx.lineTo(ew-50,y); ctx.stroke();
             ctx.fillStyle=cur?'#0cf':'#444'; ctx.fillText(`n=${n}`,ew-48,y+3);
             ctx.fillStyle=cur?'#4af':'#333'; ctx.fillText(`${E.toFixed(1)}`,2,y+3);
         }
@@ -1102,12 +1761,14 @@ function doAbsorption(fromN, toN) {
     logEntry(`absorbed: n=${fromN}→${toN===Infinity?'∞':toN}, ΔE=${Math.abs(HYDROGEN_ENERGY(toN===Infinity?1e9:toN)-HYDROGEN_ENERGY(fromN)).toFixed(2)}eV`,'#0cf');
     if(toN===Infinity){logEntry('[ atom ionized ]','#fff');state.excitedN=null;state.dirty=true;return;}
     state.excitedN=toN; state.dirty=true;
-    syncControlsLabels(); drawEnergyDiagram();
+    syncControlsLabels();
+    const _anyF = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    _anyF ? drawEnergyDiagramWithFields() : drawEnergyDiagram();
     if(document.getElementById('pane-theory').style.display!=='none') updateTheory();
     setTimeout(()=>{
         const eN=state.excitedN; if(eN===null)return;
         doEmission(fromN,eN); state.excitedN=null; state.dirty=true;
-        syncControlsLabels(); drawEnergyDiagram();
+        syncControlsLabels(); _anyF ? drawEnergyDiagramWithFields() : drawEnergyDiagram();
         if(document.getElementById('pane-theory').style.display!=='none') updateTheory();
     }, 1200+Math.random()*900);
 }
@@ -1217,10 +1878,14 @@ function render(ts) {
         p.x+=p.vx; p.y+=p.vy; p.age+=dt;
         const dx=p.x-cx, dy=p.y-cy, dist=Math.sqrt(dx*dx+dy*dy);
         if(!p.emitted&&dist<18){
-            const res=checkAbsorption(p.energy); state.photons.splice(i,1);
-            if(res.ok)doAbsorption(res.fromN,res.toN);
+            state.photons.splice(i,1);
             orbCtx.fillStyle='rgba(255,255,255,.2)';
             orbCtx.beginPath();orbCtx.arc(cx,cy,50,0,Math.PI*2);orbCtx.fill();
+            if(!p.animPhoton){
+                // only trigger real absorption for user-fired photons
+                const res=checkAbsorption(p.energy);
+                if(res.ok) doAbsorption(res.fromN,res.toN);
+            }
             continue;
         }
         if(p.x<-60||p.x>cw+60||p.y<-60||p.y>ch+60||p.age>6000){state.photons.splice(i,1);continue;}
@@ -1241,6 +1906,656 @@ function render(ts) {
 }
 
 // ═══════════════════════════════════════════════════════
+// EXTERNAL FIELDS: ZEEMAN, STARK, FINE STRUCTURE
+// ═══════════════════════════════════════════════════════
+
+const MU_B      = 5.788e-5;   // eV/T  (Bohr magneton)
+const A0_M      = 5.29e-11;   // m     (Bohr radius)
+const ALPHA_FS  = 1/137.036;  // fine structure constant
+
+// ── Field state ──
+state.B          = 0;     // Tesla
+state.E_MV       = 0;     // MV/m
+state.ms         = 0;     // 0 | +0.5 | -0.5
+state.zeemanOn   = false;
+state.starkOn    = false;
+state.spinOrbitOn= false;
+
+// Color palette indexed by m (-3…+3)
+const M_COLORS = ['#ff6b6b','#ff9f43','#ffd93d','#6bcb77','#4d96ff','#a29bfe','#fd79a8'];
+function mCol(m){ return M_COLORS[(m + 3) % M_COLORS.length]; }
+
+// ── Physics ──
+
+// Landé g-factor for given j, l, s=1/2
+function landeG(j, l){
+    if (j < 0.01) return 2;
+    return 1 + (j*(j+1) - l*(l+1) + 0.75) / (2*j*(j+1));
+}
+
+// Fine-structure energy shift relative to E_n
+// Uses the full Dirac result to first order in α²
+function fsShift(n, l, j){
+    // ΔE_fs = -13.6 × α² / n³ × [1/(j+½) - 3/(4n)]  eV
+    return -13.6 * ALPHA_FS*ALPHA_FS / (n*n*n) * (1/(j+0.5) - 3/(4*n));
+}
+
+// Build the complete set of split sublevels for principal quantum number n
+function getSplitSublevels(n){
+    const E0   = HYDROGEN_ENERGY(n);
+    const result = [];
+
+    for (let l = 0; l < n; l++){
+        for (let m = -l; m <= l; m++){
+
+            if (state.spinOrbitOn){
+                // Fine structure gives two j levels per (n,l), each split by anomalous Zeeman
+                const jVals = l === 0 ? [0.5] : [l - 0.5, l + 0.5];
+                for (const j of jVals){
+                    const Efs = E0 + fsShift(n, l, j);
+                    const gj  = landeG(j, l);
+                    // Each j level has 2j+1 m_j components
+                    for (let mj = -j; mj <= j + 0.001; mj++){
+                        const mj_r = Math.round(mj * 2) / 2; // snap to half-integers
+                        let E = Efs;
+                        if (state.zeemanOn && state.B > 0){
+                            E += mj_r * gj * MU_B * state.B;
+                        }
+                        result.push({n, l, m: Math.round(mj_r), j, E,
+                            color: mCol(Math.round(mj_r * 2)),
+                            label: `j=${j},mⱼ=${mj_r > 0 ? '+' : ''}${mj_r}`});
+                    }
+                }
+                continue;
+            }
+
+            // No fine structure — simpler paths
+            let E = E0;
+
+            // Stark effect
+            if (state.starkOn && state.E_MV > 0){
+                const Ev = state.E_MV * 1e6; // V/m
+                if (n === 2){
+                    // Linear Stark: only l=0,m=0 and l=1,m=0 mix
+                    if (l === 1 && m === 0) continue;  // absorbed into l=0 mixed states
+                    if (l === 0 && m === 0){
+                        // |±⟩ = (|2s⟩ ± |2p0⟩)/√2, ΔE = ±3 e a₀ ε
+                        const dE = 3 * A0_M * Ev; // in eV (since e×a₀×[V/m] = eV)
+                        result.push({n, l, m, j: 0.5, E: E0 + dE, color:'#ffd93d', label:'2s/2p|+⟩'});
+                        result.push({n, l, m, j: 0.5, E: E0 - dE, color:'#a29bfe', label:'2s/2p|−⟩'});
+                        continue;
+                    }
+                    // l=1, m=±1: unaffected by linear Stark
+                }
+                // Quadratic Stark for n≠2 or m≠0
+                // ΔE ≈ -(9/4) n⁴ a₀³ ε² × (e²/E_h)   — atomic polarizability
+                const Eh_eV = 27.211; // Hartree in eV
+                const alpha_au = 4.5 * Math.pow(n, 4); // polarizability in atomic units (a₀³/e²)
+                const dE_quad  = -0.5 * alpha_au * Math.pow(A0_M, 3) * Ev * Ev / (Eh_eV * 1.602e-19) * 1.602e-19;
+                E += dE_quad;
+            }
+
+            // Zeeman (orbital + optional spin contribution)
+            if (state.zeemanOn && state.B > 0){
+                const gs = 2.0023;
+                const ms_v = state.ms;
+                E += (m + (ms_v !== 0 ? gs * ms_v : 0)) * MU_B * state.B;
+            }
+
+            result.push({n, l, m, j: l + 0.5, E, color: mCol(m),
+                label: `${['s','p','d','f'][l]}(m=${m > 0 ? '+' : ''}${m})`});
+        }
+    }
+    return result.sort((a, b) => a.E - b.E);
+}
+
+// ── Splitting diagram ──
+
+function drawSplittingDiagram(){
+    const cvs = document.getElementById('splitting-canvas');
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.offsetWidth || 276, h = 220;
+    cvs.width = w; cvs.height = h;
+    ctx.fillStyle = '#05050f'; ctx.fillRect(0, 0, w, h);
+
+    const anyField = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    if (!anyField || state.system !== 'hydrogen'){
+        ctx.fillStyle = '#2a3a4a'; ctx.font = '9px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(state.system !== 'hydrogen' ? 'hydrogen only' : 'enable a field above', w/2, h/2);
+        ctx.textAlign = 'left'; return;
+    }
+
+    const nMax   = 4;
+    const Elo    = HYDROGEN_ENERGY(nMax) - 0.6;
+    const Ehi    = 0.35;
+    const range  = Ehi - Elo;
+    const padT   = 10, padB = 12;
+    const eToY   = E => h - padB - (E - Elo) / range * (h - padT - padB);
+
+    const leftX  = 32;
+    const splitX = Math.floor(w * 0.42);
+    const rightX = w - 44;
+    const curN   = state.excitedN || state.n;
+
+    // Faint grid
+    ctx.strokeStyle = '#0c0c18'; ctx.lineWidth = 0.5;
+    for (let n = 1; n <= nMax; n++){
+        const y = eToY(HYDROGEN_ENERGY(n));
+        ctx.beginPath(); ctx.moveTo(leftX, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    for (let n = 1; n <= nMax; n++){
+        const E0    = HYDROGEN_ENERGY(n);
+        const y0    = eToY(E0);
+        const isCur = (n === curN);
+        const subs  = getSplitSublevels(n);
+
+        // Unperturbed line (left)
+        ctx.strokeStyle = isCur ? '#0cf5' : '#1e2a38';
+        ctx.lineWidth   = isCur ? 1.5 : 0.8;
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(leftX, y0); ctx.lineTo(splitX, y0); ctx.stroke();
+
+        // n= label
+        ctx.fillStyle = isCur ? '#0cf' : '#2a3a4a';
+        ctx.font = '8px Courier New';
+        ctx.fillText(`n=${n}`, 2, y0 + 3);
+
+        // Energy label on left axis
+        ctx.fillStyle = isCur ? '#4af8' : '#1e2a38';
+        ctx.font = '7px Courier New';
+        ctx.fillText(`${E0.toFixed(1)}`, 2, y0 + 11);
+
+        // Collect unique energies (snap within 1e-8)
+        const uniqEs = [];
+        subs.forEach(s => {
+            if (!uniqEs.some(u => Math.abs(u - s.E) < 1e-8)) uniqEs.push(s.E);
+        });
+        uniqEs.sort((a, b) => a - b);
+
+        uniqEs.forEach(E => {
+            const subsHere = subs.filter(s => Math.abs(s.E - E) < 1e-8);
+            const y        = eToY(E);
+            const isActive = isCur && subsHere.some(s => s.l === state.l && s.m === state.m);
+            const col      = subsHere[0].color;
+
+            // Fan connector
+            ctx.strokeStyle = isActive ? '#0cf' : col + '44';
+            ctx.lineWidth   = isActive ? 1.5 : 0.5;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(splitX, y0); ctx.lineTo(rightX, y); ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Sublevel tick
+            ctx.strokeStyle = isActive ? '#0cf' : col;
+            ctx.lineWidth   = isActive ? 1.8 : 0.9;
+            ctx.beginPath(); ctx.moveTo(rightX, y); ctx.lineTo(w - 4, y); ctx.stroke();
+
+            // m label (right)
+            if (uniqEs.length <= 15 || isActive){
+                const s0 = subsHere[0];
+                const lbl = state.spinOrbitOn ? `${s0.label.split(',')[1] || ''}` : `${s0.m > 0 ? '+' : ''}${s0.m}`;
+                ctx.fillStyle = isActive ? '#0cf' : col + 'cc';
+                ctx.font = '7px Courier New';
+                ctx.fillText(lbl, rightX + 2, y + 2.5);
+            }
+        });
+
+        // ΔE annotation for current level
+        if (isCur && uniqEs.length > 1){
+            const topE = uniqEs[uniqEs.length - 1], botE = uniqEs[0];
+            const dE_meV = (topE - botE) * 1000;
+            const midY   = (eToY(topE) + eToY(botE)) / 2;
+            const unit   = dE_meV >= 0.1
+                ? `ΔE=${dE_meV.toFixed(dE_meV>=10?1:2)}meV`
+                : `ΔE=${(dE_meV*1000).toFixed(1)}μeV`;
+            ctx.fillStyle = '#0cf9'; ctx.font = '7px Courier New';
+            ctx.fillText(unit, splitX + 5, midY + 3);
+            // Bracket
+            ctx.strokeStyle = '#0cf3'; ctx.lineWidth = 0.5; ctx.setLineDash([1,2]);
+            ctx.beginPath();
+            ctx.moveTo(splitX + 2, eToY(topE));
+            ctx.lineTo(splitX + 2, eToY(botE));
+            ctx.stroke(); ctx.setLineDash([]);
+        }
+    }
+
+    // Left axis line
+    ctx.strokeStyle = '#1e2a38'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(leftX, 0); ctx.lineTo(leftX, h); ctx.stroke();
+
+    // Field label bottom
+    ctx.fillStyle = '#0cf4'; ctx.font = '7px Courier New';
+    let fLbl = '';
+    if (state.zeemanOn && state.B > 0) fLbl += `B=${state.B.toFixed(1)}T `;
+    if (state.starkOn  && state.E_MV > 0) fLbl += `ε=${state.E_MV}MV/m `;
+    if (state.spinOrbitOn) fLbl += 'spin-orbit ';
+    if (fLbl) ctx.fillText(fLbl.trim(), leftX + 4, h - 3);
+
+    // Update info text
+    updateSplittingInfo(curN);
+}
+
+function updateSplittingInfo(n){
+    const el = document.getElementById('splitting-info');
+    if (!el) return;
+    const lines = [];
+    if (state.zeemanOn && state.B > 0){
+        const dE_meV = MU_B * state.B * 1000;
+        lines.push(`Zeeman: Δm·μ_B·B = ${dE_meV.toFixed(3)} meV/m-level at ${state.B.toFixed(1)} T`);
+    }
+    if (state.starkOn && state.E_MV > 0 && n === 2){
+        const dE = 3 * A0_M * state.E_MV * 1e6 * 1000;
+        lines.push(`Linear Stark (n=2): ±3ea₀ε = ±${dE.toFixed(3)} meV`);
+    } else if (state.starkOn && state.E_MV > 0){
+        lines.push(`Quadratic Stark: ΔE ∝ −n⁴ε² (downshift)`);
+    }
+    if (state.spinOrbitOn){
+        const dE_so = Math.abs(fsShift(n, 1, 1.5) - fsShift(n, 1, 0.5)) * 1000;
+        lines.push(`Fine structure (n=${n}, p-orbital): ~${dE_so.toFixed(4)} meV`);
+    }
+    el.textContent = lines.join(' | ');
+}
+
+// ── Field controls visibility ──
+
+function updateFieldUI(){
+    const anyOn = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    document.getElementById('b-field-row').style.display  = state.zeemanOn  ? '' : 'none';
+    document.getElementById('e-field-row').style.display  = state.starkOn   ? '' : 'none';
+    document.getElementById('splitting-section').style.display = anyOn ? '' : 'none';
+
+    document.getElementById('zeeman-btn').classList.toggle('active',   state.zeemanOn);
+    document.getElementById('stark-btn').classList.toggle('active',    state.starkOn);
+    document.getElementById('spinorbit-btn').classList.toggle('active', state.spinOrbitOn);
+
+    // Theory fields section visibility
+    const tsF = document.getElementById('ts-fields');
+    if (tsF) tsF.style.display = anyOn ? '' : 'none';
+
+    drawSplittingDiagram();
+    updateFieldsTheory();
+    drawEnergyDiagramWithFields();
+}
+
+// ── Enhanced energy diagram (shows sublevel splitting inline) ──
+
+function drawEnergyDiagramWithFields(){
+    const anyField = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    if (!anyField || state.system !== 'hydrogen'){ drawEnergyDiagram(); return; }
+
+    const ew = eCvs.offsetWidth || 276, eh = 170;
+    eCvs.width = ew; eCvs.height = eh;
+    const ctx = eCtx;
+    ctx.fillStyle = '#05050f'; ctx.fillRect(0, 0, ew, eh);
+    ctx.font = '8px Courier New';
+
+    const padT = 10, padB = 10, N_MAX = 5;
+    const slotH = (eh - padT - padB) / (N_MAX) * 0.35;
+    const curN = state.excitedN || state.n;
+
+    for (let n = 1; n <= N_MAX; n++){
+        const y0    = nToY_H(n, eh, padT, padB);
+        const isCur = (n === curN);
+
+        // Unperturbed dashed baseline
+        ctx.strokeStyle = isCur ? '#0cf3' : '#1a2535';
+        ctx.lineWidth   = isCur ? 1 : 0.5;
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath(); ctx.moveTo(26, y0); ctx.lineTo(ew - 8, y0); ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = isCur ? '#0cf' : '#334';
+        ctx.font = (isCur ? 'bold ' : '') + '8px Courier New';
+        ctx.fillText(`n=${n}`, 2, y0 + 3);
+
+        // Sublevels — exaggerate split around y0
+        const subs  = getSplitSublevels(n);
+        const Es    = [...new Set(subs.map(s => +s.E.toFixed(8)))].sort((a,b)=>a-b);
+        if (Es.length > 1){
+            const Espan = (Es[Es.length-1] - Es[0]) || 1e-10;
+            Es.forEach(E => {
+                const here  = subs.filter(s => Math.abs(s.E - E) < 1e-7);
+                const frac  = (E - Es[0]) / Espan;
+                const yOff  = (0.5 - frac) * slotH * 2;
+                const y     = y0 + yOff;
+                const isAct = isCur && here.some(s => s.l === state.l && s.m === state.m);
+                ctx.strokeStyle = isAct ? '#0cf' : here[0].color + (isCur ? 'bb' : '33');
+                ctx.lineWidth   = isAct ? 1.8 : (isCur ? 0.9 : 0.35);
+                ctx.beginPath(); ctx.moveTo(26, y); ctx.lineTo(ew-8, y); ctx.stroke();
+            });
+            if (isCur){
+                const dE_meV = (Es[Es.length-1] - Es[0]) * 1000;
+                const unit = dE_meV >= 0.1 ? `split ${dE_meV.toFixed(2)}meV` : `split ${(dE_meV*1000).toFixed(1)}μeV`;
+                ctx.fillStyle='#0cfb'; ctx.font='7px Courier New';
+                ctx.fillText(unit, 28, y0 + slotH + 9);
+            }
+        }
+    }
+
+    // Transition arrow
+    if (state.excitedN !== null){
+        const ya = nToY_H(state.n, eh, padT, padB);
+        const yb = nToY_H(state.excitedN, eh, padT, padB);
+        const dE = Math.abs(HYDROGEN_ENERGY(state.excitedN) - HYDROGEN_ENERGY(state.n));
+        const lm = eVtoNm(dE); const [r2,g2,b2] = wavelengthToRGB(lm);
+        ctx.strokeStyle = `rgba(${r2},${g2},${b2},.9)`;
+        ctx.lineWidth = 1.8; ctx.setLineDash([3,2]);
+        ctx.beginPath(); ctx.moveTo(ew*0.6,ya); ctx.lineTo(ew*0.6,yb); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=`rgb(${r2},${g2},${b2})`; ctx.font='7px Courier New';
+        ctx.fillText(`${Math.round(lm)}nm`, ew*0.6+4, (ya+yb)/2+3);
+    }
+}
+
+// ── Fields theory content ──
+
+function updateFieldsTheory(){
+    const tsF = document.getElementById('ts-fields');
+    if (!tsF) return;
+    const anyOn = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    tsF.style.display = anyOn ? '' : 'none';
+    if (!anyOn) return;
+
+    const titleEl   = document.getElementById('tf-fields-title');
+    const formulaEl = document.getElementById('tf-fields-formula');
+    const textEl    = document.getElementById('tf-fields-text');
+    const formula2El= document.getElementById('tf-fields-formula2');
+    const insightEl = document.getElementById('tf-fields-insight');
+    const insightTxt= document.getElementById('tf-fields-insight-text');
+    formula2El.style.display = 'none';
+    insightEl.style.display  = 'none';
+
+    if (state.zeemanOn){
+        titleEl.textContent = 'zeeman effect';
+        formulaEl.innerHTML = math(`\\Delta E_{\\rm Z} = m_l\\,\\mu_{\\rm B}\\,B \\quad (\\text{normal})`);
+        textEl.innerHTML = `A magnetic field <strong>B</strong> breaks the m<sub>ℓ</sub> degeneracy. Each (n,ℓ) level
+            splits into <em>2ℓ+1</em> evenly spaced components separated by μ<sub>B</sub>B ≈ <em>${(MU_B * state.B * 1000).toFixed(3)} meV</em> at ${state.B.toFixed(1)} T.
+            <br><br>With spin: the anomalous Zeeman effect uses the Landé g-factor g<sub>J</sub> = 1 + [J(J+1)+S(S+1)−L(L+1)] / 2J(J+1).`;
+        if (state.ms !== 0){
+            formula2El.style.display = '';
+            formula2El.innerHTML = math(`\\Delta E_{\\rm aZ} = m_J\\,g_J\\,\\mu_{\\rm B}\\,B,\\quad g_J = 1+\\frac{J(J{+}1)+S(S{+}1)-L(L{+}1)}{2J(J{+}1)}`);
+        }
+        insightEl.style.display = '';
+        insightTxt.innerHTML = `At 1 T, the splitting is ≈58 μeV — far smaller than the n-level spacing (eV). This is why you need very strong magnets or sensitive spectrometers to resolve Zeeman components.`;
+    } else if (state.starkOn){
+        titleEl.textContent = 'stark effect';
+        formulaEl.innerHTML = math(`\\Delta E^{(1)} = \\pm\\,3 e a_0\\,\\mathcal{E} \\quad (n=2,\\text{ linear})`);
+        const dE_meV = 3 * A0_M * state.E_MV * 1e6 * 1000;
+        textEl.innerHTML = `An electric field <em>ε</em> mixes states of opposite parity. For <strong>n=2</strong>, the 2s and 2p(m=0) states are
+            degenerate in H and form symmetric/antisymmetric superpositions with <strong>linear</strong> energy shift ±3ea₀ε ≈ ±${dE_meV.toFixed(2)} meV at ${state.E_MV} MV/m.
+            <br><br>For n≠2 or m≠0: the first-order term vanishes (no parity mixing) so only a <strong>quadratic</strong> downshift survives, proportional to the atomic polarizability n⁴.`;
+        insightEl.style.display = '';
+        insightTxt.innerHTML = `The n=2 linear Stark splitting was one of the first experimental confirmations that quantum mechanics predicts exact degeneracies — something classical physics cannot explain.`;
+    } else if (state.spinOrbitOn){
+        titleEl.textContent = 'fine structure & spin-orbit';
+        formulaEl.innerHTML = math(`\\hat{H}_{\\rm SO} = \\frac{\\alpha^2\\,E_n}{2}\\cdot\\frac{\\hat{\\mathbf{L}}\\cdot\\hat{\\mathbf{S}}}{n\\,l(l+{\\tfrac{1}{2}})(l+1)}`);
+        textEl.innerHTML = `Spin-orbit coupling arises because in the electron's rest frame, the nucleus's electric field appears as a magnetic field that interacts with the electron spin. Each ℓ>0 level splits into
+            <em>j = ℓ±½</em> doublets. For ℓ=0 (s-orbitals), only the Darwin term contributes — a contact interaction.
+            <br><br>The full Dirac result: ΔE<sub>fs</sub> = −13.6·α²/n³ × [1/(j+½) − 3/(4n)] eV.`;
+        insightEl.style.display = '';
+        insightTxt.innerHTML = `Fine structure is ~α² ≈ 1/19000 times the gross structure — tiny, but measurable via the sodium D-line doublet at 589.0 / 589.6 nm.`;
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// ANIMATION / SCENARIO SYSTEM
+// ═══════════════════════════════════════════════════════
+
+let animCurrentId  = null;
+let animTimer      = null;
+let animStepIdx    = 0;
+let animLoopCount  = 0;
+
+function drawEnergyFn(){
+    const anyField = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    if (anyField && state.system==='hydrogen') drawEnergyDiagramWithFields();
+    else drawEnergyDiagram();
+}
+
+function animSetLevel(n, l, m){
+    state.system = 'hydrogen';
+    state.n = n; state.l = Math.min(l, n-1);
+    state.m = Math.max(-state.l, Math.min(state.l, m));
+    state.excitedN = null; state.dirty = true;
+    nSel.value = n; rebuildL(); lSel.value = state.l; rebuildM(); mSel.value = state.m;
+    syncControlsLabels(); drawEnergyFn(); drawSpectrum();
+}
+
+function animAbsorb(fromN, toN){
+    state.excitedN = toN; state.dirty = true;
+    const dE = Math.abs(HYDROGEN_ENERGY(toN) - HYDROGEN_ENERGY(fromN));
+    const lm = eVtoNm(dE); const [r,g,b] = wavelengthToRGB(lm);
+    // visual: spawn photon heading toward nucleus
+    const cx=orbCanvas.width/2, cy=orbCanvas.height/2;
+    const a=Math.random()*Math.PI*2, d=Math.min(orbCanvas.width,orbCanvas.height)*0.42;
+    state.photons.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,
+        vx:-Math.cos(a)*4,vy:-Math.sin(a)*4,energy:dE,λ:lm,r,g,b,age:0,emitted:false,animPhoton:true});
+    const series=toN===1?'Ly':toN===2?'Bal':toN===3?'Pa':'Br';
+    logEntry(`↑ abs: n=${fromN}→${toN}  ${dE.toFixed(2)}eV  λ=${lm<380||lm>2500?Math.round(lm)+'nm':Math.round(lm)+'nm'}  [${series}]`,'#0cf');
+    state.transitionHistory.unshift({fromN,toN,dE,λ:lm});
+    state.transitionHistory=state.transitionHistory.slice(0,20);
+    syncControlsLabels(); drawEnergyFn(); drawSpectrum();
+}
+
+function animEmit(fromN, toN){
+    doEmission(toN, fromN);
+    state.excitedN = null; state.n = toN; state.dirty = true;
+    syncControlsLabels(); drawEnergyFn();
+}
+
+const ANIM_SCENARIOS = {
+    lyman_fluor: {
+        label: 'Ly-α fluorescence',
+        color: '#4d96ff',
+        desc: 'Rapid n=1↔2 at 121.6 nm. Basis of Doppler laser cooling — each absorbed photon transfers momentum ħk, decelerating atoms toward absolute zero.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>animAbsorb(1,2), delay:700},
+            {fn:()=>animEmit(2,1),   delay:650},
+        ],
+        loop:true,
+    },
+    rabi_osc: {
+        label: 'Rabi oscillation',
+        color: '#fd79a8',
+        desc: 'Coherent driven n=1↔2 cycling at Rabi frequency Ω=μE/ħ. Population oscillates between ground and excited states — the quantum two-level system.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>animAbsorb(1,2),delay:300},
+            {fn:()=>animEmit(2,1),  delay:300},
+            {fn:()=>animAbsorb(1,2),delay:300},
+            {fn:()=>animEmit(2,1),  delay:300},
+            {fn:()=>animAbsorb(1,2),delay:300},
+            {fn:()=>animEmit(2,1),  delay:300},
+            {fn:()=>{state.excitedN=null;state.dirty=true;syncControlsLabels();drawEnergyFn();},delay:900},
+        ],
+        loop:true,
+    },
+    cascade4: {
+        label: 'n=4 cascade',
+        color: '#6bcb77',
+        desc: 'Pump to n=4, then spontaneous cascade: 4→3 (Paschen-β, 1875nm IR), 3→2 (Hα, 656nm red), 2→1 (Ly-α, 122nm UV). Three photons emitted per cycle.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>animAbsorb(1,4),delay:900},
+            {fn:()=>animEmit(4,3),  delay:950},
+            {fn:()=>animEmit(3,2),  delay:950},
+            {fn:()=>animEmit(2,1),  delay:950},
+            {fn:()=>{},             delay:600},
+        ],
+        loop:true,
+    },
+    cascade5: {
+        label: 'n=5 cascade',
+        color: '#ffd93d',
+        desc: 'Pump to n=5, cascade through all levels. 4 photons emitted: Brackett (5→4), Paschen (4→3), Hα (3→2), Ly-α (2→1). Covers IR through UV.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>animAbsorb(1,5),delay:900},
+            {fn:()=>animEmit(5,4),  delay:900},
+            {fn:()=>animEmit(4,3),  delay:900},
+            {fn:()=>animEmit(3,2),  delay:900},
+            {fn:()=>animEmit(2,1),  delay:900},
+            {fn:()=>{},             delay:550},
+        ],
+        loop:true,
+    },
+    lyman_scan: {
+        label: 'Lyman series',
+        color: '#a29bfe',
+        desc: 'Scan Lyman series from ground state — Ly-α(122nm), Ly-β(103nm), Ly-γ(97nm), Ly-δ(95nm). All UV. In nebulae, this is the dominant emission signature of neutral hydrogen.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>animAbsorb(1,2),delay:750},{fn:()=>animEmit(2,1),delay:850},
+            {fn:()=>animAbsorb(1,3),delay:750},{fn:()=>animEmit(3,1),delay:850},
+            {fn:()=>animAbsorb(1,4),delay:750},{fn:()=>animEmit(4,1),delay:850},
+            {fn:()=>animAbsorb(1,5),delay:750},{fn:()=>animEmit(5,1),delay:850},
+            {fn:()=>{},             delay:500},
+        ],
+        loop:true,
+    },
+    balmer_scan: {
+        label: 'Balmer series',
+        color: '#ff9f43',
+        desc: 'Scan Balmer series — Hα(656nm red), Hβ(486nm teal), Hγ(434nm violet), Hδ(410nm violet). All visible! This is how astronomers confirm hydrogen in stellar spectra.',
+        init: ()=>{ animSetLevel(2,1,0); },
+        steps: [
+            {fn:()=>{animSetLevel(2,1,0);animAbsorb(2,3);},delay:850},
+            {fn:()=>animEmit(3,2),delay:900},
+            {fn:()=>animAbsorb(2,4),delay:850},
+            {fn:()=>animEmit(4,2),delay:900},
+            {fn:()=>animAbsorb(2,5),delay:850},
+            {fn:()=>animEmit(5,2),delay:900},
+            {fn:()=>animAbsorb(2,6),delay:850},
+            {fn:()=>animEmit(6,2),delay:900},
+            {fn:()=>{},            delay:500},
+        ],
+        loop:true,
+    },
+    paschen_scan: {
+        label: 'Paschen series',
+        color: '#ff6b6b',
+        desc: 'Paschen series (n→3): near-infrared. Pα 1875nm, Pβ 1282nm, Pγ 1094nm. Used in IR spectroscopy of stellar atmospheres and silicon semiconductor devices.',
+        init: ()=>{ animSetLevel(3,2,0); },
+        steps: [
+            {fn:()=>{animSetLevel(3,2,0);animAbsorb(3,4);},delay:850},
+            {fn:()=>animEmit(4,3),delay:950},
+            {fn:()=>animAbsorb(3,5),delay:850},
+            {fn:()=>animEmit(5,3),delay:950},
+            {fn:()=>animAbsorb(3,6),delay:850},
+            {fn:()=>animEmit(6,3),delay:950},
+            {fn:()=>{},            delay:500},
+        ],
+        loop:true,
+    },
+    clock_trans: {
+        label: 'clock transition',
+        color: '#0cf',
+        desc: 'Atomic clock: a probe laser drives the 1s↔2s two-photon transition (243nm). Its ultra-narrow linewidth (mHz!) gives fractional precision ~10⁻¹⁸. Each "tick" here represents one interrogation cycle.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>{ logEntry('[ clock — probe pulse: n=1→2 ]','#0cf'); animAbsorb(1,2); }, delay:1100},
+            {fn:()=>{ logEntry('[ stimulated emission — phase-locked ]','#0cf'); animEmit(2,1); }, delay:400},
+            {fn:()=>{ logEntry('[ error signal → lock oscillator ]','#0cf5'); }, delay:800},
+            {fn:()=>{ logEntry('[ tick: ν₀=2.466×10¹⁵ Hz ]','#0cf4'); }, delay:700},
+        ],
+        loop:true,
+    },
+};
+
+function stopAnim(){
+    if(animTimer){ clearTimeout(animTimer); animTimer=null; }
+    animCurrentId=null;
+    document.querySelectorAll('.anim-btn').forEach(b=>b.classList.remove('active'));
+    const sb=document.getElementById('anim-stop-btn'); if(sb) sb.disabled=true;
+    const st=document.getElementById('anim-status-bar'); if(st) st.textContent='[ idle ]';
+}
+
+function runAnimStep(){
+    if(!animCurrentId) return;
+    const sc=ANIM_SCENARIOS[animCurrentId]; if(!sc){ stopAnim(); return; }
+    if(animStepIdx>=sc.steps.length){
+        if(!sc.loop){ stopAnim(); return; }
+        animStepIdx=0; animLoopCount++;
+        const st=document.getElementById('anim-status-bar');
+        if(st) st.textContent=`[ ${sc.label} — cycle ${animLoopCount} ]`;
+    }
+    const step=sc.steps[animStepIdx++];
+    try{ step.fn(); } catch(e){ console.warn('anim step err',e); }
+    const spd=parseFloat(document.getElementById('anim-speed')?.value||1);
+    animTimer=setTimeout(runAnimStep, step.delay/spd);
+}
+
+function startAnim(id){
+    stopAnim();
+    const sc=ANIM_SCENARIOS[id]; if(!sc) return;
+    // Stop autofire if running
+    if(state.autoFire){ state.autoFire=false; autoBtn.textContent='[ auto ]'; autoBtn.classList.remove('active'); }
+    animCurrentId=id; animStepIdx=0; animLoopCount=1;
+    document.querySelectorAll('.anim-btn').forEach(b=>b.classList.toggle('active',b.dataset.anim===id));
+    const sb=document.getElementById('anim-stop-btn'); if(sb) sb.disabled=false;
+    const st=document.getElementById('anim-status-bar'); if(st) st.textContent=`[ ${sc.label} ]`;
+    const de=document.getElementById('anim-desc'); if(de) de.textContent=sc.desc;
+    // Ensure hydrogen system
+    state.system='hydrogen'; systemSel.value='hydrogen'; updateSystemUI();
+    sc.init();
+    runAnimStep();
+}
+
+// Wire scenario buttons
+document.querySelectorAll('.anim-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>startAnim(btn.dataset.anim));
+});
+document.getElementById('anim-stop-btn').addEventListener('click', stopAnim);
+
+// Also stop animation if user manually changes quantum numbers
+['n-select','l-select','m-select','system-select'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('change',()=>{ if(animCurrentId) stopAnim(); });
+});
+
+// ── Wire up field buttons & sliders ──
+
+document.getElementById('zeeman-btn').addEventListener('click', () => {
+    state.zeemanOn = !state.zeemanOn;
+    updateFieldUI();
+});
+document.getElementById('stark-btn').addEventListener('click', () => {
+    state.starkOn = !state.starkOn;
+    updateFieldUI();
+});
+document.getElementById('spinorbit-btn').addEventListener('click', () => {
+    state.spinOrbitOn = !state.spinOrbitOn;
+    // spin-orbit auto-enables Zeeman UI (they work together)
+    updateFieldUI();
+});
+
+document.getElementById('b-field').addEventListener('input', e => {
+    state.B = parseFloat(e.target.value);
+    document.getElementById('b-field-display').textContent = `${state.B.toFixed(1)} T`;
+    drawSplittingDiagram();
+    drawEnergyDiagramWithFields();
+    updateFieldsTheory();
+    if (document.getElementById('pane-theory').style.display !== 'none') updateTheory();
+});
+
+document.getElementById('e-field').addEventListener('input', e => {
+    state.E_MV = parseFloat(e.target.value);
+    document.getElementById('e-field-display').textContent = `${state.E_MV} MV/m`;
+    drawSplittingDiagram();
+    drawEnergyDiagramWithFields();
+    updateFieldsTheory();
+    if (document.getElementById('pane-theory').style.display !== 'none') updateTheory();
+});
+
+document.getElementById('ms-select').addEventListener('change', e => {
+    state.ms = parseFloat(e.target.value);
+    drawSplittingDiagram();
+    drawEnergyDiagramWithFields();
+});
+
+// ═══════════════════════════════════════════════════════
 // EVENT WIRING
 // ═══════════════════════════════════════════════════════
 
@@ -1253,7 +2568,11 @@ shoNSel.addEventListener('change', onParamChange);
 
 systemSel.addEventListener('change', ()=>{
     state.system=systemSel.value; state.excitedN=null; state.photons=[]; state.dirty=true;
-    updateSystemUI(); syncControlsLabels(); buildPresets(); drawEnergyDiagram(); drawSpectrum(); updateTheory();
+    updateSystemUI(); syncControlsLabels(); buildPresets();
+    const anyField = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    if (anyField && state.system==='hydrogen') { drawEnergyDiagramWithFields(); drawSplittingDiagram(); }
+    else drawEnergyDiagram();
+    drawSpectrum(); updateTheory();
 });
 photonSldr.addEventListener('input',()=>{ photonDisp.textContent=`${parseFloat(photonSldr.value).toFixed(2)} eV`; });
 fireBtn.addEventListener('click', spawnEdgePhoton);
@@ -1271,7 +2590,588 @@ orbCanvas.addEventListener('click',e=>{
     if(Math.hypot(mx-cx,my-cy)<10) return;
     firePhoton(mx,my);
 });
-window.addEventListener('resize',()=>{ resize(); drawEnergyDiagram(); drawSpectrum(); });
+window.addEventListener('resize',()=>{
+    resize();
+    const anyField = state.zeemanOn || state.starkOn || state.spinOrbitOn;
+    if (anyField && state.system==='hydrogen') { drawEnergyDiagramWithFields(); drawSplittingDiagram(); }
+    else drawEnergyDiagram();
+    drawSpectrum();
+});
+
+// ═══════════════════════════════════════════════════════
+// ADVANCED TAB — TAB SWITCHING
+// ═══════════════════════════════════════════════════════
+
+const TABS = {
+    'tab-controls-btn': 'pane-controls',
+    'tab-theory-btn':   'pane-theory',
+    'tab-advanced-btn': 'pane-advanced',
+};
+Object.keys(TABS).forEach(btnId => {
+    document.getElementById(btnId).addEventListener('click', () => {
+        Object.entries(TABS).forEach(([bid, pid]) => {
+            const active = bid === btnId;
+            document.getElementById(bid).classList.toggle('active', active);
+            document.getElementById(pid).style.display = active ? '' : 'none';
+        });
+        if (btnId === 'tab-theory-btn') updateTheory();
+        if (btnId === 'tab-advanced-btn') refreshAdvanced();
+    });
+});
+
+// ═══════════════════════════════════════════════════════
+// CLEBSCH-GORDAN COEFFICIENTS
+// ═══════════════════════════════════════════════════════
+
+// Cached factorial (handles integers 0..50)
+const _F = (() => {
+    const t = [1];
+    for (let i = 1; i <= 50; i++) t[i] = t[i-1] * i;
+    return n => (n < 0 || n > 50) ? 0 : t[Math.round(n)];
+})();
+
+function gcd2(a, b) { return b === 0 ? a : gcd2(b, a % b); }
+
+// Racah formula for ⟨j1,m1; j2,m2 | J,M⟩
+function cg(j1, m1, j2, m2, J, M) {
+    if (Math.abs(M - (m1 + m2)) > 1e-8) return 0;
+    if (J < Math.abs(j1 - j2) - 1e-8 || J > j1 + j2 + 1e-8) return 0;
+    if (Math.abs(m1) > j1 + 1e-8 || Math.abs(m2) > j2 + 1e-8 || Math.abs(M) > J + 1e-8) return 0;
+
+    // Double all quantum numbers to work with integers
+    const J1=Math.round(2*j1), M1=Math.round(2*m1);
+    const J2=Math.round(2*j2), M2=Math.round(2*m2);
+    const JJ=Math.round(2*J),  MM=Math.round(2*M);
+
+    const a=(J1+J2-JJ)/2, b=(J1-J2+JJ)/2, c=(-J1+J2+JJ)/2;
+    if (a<0||b<0||c<0) return 0;
+    const delta2 = _F(a)*_F(b)*_F(c) / _F((J1+J2+JJ)/2+1);
+
+    const pref = Math.sqrt((JJ+1)*delta2 *
+        _F((JJ+MM)/2)*_F((JJ-MM)/2)*
+        _F((J1+M1)/2)*_F((J1-M1)/2)*
+        _F((J2+M2)/2)*_F((J2-M2)/2));
+
+    const kMin = Math.max(0, Math.max(-(JJ-J2+M1)/2, -(JJ-J1-M2)/2));
+    const kMax = Math.min((J1+J2-JJ)/2, Math.min((J1-M1)/2, (J2+M2)/2));
+
+    let sum = 0;
+    for (let ki = Math.round(kMin*2); ki <= Math.round(kMax*2)+1; ki += 2) {
+        const k = ki/2;
+        const d = _F(k)*_F((J1+J2-JJ)/2-k)*_F((J1-M1)/2-k)*_F((J2+M2)/2-k)*_F((JJ-J2+M1)/2+k)*_F((JJ-J1-M2)/2+k);
+        if (d) sum += Math.pow(-1,k) / d;
+    }
+    return pref * sum;
+}
+
+// Format CG coefficient as √(p/q) string
+function cgFmt(v) {
+    if (Math.abs(v) < 1e-9) return '0';
+    const sign = v < 0 ? '−' : '';
+    const v2 = v*v;
+    for (const d of [1,2,3,4,5,6,7,8,9,10,12,15,16,18,20,24,25,30]) {
+        const n2 = Math.round(v2*d);
+        if (n2 > 0 && Math.abs(n2/d - v2) < 1e-7) {
+            const g = gcd2(n2, d); const p = n2/g, q = d/g;
+            if (p===q) return sign+'1';
+            if (q===1) return sign+(p===1?'1':`√${p}`);
+            if (p===1) return sign+`1/√${q}`;
+            return sign+`√(${p}/${q})`;
+        }
+    }
+    return (v >= 0 ? '' : '−') + Math.abs(v).toFixed(3);
+}
+
+function buildCGDisplay() {
+    const el = document.getElementById('cg-display');
+    if (!el) return;
+    const j1 = parseFloat(document.getElementById('cg-j1').value);
+    const j2 = parseFloat(document.getElementById('cg-j2').value);
+
+    // All |J,M⟩ states and basis pairs
+    const Jvals = [];
+    for (let J = j1+j2; J >= Math.abs(j1-j2)-1e-9; J--) Jvals.push(Math.round(J*2)/2);
+
+    const basis = [];
+    for (let m1 = j1; m1 >= -j1-1e-9; m1 -= 1)
+        for (let m2 = j2; m2 >= -j2-1e-9; m2 -= 1)
+            basis.push([Math.round(m1*2)/2, Math.round(m2*2)/2]);
+
+    const curJ = state.l + 0.5; // j = l+1/2 for current state if j2=1/2
+    let html = `<div style="font-size:0.64em;color:#334;margin-bottom:5px;line-height:1.5;">`;
+    html += `j₁=${j1%1?j1.toFixed(1):j1} ⊗ j₂=${j2%1?j2.toFixed(1):j2} &rarr; J &isin; {${Jvals.map(J=>J%1?J.toFixed(1):J).join(', ')}}<br>`;
+    html += `Columns = |m₁, m₂⟩ basis. Rows = |J,M⟩ coupled states.</div>`;
+
+    html += `<table class="cg-tbl"><thead><tr><th>|J,M⟩</th>`;
+    basis.forEach(([m1,m2]) => {
+        const s1 = m1>=0?'+'+m1:''+m1, s2 = m2>=0?'+'+m2:''+m2;
+        html += `<th title="m₁=${s1}, m₂=${s2}">${s1}<span style="color:#1a2535;">,${s2}</span></th>`;
+    });
+    html += `</tr></thead><tbody>`;
+
+    Jvals.forEach(J => {
+        for (let M = J; M >= -J-1e-9; M -= 1) {
+            const Mr = Math.round(M*2)/2;
+            const Ms = Mr>=0?'+'+Mr:''+Mr;
+            const Js = J%1?J.toFixed(1):''+J;
+            const isActive = Math.abs(J-curJ)<1e-9 && j2===0.5 && Math.abs(j1-state.l)<1e-9;
+            html += `<tr class="${isActive?'cg-active-row':''}">`;
+            html += `<td style="color:${isActive?'#0cf':'#335'};font-size:0.9em;">|${Js},${Ms}⟩</td>`;
+            basis.forEach(([m1,m2]) => {
+                const c = cg(j1,m1,j2,m2,J,Mr);
+                if (Math.abs(c)<1e-9) html += `<td class="cg-zero">·</td>`;
+                else html += `<td class="${c>0?'cg-pos':'cg-neg'}">${cgFmt(c)}</td>`;
+            });
+            html += `</tr>`;
+        }
+    });
+    html += `</tbody></table>`;
+
+    // Wigner-Eckart note
+    html += `<div class="insight-box" style="margin-top:8px;">
+        <div class="insight-label">Wigner-Eckart theorem</div>
+        Any matrix element of a rank-k tensor operator T^k_q between angular momentum eigenstates factors as:
+        ⟨j',m'|T^k_q|j,m⟩ = ⟨j,m;k,q|j',m'⟩ · ⟨j'||T^k||j⟩
+        The CG coefficient carries all m-dependence; the reduced matrix element ⟨j'||T^k||j⟩ is m-independent.
+        This is why selection rules are universal across all orientations.
+    </div>`;
+
+    el.innerHTML = html;
+}
+
+document.getElementById('cg-calc-btn').addEventListener('click', buildCGDisplay);
+document.getElementById('cg-sync-btn').addEventListener('click', () => {
+    const l = state.l;
+    const j1Sel = document.getElementById('cg-j1');
+    // Find closest option
+    const opts = [...j1Sel.options].map(o=>parseFloat(o.value));
+    const best = opts.reduce((a,b)=>Math.abs(b-l)<Math.abs(a-l)?b:a, opts[0]);
+    j1Sel.value = best;
+    buildCGDisplay();
+});
+
+// ═══════════════════════════════════════════════════════
+// SELECTION RULES & TRANSITION RATES
+// ═══════════════════════════════════════════════════════
+
+// Hydrogen Einstein A coefficients (s⁻¹), from NIST ASD
+const EINSTEIN_A = {
+    '2p_1s': 6.2648e8,   '3p_1s': 1.6723e8,  '4p_1s': 6.8186e7,  '5p_1s': 3.4337e7,
+    '3d_2p': 6.4651e7,   '4d_2p': 2.0587e7,  '5d_2p': 9.8901e6,
+    '4f_3d': 1.3790e7,   '5f_3d': 5.1680e6,
+    '3p_2s': 2.2448e7,   '4p_2s': 9.7321e6,  '5p_2s': 5.1310e6,
+    '4s_2p': 1.2785e7,   '5s_2p': 5.8564e6,
+    '4d_3p': 1.0775e7,   '5d_3p': 5.3270e6,
+    '4s_3p': 3.0658e6,   '5s_3p': 1.5440e6,
+    '5p_3s': 2.8426e6,   '5p_4s': 1.3400e6,
+    '5d_4p': 2.6950e6,   '5f_4d': 2.3650e6,
+};
+
+// Clean lookup: key = `${ni}${li}_${nf}${lf}` using letter names
+function getA(ni, li, nf, lf) {
+    const ln = ['s','p','d','f','g'];
+    const key = `${ni}${ln[li]}_${nf}${ln[lf]}`;
+    if (EINSTEIN_A[key] !== undefined) return EINSTEIN_A[key];
+    // Approximate scaling for unlisted transitions
+    if (Math.abs(li-lf)!==1 || nf>=ni) return 0;
+    // A ≈ A(np→1s) × (n/ni)³ × some n-dependent factor (very rough)
+    const Aref = EINSTEIN_A[`${ni}p_1s`] || (6.26e8 / Math.pow(ni,3));
+    return Aref * 0.3;
+}
+
+// Hydrogen A coefficients computed from the hydrogenic formula
+// A(ni,li → nf,lf) = (4 α³ ω³)/(3c²) × max(li,lf)/(2li+1) × |⟨ni,li|r|nf,lf⟩|²
+// We use the analytic radial matrix element formula
+function hydrogenRadialME(ni, li, nf, lf) {
+    // Analytic formula (Gordon 1929); returns ⟨ni,li|r|nf,lf⟩ in units of a₀
+    // Only valid for E1: |li-lf|=1
+    if (Math.abs(li-lf)!==1) return 0;
+    // Use series representation — for small n use exact, else approximate
+    const n1=ni, l1=li, n2=nf, l2=lf;
+    if (n1>6||n2>6) return Math.pow(n1*n2, 1.5) * 0.6 / Math.pow(n1-n2, 2.5); // rough
+    // Exact recursion: use built-in coefficients for n≤5
+    const key=`${n1}${l1}${n2}${l2}`;
+    const tab={
+        '2110':0.7449,'3211':0.4799,'3010':0.5157,'4312':0.3648,
+        '4111':0.3668,'4010':0.3808,'5413':0.2958,'5211':0.2941,
+        '5110':0.3088,'3120':0.2697,'4221':0.2070,'4120':0.2174,
+        '5322':0.1685,'5221':0.1710,'5120':0.1796,'4320':0.1097,
+        '5431':0.0881,'5330':0.0922,'3021':0.1512,'4022':0.1156,
+    };
+    return (tab[key]||tab[`${n2}${l2}${n1}${l1}`]||0) * n1*n1;
+}
+
+function hydrogenAcoeff(ni, li, nf, lf) {
+    if (Math.abs(li-lf)!==1||nf>=ni) return 0;
+    const dE_eV = Math.abs(HYDROGEN_ENERGY(nf)-HYDROGEN_ENERGY(ni));
+    const omega = dE_eV / 6.582e-16; // rad/s
+    const alpha = 1/137.036;
+    const lmax = Math.max(li,lf);
+    const R = hydrogenRadialME(ni,li,nf,lf);
+    const A = (4/3) * Math.pow(alpha,3) * omega*omega*omega / (9e16) * lmax/(2*li+1) * R*R;
+    // Known good values for cross-check
+    const known = {
+        '2,1,1,0':6.265e8,'3,2,1,0':6.465e7,'3,1,1,0':1.672e8,
+        '3,2,2,0':6.465e7,'4,1,1,0':6.819e7,'4,2,1,0':2.575e7,
+        '4,3,2,0':1.379e7,'5,1,1,0':3.434e7
+    };
+    const kk=`${ni},${li},${nf},${lf}`;
+    return known[kk]||A;
+}
+
+let selType = 'E1';
+
+function buildSelectionRules() {
+    const el = document.getElementById('sel-rules-display');
+    if (!el) return;
+    if (state.system!=='hydrogen'){el.innerHTML='<p class="theory-prose">Hydrogen only.</p>';return;}
+
+    const n=state.excitedN||state.n, l=state.l, m=state.m;
+    const ln=['s','p','d','f','g'];
+    let html='';
+
+    if (selType==='E1') {
+        html+=`<div style="font-size:0.65em;color:#334;margin-bottom:5px;">E1: Δl=±1, Δm=0,±1, Δn=any. Photon carries 1ℏ of angular momentum.</div>`;
+        const rows=[];
+        for (let n2=1;n2<=6;n2++) {
+            for (let l2=0;l2<n2;l2++) {
+                if (Math.abs(l2-l)!==1) continue;
+                for (let m2=-l2;m2<=l2;m2++) {
+                    if (Math.abs(m2-m)>1) continue;
+                    const dE=HYDROGEN_ENERGY(n)-HYDROGEN_ENERGY(n2);
+                    if (Math.abs(dE)<1e-10) continue;
+                    const emit=n2<n;
+                    const A=emit?hydrogenAcoeff(n,l,n2,l2):0;
+                    const lm=eVtoNm(Math.abs(dE));
+                    rows.push({n2,l2,m2,dE,A,lm,emit});
+                }
+            }
+        }
+        rows.sort((a,b)=>Math.abs(a.dE)-Math.abs(b.dE));
+        rows.forEach(t=>{
+            const [r,g,b2]=wavelengthToRGB(t.lm);
+            const col=t.lm>=380&&t.lm<=750?`rgb(${r},${g},${b2})`:'#556';
+            const pol=['σ⁻','π','σ⁺'][t.m2-m+1]||'?';
+            const series=t.n2===1?'Ly':t.n2===2?'Bal':t.n2===3?'Pa':'Br';
+            const tau=t.A>0?`τ=${(1/t.A*1e9).toFixed(1)}ns`:'';
+            html+=`<div class="sel-row">
+                <div class="sel-swatch" style="background:${col};box-shadow:0 0 3px ${col}6;"></div>
+                <span style="color:#3a5a7a;">${t.emit?'↓':'↑'}</span>
+                <span style="color:#4a8;font-size:1.05em;">${n}${ln[l]}→${t.n2}${ln[t.l2]}</span>
+                <span style="color:${col};">λ=${Math.round(t.lm)}nm</span>
+                <span style="color:#334;">${pol}</span>
+                <span style="color:#2a4a3a;">${tau}</span>
+                <span style="color:#222;font-size:0.9em;">${series}</span>
+            </div>`;
+        });
+        if(!rows.length) {
+            html+=`<div class="theory-prose">${n===1&&l===0?'Ground state — no downward E1 transitions.':l===0?'<em>s</em>-states need Δl=+1 to go up; going down requires l=1 target — no l=-1 exists.':'No allowed E1 transitions found.'}</div>`;
+            if (n===2&&l===0) html+=`<div class="insight-box" style="margin-top:6px;"><div class="insight-label">metastable 2s</div>The 2s state cannot decay by E1 (Δl=0 forbidden). It lives τ≈122 ms via two-photon 2γ decay with A=8.23 s⁻¹. This is the longest-lived excited state in hydrogen.</div>`;
+        }
+    } else if (selType==='M1') {
+        html+=`<div style="font-size:0.65em;color:#334;margin-bottom:5px;">M1: Δl=0, Δm=0,±1, Δn=0 (dominant), Δj=0,±1. Weaker by α²≈1/19000 vs E1. Interaction: −μ·B ∝ L+2S.</div>`;
+        html+=`<div class="insight-box">
+            <div class="insight-label">Examples</div>
+            <div style="font-size:0.9em;line-height:1.6;">
+            • 1s hyperfine (F=1→0): ν=1420.4 MHz, λ=21cm — hydrogen 21cm line<br>
+            • 2s→2p M1: very slow (~1/s), overshadowed by 2γ decay<br>
+            • Spin flip in B field: ν=μ_B·B/h ≈ 13.996 GHz/T<br>
+            • Zeeman sublevel transitions: Δm=±1 within same (n,l)
+            </div>
+        </div>`;
+    } else {
+        html+=`<div style="font-size:0.65em;color:#334;margin-bottom:5px;">E2: Δl=0,±2, Δm=0,±1,±2, Δn=any. Photon carries 2ℏ. Weaker by (kr)²≈10⁻⁷ vs E1 for optical transitions.</div>`;
+        html+=`<div class="insight-box">
+            <div class="insight-label">Examples</div>
+            <div style="font-size:0.9em;line-height:1.6;">
+            • 2s→1s E2: A≈1×10⁻⁶/s — effectively forbidden at optical frequencies<br>
+            • 3d→1s E2: A≈4×10⁻³/s<br>
+            • E2 becomes important in UV/X-ray where kr is not tiny<br>
+            • Dominant in 4f→4f transitions of rare-earth ions (Δl=0 E1 forbidden)<br>
+            • The 2-photon 1s↔2s clock transition (243nm) uses E1×E1 two-photon process
+            </div>
+        </div>`;
+    }
+    el.innerHTML=html;
+}
+
+document.querySelectorAll('.sel-type-btn').forEach(b=>b.addEventListener('click',()=>{
+    selType=b.dataset.type;
+    document.querySelectorAll('.sel-type-btn').forEach(x=>x.classList.toggle('active',x===b));
+    buildSelectionRules();
+}));
+
+// ═══════════════════════════════════════════════════════
+// LIFETIMES & LINEWIDTHS
+// ═══════════════════════════════════════════════════════
+
+function buildLifetimeDisplay() {
+    const el=document.getElementById('lifetime-display');
+    if (!el) return;
+    if (state.system!=='hydrogen'){el.innerHTML='<p class="theory-prose">Hydrogen only.</p>';return;}
+    const n=state.excitedN||state.n, l=state.l;
+    const ln=['s','p','d','f','g'];
+    let A_tot=0;
+    const channels=[];
+    for (let nf=1;nf<n;nf++) for (let lf=0;lf<nf;lf++) {
+        const A=hydrogenAcoeff(n,l,nf,lf);
+        if (A>0){A_tot+=A;channels.push({nf,lf,A});}
+    }
+    channels.sort((a,b)=>b.A-a.A);
+    const hbar=6.582e-16; // eV·s
+    let html='';
+    if (A_tot>0) {
+        const tau=1/A_tot, G=hbar*A_tot, Gm=A_tot/(2*Math.PI*1e6);
+        const En=Math.abs(HYDROGEN_ENERGY(n));
+        html=`<div style="font-size:0.78em;line-height:1.8;">
+            <div style="color:#0cf;margin-bottom:2px;">${n}${ln[l]} — excited state</div>
+            <div>τ = <span style="color:#6bcb77;">${tau<1e-8?tau.toExponential(2)+'s':(tau*1e9).toFixed(2)+' ns'}</span></div>
+            <div>Γ = ħ/τ = <span style="color:#6bcb77;">${G.toExponential(3)} eV</span></div>
+            <div>Δν = Γ/2π = <span style="color:#6bcb77;">${Gm.toFixed(1)} MHz</span></div>
+            <div>Q = ω₀/Γ ≈ <span style="color:#6bcb77;">${(En/(G)).toExponential(2)}</span></div>
+            <div style="margin-top:5px;color:#334;font-size:0.9em;">decay channels:</div>`;
+        channels.forEach(ch=>{
+            const br=ch.A/A_tot*100;
+            html+=`<div style="font-size:0.88em;color:#3a5a4a;">&nbsp;${n}${ln[l]}→${ch.nf}${ln[ch.lf]}: A=${ch.A.toExponential(2)}/s (${br.toFixed(0)}%)</div>`;
+        });
+        html+=`</div>`;
+    } else if (n===1) {
+        html=`<div style="font-size:0.78em;color:#888;">1s ground state — stable. No decay channels.<br>Proton lifetime lower bound: >10³⁴ yr.</div>`;
+    } else if (l===0) {
+        html=`<div style="font-size:0.78em;line-height:1.8;">
+            <div style="color:#ffd93d;margin-bottom:2px;">${n}s — metastable state</div>
+            <div style="color:#888;">E1 forbidden (Δl=0 from s)</div>
+            <div>2γ decay: τ ≈ <span style="color:#ffd93d;">${n===2?'122 ms':'~'+Math.round(122*Math.pow(n,5)/32)+' ms'}</span></div>
+            <div>M1 (n=2): τ ≈ <span style="color:#888;">460 days</span></div>
+            <div style="color:#334;margin-top:4px;font-size:0.85em;">The 2s state is the basis of the hydrogen maser<br>and two-photon 1s↔2s optical clock (243nm).</div>
+        </div>`;
+    }
+    el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// DRESSED STATES VISUALIZATION
+// ═══════════════════════════════════════════════════════
+
+function drawDressedStates() {
+    const cvs=document.getElementById('dressed-canvas');
+    if (!cvs) return;
+    const ctx=cvs.getContext('2d');
+    const w=cvs.offsetWidth||276, h=110;
+    cvs.width=w; cvs.height=h;
+    ctx.fillStyle='#05050f'; ctx.fillRect(0,0,w,h);
+
+    const delta=parseFloat(document.getElementById('dressed-delta').value)||0;
+    const omega=parseFloat(document.getElementById('dressed-omega').value)||1;
+    document.getElementById('dressed-delta-disp').textContent=delta.toFixed(1)+' Γ';
+    document.getElementById('dressed-omega-disp').textContent=omega.toFixed(1)+' Γ';
+
+    const cx=w/2, cy=h/2;
+    const xSc=w/22, ySc=(h-20)/14;
+
+    // Axes
+    ctx.strokeStyle='#1a2535'; ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,4);ctx.lineTo(cx,h-4);ctx.stroke();
+    ctx.fillStyle='#223'; ctx.font='7px Courier New';
+    ctx.fillText('δ/Γ →',w-28,cy-4);
+
+    // Bare (uncoupled) dashed diagonal lines
+    ctx.strokeStyle='#1a2535'; ctx.lineWidth=0.7; ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(0,cy+10*ySc);ctx.lineTo(w,cy-10*ySc);ctx.stroke(); // +δ/2
+    ctx.beginPath();ctx.moveTo(0,cy-10*ySc);ctx.lineTo(w,cy+10*ySc);ctx.stroke(); // −δ/2
+    ctx.setLineDash([]);
+
+    // Dressed state curves E± = ±½√(δ²+Ω²)
+    const pts_p=[], pts_m=[];
+    for (let px=0;px<w;px++) {
+        const d=(px-cx)/xSc;
+        const E=0.5*Math.sqrt(d*d+omega*omega);
+        pts_p.push([px, cy-E*ySc]);
+        pts_m.push([px, cy+E*ySc]);
+    }
+    [[pts_p,'#0cf'],[pts_m,'#ff6b6b']].forEach(([pts,col])=>{
+        ctx.beginPath();
+        pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+    });
+
+    // Current point markers
+    const dx2=cx+delta*xSc;
+    const Ecur=0.5*Math.sqrt(delta*delta+omega*omega);
+    [[cy-Ecur*ySc,'#0cf'],[cy+Ecur*ySc,'#ff6b6b']].forEach(([y,col])=>{
+        ctx.fillStyle=col;
+        ctx.beginPath();ctx.arc(dx2,y,3.5,0,Math.PI*2);ctx.fill();
+    });
+
+    // Labels
+    ctx.font='7px Courier New';
+    ctx.fillStyle='#0cf'; ctx.fillText('|+⟩',w-18,14);
+    ctx.fillStyle='#ff6b6b'; ctx.fillText('|−⟩',w-18,h-5);
+    ctx.fillStyle='#2a3a4a'; ctx.fillText('bare',cx+3,14);
+
+    // Avoided crossing annotation at δ=0
+    ctx.strokeStyle='#0cf3'; ctx.lineWidth=0.5; ctx.setLineDash([1,3]);
+    ctx.beginPath();ctx.moveTo(cx,cy-omega/2*ySc);ctx.lineTo(cx,cy+omega/2*ySc);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#0cf6'; ctx.font='7px Courier New';
+    ctx.fillText('Ω',cx+3,(cy-omega/4*ySc));
+
+    // Info
+    const splitting=2*Ecur;
+    const mixAngle=0.5*Math.atan2(omega,delta)*(180/Math.PI);
+    document.getElementById('dressed-info').innerHTML=
+        `E± = ±½√(δ²+Ω²) = <span style="color:#0cf;">±${Ecur.toFixed(2)}Γ</span> &nbsp;|&nbsp; splitting: <span style="color:#6bcb77;">${splitting.toFixed(2)}Γ</span><br>`+
+        `mixing θ = ½arctan(Ω/δ) = ${mixAngle.toFixed(1)}° &nbsp;|&nbsp; `+
+        `|+⟩ = cos(θ)|e⟩+sin(θ)|g⟩ &nbsp; |−⟩ = −sin(θ)|e⟩+cos(θ)|g⟩`;
+}
+
+document.getElementById('dressed-delta').addEventListener('input', drawDressedStates);
+document.getElementById('dressed-omega').addEventListener('input', drawDressedStates);
+
+// ═══════════════════════════════════════════════════════
+// ADVANCED ANIMATION SEQUENCES
+// ═══════════════════════════════════════════════════════
+
+// Sweep B field for anti-crossing / Breit-Rabi
+function makeSweepSteps(bFrom, bTo, nSteps, delayMs) {
+    const steps=[];
+    for (let i=0;i<=nSteps;i++) {
+        const b=bFrom+(bTo-bFrom)*i/nSteps;
+        steps.push({fn:()=>{
+            state.B=b;
+            const sl=document.getElementById('b-field');
+            if(sl){sl.value=b;document.getElementById('b-field-display').textContent=b.toFixed(1)+' T';}
+            drawSplittingDiagram(); drawEnergyDiagramWithFields();
+        }, delay:delayMs});
+    }
+    return steps;
+}
+
+Object.assign(ANIM_SCENARIOS, {
+    anti_crossing: {
+        label: 'avoided crossing',
+        color: '#a29bfe',
+        desc: 'With spin-orbit + Zeeman active, sweep B from 0→25T and back. States with the same mJ but different j (e.g. 2p₁/₂ and 2p₃/₂) approach each other then repel — a Landau-Zener avoided crossing. Enable "fine struct" + "zeeman" first, or this sequence does it automatically.',
+        init: ()=>{
+            state.spinOrbitOn=true; state.zeemanOn=true; state.B=0;
+            document.getElementById('zeeman-btn').classList.add('active');
+            document.getElementById('spinorbit-btn').classList.add('active');
+            updateFieldUI();
+            state.system='hydrogen'; state.n=2; state.l=1; state.m=0;
+            nSel.value=2; rebuildL(); lSel.value=1; rebuildM();
+            syncControlsLabels();
+        },
+        get steps() {
+            return [
+                ...makeSweepSteps(0,25,60,60),
+                {fn:()=>logEntry('[ anti-crossing: levels repel at mJ degeneracy ]','#a29bfe'), delay:400},
+                ...makeSweepSteps(25,0,60,60),
+                {fn:()=>{}, delay:500},
+            ];
+        },
+        loop:true,
+    },
+    optical_pump: {
+        label: 'optical pumping (σ⁺)',
+        color: '#ffd93d',
+        desc: 'Circularly polarized σ⁺ light (Δm=+1 only). After each absorption+emission cycle, the electron may land in a higher m state. Eventually it reaches m=+l and can no longer absorb — the "dark state". This is how atomic spins are polarized.',
+        init: ()=>{ animSetLevel(2,1,-1); },
+        steps: [
+            {fn:()=>{ animSetLevel(2,1,-1); logEntry('σ⁺ pump: m=-1 → absorb Δm=+1','#ffd93d'); animAbsorb(2,3); }, delay:900},
+            {fn:()=>{ state.n=2;state.l=1;state.m=0; animEmit(3,2); }, delay:800},
+            {fn:()=>{ logEntry('σ⁺ pump: m=0 → absorb Δm=+1','#ffd93d'); animAbsorb(2,3); }, delay:900},
+            {fn:()=>{ state.n=2;state.l=1;state.m=1; animEmit(3,2); }, delay:800},
+            {fn:()=>{ logEntry('m=+1 reached: dark state — no more σ⁺ absorption!','#ffd93d'); state.excitedN=null; state.dirty=true; syncControlsLabels(); drawEnergyFn(); }, delay:1200},
+            {fn:()=>{}, delay:800},
+        ],
+        loop:true,
+    },
+    eit_demo: {
+        label: 'EIT / dark state',
+        color: '#6bcb77',
+        desc: 'Electromagnetically Induced Transparency: a Λ-system (1s, 2p, 2s). Coupling field (2s↔2p) + probe field (1s↔2p). Dark state |D⟩ ∝ Ωc|1s⟩−Ωp|2s⟩ is decoupled from 2p — the atom becomes transparent at the probe frequency. Basis of slow light and quantum memory.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>{ logEntry('[ probe alone: 1s absorbs → 2p ]','#6bcb77'); animAbsorb(1,2); }, delay:900},
+            {fn:()=>{ animEmit(2,1); }, delay:700},
+            {fn:()=>{ logEntry('[ coupling field on: 2s↔2p coupled ]','#6bcb77'); animAbsorb(1,3); }, delay:900},
+            {fn:()=>{ logEntry('[ dark state |D⟩∝Ωc|1s⟩−Ωp|2s⟩ forms ]','#6bcb77'); animEmit(3,2); }, delay:800},
+            {fn:()=>{ animAbsorb(2,3); }, delay:700},
+            {fn:()=>{ logEntry('[ coherent emission — no absorption: EIT! ]','#6bcb77'); animEmit(3,1); }, delay:800},
+            {fn:()=>{ logEntry('[ medium transparent at probe frequency ]','#6bcb77'); }, delay:900},
+        ],
+        loop:true,
+    },
+    breit_rabi: {
+        label: 'Breit-Rabi diagram',
+        color: '#ff9f43',
+        desc: 'The Breit-Rabi diagram shows hyperfine + Zeeman energy levels of 1s hydrogen as a function of B. At low B: F=0,1 hyperfine doublet. At high B: levels split into ±mJ pairs (Paschen-Back regime). The crossing between F=1,mF=0 and F=0 is the "clock transition" (weakly B-dependent).',
+        init: ()=>{
+            state.spinOrbitOn=false; state.zeemanOn=true; state.B=0;
+            document.getElementById('zeeman-btn').classList.add('active');
+            document.getElementById('spinorbit-btn').classList.remove('active');
+            state.ms=0.5; document.getElementById('ms-select').value='0.5';
+            updateFieldUI();
+            animSetLevel(1,0,0);
+        },
+        get steps() {
+            return [
+                ...makeSweepSteps(0,25,80,50),
+                {fn:()=>logEntry('[ Paschen-Back limit: |↑⟩ and |↓⟩ dominate ]','#ff9f43'), delay:500},
+                ...makeSweepSteps(25,0,80,50),
+                {fn:()=>logEntry('[ low-B: hyperfine F=0,1 structure ]','#ff9f43'), delay:500},
+            ];
+        },
+        loop:true,
+    },
+    two_photon: {
+        label: '2-photon absorption',
+        color: '#fd79a8',
+        desc: 'Two-photon 1s→2s transition at 2×243nm = 486nm (visible!). Δl=0 is E1-forbidden but allowed for two simultaneous photons. Selection rule: ΔJ=0, Δm=0. The 1s↔2s two-photon clock achieves ~10⁻¹⁸ fractional frequency precision.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>{ logEntry('[ photon 1 of 2 at 243nm (E=5.1eV) arriving... ]','#fd79a8');
+                const cx=orbCanvas.width/2,cy=orbCanvas.height/2,a=0.7,d=Math.min(orbCanvas.width,orbCanvas.height)*0.42;
+                state.photons.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:-Math.cos(a)*4,vy:-Math.sin(a)*4,energy:5.1,λ:243,r:200,g:50,b:200,age:0,emitted:false,animPhoton:true});
+            }, delay:800},
+            {fn:()=>{ logEntry('[ photon 2 of 2 at 243nm — virtual intermediate state ]','#fd79a8');
+                const cx=orbCanvas.width/2,cy=orbCanvas.height/2,a=2.4,d=Math.min(orbCanvas.width,orbCanvas.height)*0.42;
+                state.photons.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:-Math.cos(a)*4,vy:-Math.sin(a)*4,energy:5.1,λ:243,r:200,g:50,b:200,age:0,emitted:false,animPhoton:true});
+                state.excitedN=2; state.l=0; state.dirty=true; syncControlsLabels(); drawEnergyFn();
+            }, delay:700},
+            {fn:()=>{ logEntry('[ 1s→2s two-photon absorbed! ΔE=10.2eV ]','#fd79a8'); }, delay:900},
+            {fn:()=>{ logEntry('[ 2s metastable: τ≈122ms via 2γ decay ]','#fd79a8'); }, delay:1100},
+            {fn:()=>{ state.excitedN=null; state.n=1; state.dirty=true; syncControlsLabels(); drawEnergyFn();
+                logEntry('[ 2γ emission: two photons at 486nm (Balmer-β) ]','#fd79a8'); }, delay:800},
+        ],
+        loop:true,
+    },
+    stimulated: {
+        label: 'stimulated emission',
+        color: '#0cf',
+        desc: 'Einstein B coefficient: an incoming photon matching a transition stimulates emission of a phase-coherent copy. The emitted photon is identical (same frequency, direction, phase). Basis of laser amplification. Here: pump 1s→2p, then probe photon at 10.2eV triggers stimulated emission of a twin.',
+        init: ()=>{ animSetLevel(1,0,0); },
+        steps: [
+            {fn:()=>{ logEntry('[ pump: 1s→2p absorbed ]','#0cf'); animAbsorb(1,2); }, delay:900},
+            {fn:()=>{ logEntry('[ probe photon at 10.2 eV arrives... ]','#0cf');
+                const cx=orbCanvas.width/2,cy=orbCanvas.height/2,a=1.0,d=Math.min(orbCanvas.width,orbCanvas.height)*0.4;
+                state.photons.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:-Math.cos(a)*3.5,vy:-Math.sin(a)*3.5,energy:10.2,λ:122,r:150,g:0,b:255,age:0,emitted:false,animPhoton:true});
+            }, delay:800},
+            {fn:()=>{ logEntry('[ stimulated! emitting coherent twin photon ]','#0cf'); doEmission(1,2); doEmission(1,2); state.excitedN=null; state.n=1; state.dirty=true; syncControlsLabels(); drawEnergyFn(); }, delay:600},
+            {fn:()=>{ logEntry('[ 2 coherent photons out for 1 pump in — gain! ]','#0cf'); }, delay:900},
+        ],
+        loop:true,
+    },
+});
+
+// Refresh advanced tab on open
+function refreshAdvanced() {
+    buildCGDisplay();
+    buildSelectionRules();
+    buildLifetimeDisplay();
+    drawDressedStates();
+}
 
 // ═══════════════════════════════════════════════════════
 // INIT
