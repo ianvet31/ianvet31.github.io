@@ -1734,18 +1734,258 @@ function nToY_large(n, h, padT, padB) {
 
 function drawLargeEnergyDiagram(ts) {
     if (!energyViewActive) return;
-    const w = elCvs.offsetWidth || 600;
-    const h = elCvs.offsetHeight || 400;
+    const w = elCvs.offsetWidth  || 700;
+    const h = elCvs.offsetHeight || 500;
     if (elCvs.width !== w || elCvs.height !== h) { elCvs.width = w; elCvs.height = h; }
     const ctx = elCtx;
 
     ctx.fillStyle = '#01010d'; ctx.fillRect(0,0,w,h);
 
     if (state.system === 'hydrogen') {
-        const N_MAX = 7;
-        const padT = 52, padB = 36, padL = 70, padR = 140;
-        const lNames = ['s','p','d','f','g','h'];
-        const lColors = ['#0cf','#f80','#6bcb77','#c084fc','#fb923c','#38bdf8'];
+        // ── Layout ──────────────────────────────────────────
+        // Equal vertical spacing — readability over physical accuracy
+        // Columns by ℓ: s | p | d | f | g
+        // Within each column: one shelf per n, (2ℓ+1) dot-states per shelf
+        const N_MAX  = 6;
+        const L_MAX  = 4; // show s p d f g  (ℓ = 0..4)
+        const lNames  = ['s','p','d','f','g'];
+        const lColors = ['#00ccff','#ff8800','#6bcb77','#c084fc','#fb923c'];
+
+        const padL = 74, padR = 110, padT = 70, padB = 46;
+        const levStep = (h - padT - padB) / N_MAX;   // px between consecutive n levels
+        const colW    = (w - padL - padR) / (L_MAX + 1); // px per ℓ column
+
+        // y center of level n (n=1 bottom, n=N_MAX top) — equal spacing
+        const nY  = n  => h - padB - (n - 0.5) * levStep;
+        // x center of ℓ column
+        const lCX = l  => padL + (l + 0.5) * colW;
+        // x of specific m state within (ℓ, m)
+        const mX  = (l, m) => {
+            if (l === 0) return lCX(0);
+            const spread = Math.min(colW * 0.72, (2*l) * 22);
+            return lCX(l) + (m / l) * spread * 0.5;
+        };
+
+        const curN = state.excitedN || state.n;
+        const curL = state.excitedN ? Math.min(state.l, curN - 1) : state.l;
+        const curM = state.m;
+
+        // ── Animate dot ──────────────────────────────────────
+        const dotTargetX = mX(curL, curM);
+        const dotTargetY = nY(Math.min(curN, N_MAX));
+        if (eDot.n !== curN || eDot.targetY !== dotTargetY) {
+            eDot.fromY = eDot.y  || dotTargetY;
+            eDot.fromX = eDot.x  || dotTargetX;
+            eDot.targetY = dotTargetY;
+            eDot.targetX = dotTargetX;
+            eDot.n = curN; eDot.t = 0; eDot.transitioning = true;
+        }
+        if (!eDot.x) { eDot.x = dotTargetX; eDot.y = dotTargetY; }
+        if (eDot.t < 1) {
+            eDot.t = Math.min(1, eDot.t + 0.035);
+            const ease = 1 - Math.pow(1 - eDot.t, 3);
+            eDot.x = eDot.fromX + (eDot.targetX - eDot.fromX) * ease;
+            eDot.y = eDot.fromY + (eDot.targetY - eDot.fromY) * ease;
+        } else { eDot.x = dotTargetX; eDot.y = dotTargetY; eDot.transitioning = false; }
+
+        // ── Column headers ────────────────────────────────────
+        ctx.textAlign = 'center';
+        for (let l = 0; l <= L_MAX; l++) {
+            const cx = lCX(l);
+            // Column bg stripe
+            ctx.fillStyle = lColors[l] + '06';
+            ctx.fillRect(cx - colW*0.48, padT - 30, colW*0.96, h - padT - padB + 30);
+
+            ctx.font = 'bold 15px Courier New';
+            ctx.fillStyle = lColors[l] + 'bb';
+            ctx.fillText(lNames[l], cx, padT - 36);
+            ctx.font = '10px Courier New';
+            ctx.fillStyle = lColors[l] + '55';
+            ctx.fillText(`ℓ = ${l}`, cx, padT - 22);
+            const mRange = l === 0 ? 'm = 0' : `m = −${l}…+${l}`;
+            ctx.fillStyle = '#333';
+            ctx.fillText(mRange, cx, padT - 10);
+        }
+
+        // ── N-level bands & labels ────────────────────────────
+        for (let n = 1; n <= N_MAX; n++) {
+            const y   = nY(n);
+            const cur = (n === curN);
+
+            // Band background
+            ctx.fillStyle = cur ? 'rgba(0,200,255,0.04)' : n % 2 === 0 ? 'rgba(255,255,255,0.008)' : 'transparent';
+            ctx.fillRect(padL - 10, y - levStep * 0.48, w - padL - padR + 10 + 20, levStep * 0.96);
+
+            // Left: n= label + energy
+            ctx.textAlign = 'right';
+            ctx.font = cur ? 'bold 14px Courier New' : '12px Courier New';
+            ctx.fillStyle = cur ? '#0cf' : '#445';
+            ctx.fillText(`n = ${n}`, padL - 14, y + 5);
+            ctx.font = '9px Courier New';
+            ctx.fillStyle = cur ? '#4affa0' : '#2a3a4a';
+            ctx.fillText(`${HYDROGEN_ENERGY(n).toFixed(3)} eV`, padL - 14, y + 18);
+
+            // Right: degeneracy
+            ctx.textAlign = 'left';
+            ctx.font = cur ? 'bold 11px Courier New' : '10px Courier New';
+            ctx.fillStyle = cur ? '#0cf' : '#2a3a4a';
+            ctx.fillText(`g = ${n*n}`, w - padR + 8, y - 2);
+            ctx.font = '9px Courier New';
+            ctx.fillStyle = cur ? '#4af8' : '#1a2535';
+            ctx.fillText(`${n*n} state${n*n>1?'s':''}`, w - padR + 8, y + 12);
+
+            // Faint horizontal guide line across full width
+            ctx.strokeStyle = cur ? '#0cf2' : '#0a0f1a';
+            ctx.lineWidth = cur ? 1 : 0.4;
+            ctx.setLineDash([4, 6]);
+            ctx.beginPath(); ctx.moveTo(padL - 8, y); ctx.lineTo(w - padR + 6, y); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // ── Draw allowed transition arrows (from current level) ───
+        for (let nf = 1; nf < curN; nf++) {
+            for (let lf = 0; lf <= Math.min(nf-1, L_MAX); lf++) {
+                if (Math.abs(lf - curL) !== 1) continue;
+                const dE = Math.abs(HYDROGEN_ENERGY(curN) - HYDROGEN_ENERGY(nf));
+                const λ  = eVtoNm(dE);
+                const [r2,g2,b2] = wavelengthToRGB(λ);
+                const isVis = λ >= 380 && λ <= 750;
+                const col   = isVis ? `rgba(${r2},${g2},${b2},0.6)` : 'rgba(140,140,140,0.3)';
+                const x1 = mX(curL, curM), y1 = nY(Math.min(curN, N_MAX));
+                const x2 = mX(lf,   0),   y2 = nY(nf);
+                // Arrow line
+                ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+                ctx.setLineDash([]);
+                // Arrowhead at destination
+                const ang = Math.atan2(y2 - y1, x2 - x1);
+                ctx.beginPath();
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - 10*Math.cos(ang-0.4), y2 - 10*Math.sin(ang-0.4));
+                ctx.lineTo(x2 - 10*Math.cos(ang+0.4), y2 - 10*Math.sin(ang+0.4));
+                ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+                // λ label at midpoint
+                const mx2 = (x1+x2)/2, my2 = (y1+y2)/2;
+                ctx.font = '9px Courier New'; ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(0,0,15,0.7)';
+                ctx.fillRect(mx2 - 24, my2 - 10, 48, 13);
+                ctx.fillStyle = isVis ? `rgba(${r2},${g2},${b2},0.95)` : 'rgba(180,180,180,0.7)';
+                ctx.fillText(`${Math.round(λ)} nm`, mx2, my2);
+            }
+        }
+
+        // ── State dots per shelf ──────────────────────────────
+        for (let n = 1; n <= N_MAX; n++) {
+            const y   = nY(n);
+            const cur = (n === curN);
+
+            for (let l = 0; l < n && l <= L_MAX; l++) {
+                const cx   = lCX(l);
+                // Shelf line for this (n,ℓ) sub-level
+                const spread = l === 0 ? 18 : Math.min(colW * 0.72, (2*l) * 22);
+                ctx.strokeStyle = (cur && l === curL) ? lColors[l] + 'cc' : lColors[l] + '28';
+                ctx.lineWidth   = (cur && l === curL) ? 2 : 0.8;
+                ctx.beginPath();
+                ctx.moveTo(cx - spread/2 - 8, y);
+                ctx.lineTo(cx + spread/2 + 8, y);
+                ctx.stroke();
+
+                // nℓ label above the shelf
+                ctx.textAlign = 'center';
+                ctx.font = (cur && l === curL) ? 'bold 11px Courier New' : '9px Courier New';
+                ctx.fillStyle = (cur && l === curL) ? lColors[l] : lColors[l] + '55';
+                ctx.fillText(`${n}${lNames[l]}`, cx, y - (levStep * 0.3));
+
+                // m-state dots
+                for (let m = -l; m <= l; m++) {
+                    const x      = mX(l, m);
+                    const isCur  = cur && l === curL && m === curM;
+                    const isNear = cur && l === curL;
+
+                    // m value label below dot
+                    ctx.textAlign = 'center';
+                    ctx.font = '8px Courier New';
+                    if (isCur) {
+                        ctx.fillStyle = lColors[l];
+                        ctx.fillText(`m=${m>=0?'+':''}${m}`, x, y + levStep*0.28);
+                    } else if (isNear) {
+                        ctx.fillStyle = lColors[l] + '44';
+                        ctx.fillText(`${m}`, x, y + levStep*0.22);
+                    }
+
+                    // Dot
+                    const r = isCur ? 6 : isNear ? 4 : (cur ? 3 : 2.5);
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
+                    if (isCur) {
+                        ctx.fillStyle = lColors[l]; ctx.fill();
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2; ctx.stroke();
+                    } else {
+                        ctx.fillStyle = (cur && l === curL) ? lColors[l] + '88' : lColors[l] + '28';
+                        ctx.fill();
+                    }
+                }
+
+                // Degeneracy count to the right of the shelf
+                const deg2l1 = 2*l + 1;
+                ctx.textAlign = 'right';
+                ctx.font = '8px Courier New';
+                ctx.fillStyle = (cur && l === curL) ? lColors[l] + 'aa' : '#222';
+                ctx.fillText(`×${deg2l1}`, cx + spread/2 + 22, y + 3);
+            }
+        }
+
+        // ── Animated dot glow (over everything) ──────────────
+        const pulse = 0.55 + 0.45 * Math.sin(ts * 0.003);
+        const gR    = 14 + 4 * pulse;
+        // Trail while transitioning
+        if (eDot.transitioning) {
+            ctx.strokeStyle = `rgba(0,200,255,0.25)`;
+            ctx.lineWidth = 2; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(eDot.fromX, eDot.fromY); ctx.lineTo(eDot.x, eDot.y); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        // Outer bloom
+        const bloom = ctx.createRadialGradient(eDot.x, eDot.y, 0, eDot.x, eDot.y, gR * 2.2);
+        bloom.addColorStop(0,   `rgba(0,200,255,${0.3 * pulse})`);
+        bloom.addColorStop(0.5, `rgba(0,200,255,${0.1 * pulse})`);
+        bloom.addColorStop(1,   'rgba(0,200,255,0)');
+        ctx.fillStyle = bloom;
+        ctx.beginPath(); ctx.arc(eDot.x, eDot.y, gR * 2.2, 0, Math.PI*2); ctx.fill();
+        // Core
+        ctx.beginPath(); ctx.arc(eDot.x, eDot.y, 7, 0, Math.PI*2);
+        ctx.fillStyle = '#00ccff'; ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+
+        // ── State annotation box ──────────────────────────────
+        const stateLabel = `${curN}${lNames[Math.min(curL, L_MAX)]}   ℓ=${curL}  m=${curM>=0?'+':''}${curM}   E = ${HYDROGEN_ENERGY(curN).toFixed(4)} eV`;
+        ctx.font = 'bold 11px Courier New';
+        const tw = ctx.measureText(stateLabel).width + 20;
+        let bx = eDot.x + 14;
+        if (bx + tw > w - 10) bx = eDot.x - tw - 14;
+        const by = eDot.y - 22;
+        ctx.fillStyle = 'rgba(0,5,20,0.88)';
+        ctx.strokeStyle = '#0cf4'; ctx.lineWidth = 1;
+        ctx.fillRect(bx, by, tw, 20); ctx.strokeRect(bx, by, tw, 20);
+        ctx.fillStyle = '#0cf'; ctx.textAlign = 'left';
+        ctx.fillText(stateLabel, bx + 10, by + 14);
+
+        // ── Last transition footer ────────────────────────────
+        if (state.transitionHistory.length > 0) {
+            const t = state.transitionHistory[0];
+            const λ = eVtoNm(t.dE);
+            const [r2,g2,b2] = wavelengthToRGB(λ);
+            const footer = `last transition  n${t.fromN} → n${t.toN}   ΔE = ${t.dE.toFixed(3)} eV   λ = ${Math.round(λ)} nm`;
+            ctx.font = '10px Courier New'; ctx.textAlign = 'left';
+            ctx.fillStyle = 'rgba(0,0,18,0.82)';
+            ctx.fillRect(padL - 8, h - padB + 10, w - padL - padR + 16, 22);
+            ctx.fillStyle = `rgb(${r2},${g2},${b2})`;
+            ctx.fillText(footer, padL, h - padB + 25);
+        }
+
+        // ── Title ─────────────────────────────────────────────
+        ctx.textAlign = 'left'; ctx.font = '11px Courier New';
+        ctx.fillStyle = '#223'; ctx.fillText('hydrogen energy levels  //  equally spaced for readability  //  dots = individual m states', padL, padT - 52);
+        ctx.textAlign = 'left';
 
         // Smooth dot animation
         const curN = state.excitedN || state.n;
@@ -1797,236 +2037,149 @@ function drawLargeEnergyDiagram(ts) {
 
         // ── Ionization line ──
         ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
-        ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(w - padR + 12, padT); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(padL, padT - 20); ctx.lineTo(w - padR + 6, padT - 20); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '9px Courier New';
-        ctx.fillText('0.000 eV  [ ionization / continuum ]', padL + 6, padT - 6);
-
-        // ── Draw allowed transition arrows from current level ──
-        const curL = state.excitedN ? Math.min(state.l, curN-1) : state.l;
-        const arrowX = padL + (w - padL - padR) * 0.5;
-        for (let nf = 1; nf < curN; nf++) {
-            for (let lf = 0; lf < nf; lf++) {
-                if (Math.abs(lf - curL) !== 1) continue;
-                const dE  = Math.abs(HYDROGEN_ENERGY(curN) - HYDROGEN_ENERGY(nf));
-                const λ   = eVtoNm(dE);
-                const [r2,g2,b2] = wavelengthToRGB(λ);
-                const col = λ >= 380 && λ <= 750 ? `rgba(${r2},${g2},${b2},0.55)` : 'rgba(160,160,160,0.3)';
-                const ya  = nToY_large(curN, h, padT, padB);
-                const yb  = nToY_large(nf,   h, padT, padB);
-                const ax  = arrowX + (lf - curL) * 18;
-                ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
-                ctx.beginPath(); ctx.moveTo(ax, ya); ctx.lineTo(ax, yb); ctx.stroke();
-                ctx.setLineDash([]);
-                // arrowhead at bottom
-                ctx.beginPath();
-                ctx.moveTo(ax, yb); ctx.lineTo(ax-4, yb+8); ctx.lineTo(ax+4, yb+8);
-                ctx.closePath();
-                ctx.fillStyle = col; ctx.fill();
-                // λ label beside arrow
-                const lbl = λ < 380 ? `${Math.round(λ)}nm` : λ > 750 ? `${Math.round(λ)}nm` : `${Math.round(λ)}nm`;
-                ctx.fillStyle = λ>=380&&λ<=750 ? `rgba(${r2},${g2},${b2},0.85)` : 'rgba(180,180,180,0.5)';
-                ctx.font = '8px Courier New';
-                ctx.fillText(lbl, ax + 5, (ya + yb) / 2 + 3);
-            }
-        }
-
-        // ── Recent transition history (faint) ──
-        state.transitionHistory.slice(0, 4).forEach((t, i) => {
-            const ya = nToY_large(Math.min(t.fromN, N_MAX), h, padT, padB);
-            const yb = nToY_large(Math.min(t.toN,   N_MAX), h, padT, padB);
-            const [r2,g2,b2] = wavelengthToRGB(eVtoNm(t.dE));
-            const alpha = (0.22 - i * 0.05).toFixed(2);
-            ctx.strokeStyle = `rgba(${r2},${g2},${b2},${alpha})`;
-            ctx.lineWidth = 1; ctx.setLineDash([2,4]);
-            ctx.beginPath(); ctx.moveTo(arrowX - 22, ya); ctx.lineTo(arrowX - 22, yb); ctx.stroke();
-            ctx.setLineDash([]);
-        });
-
-        // ── Sub-level columns header ──
-        const subColW = (w - padL - padR - 60) / (N_MAX);
-        ctx.font = '9px Courier New';
-        lNames.slice(0, N_MAX-1).forEach((ln, li) => {
-            const cx2 = padL + 60 + li * subColW + subColW / 2;
-            ctx.fillStyle = lColors[li] + '66';
-            ctx.textAlign = 'center';
-            ctx.fillText(ln, cx2, padT - 18);
-        });
-        ctx.textAlign = 'left';
-
-        // ── Energy levels ──
-        for (let n = 1; n <= N_MAX; n++) {
-            const E   = HYDROGEN_ENERGY(n);
-            const y   = nToY_large(n, h, padT, padB);
-            const cur = (n === curN);
-            const isPrev = (eDot.transitioning && n === eDot.fromN);
-
-            // Full-width glow for current
-            if (cur) {
-                const grd = ctx.createLinearGradient(padL, 0, w - padR, 0);
-                grd.addColorStop(0, 'rgba(0,200,255,0)');
-                grd.addColorStop(0.3, 'rgba(0,200,255,0.06)');
-                grd.addColorStop(0.7, 'rgba(0,200,255,0.06)');
-                grd.addColorStop(1, 'rgba(0,200,255,0)');
-                ctx.fillStyle = grd;
-                ctx.fillRect(padL, y - 10, w - padL - padR, 20);
-            }
-
-            // Horizontal level line
-            ctx.strokeStyle = cur ? '#0cf' : isPrev ? '#334' : '#1a2535';
-            ctx.lineWidth   = cur ? 2 : 0.8;
-            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR + 12, y); ctx.stroke();
-
-            // n= label left
-            ctx.fillStyle = cur ? '#0cf' : '#445';
-            ctx.font = cur ? 'bold 12px Courier New' : '10px Courier New';
-            ctx.textAlign = 'right';
-            ctx.fillText(`n=${n}`, padL - 6, y + 4);
-
-            // Energy right of axis
-            ctx.fillStyle = cur ? '#4affa0' : '#2a3a4a';
-            ctx.font = '9px Courier New';
-            ctx.textAlign = 'left';
-            ctx.fillText(`${E.toFixed(3)} eV`, padL + 4, y - 4);
-
-            // Sub-level ticks (one per allowed ℓ)
-            for (let l2 = 0; l2 < n && l2 < N_MAX - 1; l2++) {
-                const cx2 = padL + 60 + l2 * subColW + subColW / 2;
-                const isActiveL = cur && l2 === curL;
-                ctx.fillStyle = isActiveL ? lColors[l2] : lColors[l2] + '33';
-                ctx.strokeStyle = isActiveL ? lColors[l2] : lColors[l2] + '44';
-                ctx.lineWidth = isActiveL ? 2 : 0.8;
-                // Tick mark
-                ctx.beginPath(); ctx.moveTo(cx2 - 10, y); ctx.lineTo(cx2 + 10, y); ctx.stroke();
-                // Active sub-level circle
-                if (isActiveL) {
-                    ctx.beginPath(); ctx.arc(cx2, y, 5, 0, Math.PI*2);
-                    ctx.fill();
-                    ctx.font = '8px Courier New'; ctx.textAlign = 'center';
-                    ctx.fillStyle = lColors[l2];
-                    ctx.fillText(`m=${state.m}`, cx2, y - 9);
-                }
-            }
-
-            // Degeneracy label
-            ctx.textAlign = 'right'; ctx.fillStyle = cur ? '#0cf8' : '#2a3545';
-            ctx.font = '8px Courier New';
-            ctx.fillText(`g=${n*n}`, w - padR + 10, y + 3);
-        }
-        ctx.textAlign = 'left';
-
-        // ── Animated dot (glowing) ──
-        const dotX = padL + 60 + curL * subColW + subColW / 2;
-        const glowR = 8 + 3 * Math.sin(ts * 0.003);
-        // Trail while transitioning
-        if (eDot.transitioning && eDot.fromN > 0) {
-            const fromX = padL + 60 + curL * subColW + subColW / 2;
-            const grad = ctx.createLinearGradient(fromX, eDot.fromY, dotX, eDot.y);
-            grad.addColorStop(0, 'rgba(0,200,255,0)');
-            grad.addColorStop(1, 'rgba(0,200,255,0.4)');
-            ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.setLineDash([3,3]);
-            ctx.beginPath(); ctx.moveTo(fromX, eDot.fromY); ctx.lineTo(dotX, eDot.y); ctx.stroke();
-            ctx.setLineDash([]);
-        }
-        // Outer glow
-        const grd2 = ctx.createRadialGradient(dotX, eDot.y, 0, dotX, eDot.y, glowR*2.5);
-        grd2.addColorStop(0, 'rgba(0,200,255,0.35)');
-        grd2.addColorStop(1, 'rgba(0,200,255,0)');
-        ctx.fillStyle = grd2;
-        ctx.beginPath(); ctx.arc(dotX, eDot.y, glowR*2.5, 0, Math.PI*2); ctx.fill();
-        // Core dot
-        ctx.beginPath(); ctx.arc(dotX, eDot.y, glowR * 0.55, 0, Math.PI*2);
-        ctx.fillStyle = '#0cf'; ctx.fill();
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        // ── State label near dot ──
-        const lbl2 = `${curN}${lNames[curL]}  m=${state.m >= 0 ? '+' : ''}${state.m}  E=${HYDROGEN_ENERGY(curN).toFixed(3)} eV`;
-        ctx.font = 'bold 11px Courier New'; ctx.fillStyle = '#0cf';
-        const lblX = Math.min(dotX + 18, w - padR - 10 - ctx.measureText(lbl2).width);
-        ctx.fillText(lbl2, lblX, eDot.y - 10);
-
-        // ── Photon info for last transition ──
-        if (state.transitionHistory.length > 0) {
-            const t = state.transitionHistory[0];
-            const λ = eVtoNm(t.dE);
-            const [r2,g2,b2] = wavelengthToRGB(λ);
-            const colStr = `rgb(${r2},${g2},${b2})`;
-            ctx.font = '10px Courier New';
-            ctx.fillStyle = 'rgba(0,0,20,0.7)';
-            ctx.fillRect(padL + 2, h - padB - 22, 310, 18);
-            ctx.fillStyle = colStr;
-            ctx.fillText(`last: n${t.fromN}→n${t.toN}  ΔE=${t.dE.toFixed(3)} eV  λ=${Math.round(λ)} nm`, padL + 6, h - padB - 8);
-        }
-
-        // ── Column guide labels ──
-        ctx.font = '8px Courier New'; ctx.fillStyle = '#1a2535'; ctx.textAlign='center';
-        for (let l2 = 0; l2 < N_MAX-1; l2++) {
-            const cx2 = padL + 60 + l2 * subColW + subColW / 2;
-            ctx.strokeStyle = '#0a0f1a'; ctx.lineWidth = 0.4; ctx.setLineDash([2,6]);
-            ctx.beginPath(); ctx.moveTo(cx2, padT); ctx.lineTo(cx2, h - padB); ctx.stroke();
-            ctx.setLineDash([]);
-        }
-        ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '9px Courier New'; ctx.textAlign = 'left';
+        ctx.fillText('0.000 eV  — ionization continuum', padL + 4, padT - 24);
 
     } else if (state.system === 'pib') {
-        // PIB large view
+        // ── PIB: equal spacing, show degenerate pairs ────────
         const curE = state.nx*state.nx + state.ny*state.ny;
         const levels = [];
         for (let nx=1;nx<=5;nx++) for (let ny=1;ny<=5;ny++) {
-            const E=nx*nx+ny*ny, key=`${Math.min(nx,ny)},${Math.max(nx,ny)}`;
-            if (!levels.find(l=>l.E===E)) levels.push({E,pairs:[[nx,ny]]});
-            else { const lv=levels.find(l=>l.E===E); if(!lv.pairs.find(p=>p[0]===nx&&p[1]===ny)) lv.pairs.push([nx,ny]); }
+            const E = nx*nx+ny*ny;
+            const existing = levels.find(l=>l.E===E);
+            if (!existing) levels.push({E, pairs:[[nx,ny]]});
+            else if (!existing.pairs.find(p=>p[0]===nx&&p[1]===ny)) existing.pairs.push([nx,ny]);
         }
         levels.sort((a,b)=>a.E-b.E);
-        const vis=levels.slice(0,12); const maxE=vis[vis.length-1].E;
-        const padL=70,padR=20,padT=30,padB=30;
-        ctx.font='10px Courier New';
-        vis.forEach(lv=>{
-            const y=h-padB-(lv.E/maxE)*(h-padT-padB);
-            const cur=lv.E===curE;
-            ctx.strokeStyle=cur?'#0cf':'#1a2535'; ctx.lineWidth=cur?2:.7;
-            ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
-            ctx.fillStyle=cur?'#0cf':'#445'; ctx.textAlign='right';
-            ctx.fillText(`${lv.E}·E₁`, padL-4, y+4);
-            ctx.textAlign='left'; ctx.fillStyle=cur?'#4af':'#334';
-            ctx.fillText(lv.pairs.map(p=>`(${p[0]},${p[1]})`).join(' '), padL+6, y+(cur?-4:3));
-            if (cur) {
-                const grd3=ctx.createRadialGradient(padL+40,y,0,padL+40,y,30);
-                grd3.addColorStop(0,'rgba(0,200,255,0.2)'); grd3.addColorStop(1,'rgba(0,200,255,0)');
-                ctx.fillStyle=grd3; ctx.beginPath(); ctx.arc(padL+40,y,30,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle='#0cf'; ctx.beginPath(); ctx.arc(padL+40,y,6,0,Math.PI*2); ctx.fill();
-            }
+        const vis = levels.slice(0,13);
+        const padL2=90, padR2=30, padT2=50, padB2=40;
+        const step2 = (h - padT2 - padB2) / (vis.length);
+        ctx.font = '10px Courier New';
+        // Title
+        ctx.fillStyle = '#223'; ctx.textAlign = 'left';
+        ctx.fillText('particle-in-a-box energy levels  //  equal spacing  //  degenerate states shown on same line', padL2, 22);
+
+        vis.forEach((lv, idx) => {
+            const y   = h - padB2 - (idx + 0.5) * step2;
+            const cur = lv.E === curE;
+            const deg = lv.pairs.length;
+
+            // Band bg
+            if (cur) { ctx.fillStyle='rgba(0,200,255,0.04)'; ctx.fillRect(padL2-10,y-step2*0.46,w-padL2-padR2+10,step2*0.92); }
+
+            // Level line
+            ctx.strokeStyle = cur ? '#0cf' : '#1a2535'; ctx.lineWidth = cur ? 2 : 0.7;
+            ctx.beginPath(); ctx.moveTo(padL2, y); ctx.lineTo(w-padR2-60, y); ctx.stroke();
+
+            // Energy label left
+            ctx.textAlign = 'right'; ctx.font = cur ? 'bold 11px Courier New' : '10px Courier New';
+            ctx.fillStyle = cur ? '#0cf' : '#445';
+            ctx.fillText(`${lv.E}·E₁`, padL2 - 8, y + 4);
+
+            // Degeneracy right
+            ctx.textAlign = 'left';
+            ctx.fillStyle = cur ? '#0cf' : '#2a3a4a';
+            ctx.font = '9px Courier New';
+            ctx.fillText(`g = ${deg}`, w - padR2 - 54, y + 4);
+
+            // State pairs as labeled dots
+            const dotSpacing = Math.min(80, (w - padL2 - padR2 - 80) / Math.max(1, vis[vis.length-1].pairs.length + 1));
+            lv.pairs.forEach((p, pi) => {
+                const isCur = cur && p[0]===state.nx && p[1]===state.ny;
+                const x = padL2 + 20 + pi * dotSpacing + dotSpacing * 0.5;
+                ctx.beginPath(); ctx.arc(x, y, isCur ? 7 : 4, 0, Math.PI*2);
+                ctx.fillStyle = isCur ? '#0cf' : '#2a4a6a';
+                ctx.fill();
+                if (isCur) { ctx.strokeStyle='#fff'; ctx.lineWidth=1.2; ctx.stroke(); }
+                ctx.textAlign = 'center'; ctx.font = isCur ? 'bold 10px Courier New' : '9px Courier New';
+                ctx.fillStyle = isCur ? '#0cf' : '#446';
+                ctx.fillText(`(${p[0]},${p[1]})`, x, y - 11);
+                if (deg > 1) {
+                    ctx.font = '8px Courier New'; ctx.fillStyle = isCur ? '#4af' : '#334';
+                    ctx.fillText(p[0]===p[1]?'sym':'deg', x, y + 18);
+                }
+            });
         });
+        // Footer
+        if (state.nx && state.ny) {
+            const E2 = state.nx*state.nx+state.ny*state.ny;
+            ctx.textAlign='left'; ctx.font='10px Courier New'; ctx.fillStyle='rgba(0,200,255,0.7)';
+            ctx.fillText(`current: (${state.nx},${state.ny})  E = ${E2}·E₁   degeneracy = ${levels.find(l=>l.E===E2)?.pairs.length||1}`, padL2, h - 14);
+        }
         ctx.textAlign='left';
+
     } else {
-        // SHO large view
-        const padL=70,padR=20,padT=40,padB=30;
-        const N=8;
-        ctx.font='10px Courier New';
-        for (let n=0;n<=N;n++) {
-            const E=n+.5, y=h-padB-(E/(N+1))*(h-padT-padB), cur=n===state.shoN;
-            ctx.strokeStyle=cur?'#0cf':'#1a2535'; ctx.lineWidth=cur?2:.7;
-            ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
-            ctx.fillStyle=cur?'#0cf':'#445'; ctx.textAlign='right';
-            ctx.fillText(`n=${n}`, padL-4, y+4);
-            ctx.textAlign='left'; ctx.fillStyle=cur?'#4af':'#334';
-            ctx.fillText(`${E.toFixed(1)} ℏω`, padL+6, y-3);
-            if(cur){
-                const grd4=ctx.createRadialGradient(padL+30,y,0,padL+30,y,25);
-                grd4.addColorStop(0,'rgba(0,200,255,0.2)'); grd4.addColorStop(1,'rgba(0,200,255,0)');
-                ctx.fillStyle=grd4; ctx.beginPath(); ctx.arc(padL+30,y,25,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle='#0cf'; ctx.beginPath(); ctx.arc(padL+30,y,6,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle='#0cf'; ctx.font='bold 11px Courier New';
-                ctx.fillText(`  n=${n}  E=${E.toFixed(1)}ℏω`, padL+40, y+4);
+        // ── SHO: equal spacing, show node structure ──────────
+        const padL3=90, padR3=50, padT3=50, padB3=40;
+        const N = 8;
+        const step3 = (h - padT3 - padB3) / (N + 1);
+        ctx.font = '10px Courier New'; ctx.textAlign = 'left';
+        ctx.fillStyle = '#223';
+        ctx.fillText('quantum harmonic oscillator  //  equal spacing ℏω  //  nodes shown as ticks', padL3, 22);
+
+        // ℏω bracket on right
+        for (let n=0; n<=N; n++) {
+            const y   = h - padB3 - (n + 0.5) * step3;
+            const cur = n === state.shoN;
+
+            // Band bg
+            if (cur) { ctx.fillStyle='rgba(0,200,255,0.04)'; ctx.fillRect(padL3-10,y-step3*0.46,w-padL3-padR3+10,step3*0.92); }
+
+            // Level line
+            ctx.strokeStyle = cur ? '#0cf' : '#1a2535'; ctx.lineWidth = cur ? 2 : 0.7;
+            ctx.beginPath(); ctx.moveTo(padL3, y); ctx.lineTo(w - padR3 - 40, y); ctx.stroke();
+
+            // n label + energy left
+            ctx.textAlign = 'right'; ctx.font = cur ? 'bold 12px Courier New' : '10px Courier New';
+            ctx.fillStyle = cur ? '#0cf' : '#445';
+            ctx.fillText(`n = ${n}`, padL3 - 8, y + 4);
+            ctx.font = '9px Courier New'; ctx.fillStyle = cur ? '#4affa0' : '#2a3a4a';
+            ctx.fillText(`${(n+0.5).toFixed(1)} ℏω`, padL3 - 8, y + 16);
+
+            // Node ticks along the level line
+            const lineLen = w - padL3 - padR3 - 50;
+            for (let nd = 0; nd < n; nd++) {
+                const nx2 = padL3 + (nd + 1) * lineLen / (n + 1);
+                ctx.strokeStyle = cur ? 'rgba(0,200,255,0.5)' : 'rgba(60,100,140,0.4)';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(nx2, y - 6); ctx.lineTo(nx2, y + 6); ctx.stroke();
             }
-            if(n>0&&n<=N){
-                ctx.strokeStyle=`rgba(0,200,255,${cur?0.5:0.1})`; ctx.lineWidth=.7; ctx.setLineDash([3,4]);
-                const ya2=y, yb2=h-padB-((n-.5)/(N+1))*(h-padT-padB);
-                ctx.beginPath(); ctx.moveTo(w*0.6,ya2); ctx.lineTo(w*0.6,yb2); ctx.stroke();
+            // Node count badge
+            ctx.textAlign = 'left'; ctx.font = cur ? 'bold 10px Courier New' : '9px Courier New';
+            ctx.fillStyle = cur ? '#0cf' : '#2a3a4a';
+            ctx.fillText(`${n} node${n!==1?'s':''}`, w - padR3 - 36, y + 4);
+
+            // ℏω spacing arrow between levels
+            if (n > 0) {
+                const yAbove = h - padB3 - (n - 0.5) * step3;
+                const arrowMid = (y + yAbove) / 2;
+                ctx.strokeStyle = cur ? 'rgba(0,200,255,0.35)' : 'rgba(30,60,80,0.4)';
+                ctx.lineWidth = 0.8; ctx.setLineDash([3,4]);
+                ctx.beginPath(); ctx.moveTo(w-padR3-16, y); ctx.lineTo(w-padR3-16, yAbove); ctx.stroke();
                 ctx.setLineDash([]);
-                if(cur){ ctx.fillStyle='rgba(0,200,255,0.6)'; ctx.font='9px Courier New';
-                    ctx.fillText('ℏω', w*0.6+4, (ya2+yb2)/2+3); }
+                ctx.textAlign = 'center'; ctx.font = '8px Courier New';
+                ctx.fillStyle = cur ? 'rgba(0,200,255,0.6)' : 'rgba(40,80,100,0.5)';
+                ctx.fillText('ℏω', w-padR3-10, arrowMid + 3);
+            }
+
+            // State label for current
+            if (cur) {
+                ctx.textAlign = 'left'; ctx.font = 'bold 11px Courier New'; ctx.fillStyle = '#0cf';
+                const pulse2 = 0.6 + 0.4*Math.sin(ts*0.003);
+                const grd5 = ctx.createRadialGradient(padL3+30,y,0,padL3+30,y,22);
+                grd5.addColorStop(0,`rgba(0,200,255,${0.25*pulse2})`); grd5.addColorStop(1,'rgba(0,200,255,0)');
+                ctx.fillStyle=grd5; ctx.beginPath(); ctx.arc(padL3+30,y,22,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#0cf'; ctx.beginPath(); ctx.arc(padL3+30,y,7,0,Math.PI*2); ctx.fill();
+                ctx.strokeStyle='#fff'; ctx.lineWidth=1.2; ctx.stroke();
+                ctx.fillStyle='#0cf'; ctx.font='bold 11px Courier New'; ctx.textAlign='left';
+                ctx.fillText(`n=${n}   E = ${(n+0.5).toFixed(1)} ℏω   parity: ${n%2===0?'even (+1)':'odd (−1)'}`, padL3+48, y+4);
+                // Zero-point note
+                if (n===0) {
+                    ctx.font='9px Courier New'; ctx.fillStyle='#4af8';
+                    ctx.fillText('← zero-point energy  (cannot be zero by uncertainty principle)', padL3+48, y+18);
+                }
             }
         }
         ctx.textAlign='left';
