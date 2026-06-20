@@ -215,6 +215,20 @@
         .transition-theory-row .swatch { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
         .transition-theory-row .tval { color:#aaa; }
 
+        /* ── energy view toggle button ── */
+        #energy-view-btn {
+            position:absolute; top:10px; right:10px; z-index:10;
+            background:rgba(0,0,10,0.75); border:1px solid #2a3a4a; color:#556;
+            font-family:"Courier New",monospace; font-size:0.68em; padding:5px 10px;
+            cursor:pointer; letter-spacing:1px; text-transform:uppercase;
+            transition:all .15s; backdrop-filter:blur(4px);
+        }
+        #energy-view-btn:hover { border-color:#0cf; color:#0cf; }
+        #energy-view-btn.active { border-color:#0cf; color:#0cf; background:rgba(0,20,40,0.85); }
+
+        /* ── large energy canvas ── */
+        #energy-large-canvas { background:#01010d; }
+
         /* ── bottom spectral bar ── */
         #spectral-bar {
             height:40px; border-top:1px dashed #333;
@@ -282,8 +296,10 @@
     <!-- ═══ ORBITAL CANVAS ═══ -->
     <div id="canvas-area">
         <canvas id="orbital-canvas"></canvas>
+        <canvas id="energy-large-canvas" style="display:none;position:absolute;inset:0;width:100%;height:100%;"></canvas>
         <div id="computing-overlay">[ computing eigenstate... ]</div>
         <div id="click-hint">click canvas to fire photon</div>
+        <button id="energy-view-btn" title="Toggle full energy level diagram">⚡ energy levels</button>
     </div>
 
     <!-- ═══ RIGHT PANEL ═══ -->
@@ -1702,6 +1718,339 @@ function drawEnergyDiagram(){
     }
 }
 
+// ─── Large Energy Level Diagram ───────────────────────────────────────────────
+
+const elCvs = document.getElementById('energy-large-canvas');
+const elCtx  = elCvs.getContext('2d');
+let energyViewActive = false;
+
+// Animated state dot — lerps smoothly between levels
+const eDot = { y: 0, targetY: 0, n: 1, fromY: 0, fromN: 0, t: 1, transitioning: false };
+
+function nToY_large(n, h, padT, padB) {
+    const frac = 1 - 1/(n*n);
+    return h - padB - frac * (h - padT - padB);
+}
+
+function drawLargeEnergyDiagram(ts) {
+    if (!energyViewActive) return;
+    const w = elCvs.offsetWidth || 600;
+    const h = elCvs.offsetHeight || 400;
+    if (elCvs.width !== w || elCvs.height !== h) { elCvs.width = w; elCvs.height = h; }
+    const ctx = elCtx;
+
+    ctx.fillStyle = '#01010d'; ctx.fillRect(0,0,w,h);
+
+    if (state.system === 'hydrogen') {
+        const N_MAX = 7;
+        const padT = 52, padB = 36, padL = 70, padR = 140;
+        const lNames = ['s','p','d','f','g','h'];
+        const lColors = ['#0cf','#f80','#6bcb77','#c084fc','#fb923c','#38bdf8'];
+
+        // Smooth dot animation
+        const curN = state.excitedN || state.n;
+        const targetY = nToY_large(Math.min(curN, N_MAX), h, padT, padB);
+        if (Math.abs(eDot.targetY - targetY) > 1 && eDot.n !== curN) {
+            eDot.fromY = eDot.y;
+            eDot.fromN = eDot.n;
+            eDot.targetY = targetY;
+            eDot.n = curN;
+            eDot.t = 0;
+            eDot.transitioning = true;
+        }
+        if (eDot.t < 1) {
+            eDot.t = Math.min(1, eDot.t + 0.04);
+            const ease = 1 - Math.pow(1 - eDot.t, 3);
+            eDot.y = eDot.fromY + (eDot.targetY - eDot.fromY) * ease;
+        } else {
+            eDot.y = targetY;
+            eDot.transitioning = false;
+        }
+
+        // ── Grid / y-axis ──
+        ctx.strokeStyle = '#0a0a1e'; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, h - padB); ctx.stroke();
+
+        // ── Series labels on right ──
+        const seriesInfo = [
+            { n: 1, label: 'Lyman',    sub: '(UV)',     col: '#7766ff' },
+            { n: 2, label: 'Balmer',   sub: '(visible)',col: '#44aaff' },
+            { n: 3, label: 'Paschen',  sub: '(IR)',     col: '#ff8844' },
+            { n: 4, label: 'Brackett', sub: '(IR)',     col: '#88dd44' },
+        ];
+        ctx.font = '10px Courier New';
+        seriesInfo.forEach(s => {
+            if (s.n >= N_MAX) return;
+            const y1 = nToY_large(s.n,   h, padT, padB);
+            const y2 = nToY_large(s.n+1, h, padT, padB);
+            const midY = (y1 + y2) / 2;
+            ctx.strokeStyle = s.col + '40'; ctx.lineWidth = 1; ctx.setLineDash([2,3]);
+            ctx.beginPath();
+            ctx.moveTo(w - padR + 14, y2); ctx.lineTo(w - padR + 20, y2);
+            ctx.lineTo(w - padR + 20, y1); ctx.lineTo(w - padR + 14, y1);
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = s.col + 'cc'; ctx.font = 'bold 9px Courier New';
+            ctx.fillText(s.label, w - padR + 24, midY - 4);
+            ctx.fillStyle = s.col + '66'; ctx.font = '8px Courier New';
+            ctx.fillText(s.sub, w - padR + 24, midY + 7);
+        });
+
+        // ── Ionization line ──
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+        ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(w - padR + 12, padT); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '9px Courier New';
+        ctx.fillText('0.000 eV  [ ionization / continuum ]', padL + 6, padT - 6);
+
+        // ── Draw allowed transition arrows from current level ──
+        const curL = state.excitedN ? Math.min(state.l, curN-1) : state.l;
+        const arrowX = padL + (w - padL - padR) * 0.5;
+        for (let nf = 1; nf < curN; nf++) {
+            for (let lf = 0; lf < nf; lf++) {
+                if (Math.abs(lf - curL) !== 1) continue;
+                const dE  = Math.abs(HYDROGEN_ENERGY(curN) - HYDROGEN_ENERGY(nf));
+                const λ   = eVtoNm(dE);
+                const [r2,g2,b2] = wavelengthToRGB(λ);
+                const col = λ >= 380 && λ <= 750 ? `rgba(${r2},${g2},${b2},0.55)` : 'rgba(160,160,160,0.3)';
+                const ya  = nToY_large(curN, h, padT, padB);
+                const yb  = nToY_large(nf,   h, padT, padB);
+                const ax  = arrowX + (lf - curL) * 18;
+                ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+                ctx.beginPath(); ctx.moveTo(ax, ya); ctx.lineTo(ax, yb); ctx.stroke();
+                ctx.setLineDash([]);
+                // arrowhead at bottom
+                ctx.beginPath();
+                ctx.moveTo(ax, yb); ctx.lineTo(ax-4, yb+8); ctx.lineTo(ax+4, yb+8);
+                ctx.closePath();
+                ctx.fillStyle = col; ctx.fill();
+                // λ label beside arrow
+                const lbl = λ < 380 ? `${Math.round(λ)}nm` : λ > 750 ? `${Math.round(λ)}nm` : `${Math.round(λ)}nm`;
+                ctx.fillStyle = λ>=380&&λ<=750 ? `rgba(${r2},${g2},${b2},0.85)` : 'rgba(180,180,180,0.5)';
+                ctx.font = '8px Courier New';
+                ctx.fillText(lbl, ax + 5, (ya + yb) / 2 + 3);
+            }
+        }
+
+        // ── Recent transition history (faint) ──
+        state.transitionHistory.slice(0, 4).forEach((t, i) => {
+            const ya = nToY_large(Math.min(t.fromN, N_MAX), h, padT, padB);
+            const yb = nToY_large(Math.min(t.toN,   N_MAX), h, padT, padB);
+            const [r2,g2,b2] = wavelengthToRGB(eVtoNm(t.dE));
+            const alpha = (0.22 - i * 0.05).toFixed(2);
+            ctx.strokeStyle = `rgba(${r2},${g2},${b2},${alpha})`;
+            ctx.lineWidth = 1; ctx.setLineDash([2,4]);
+            ctx.beginPath(); ctx.moveTo(arrowX - 22, ya); ctx.lineTo(arrowX - 22, yb); ctx.stroke();
+            ctx.setLineDash([]);
+        });
+
+        // ── Sub-level columns header ──
+        const subColW = (w - padL - padR - 60) / (N_MAX);
+        ctx.font = '9px Courier New';
+        lNames.slice(0, N_MAX-1).forEach((ln, li) => {
+            const cx2 = padL + 60 + li * subColW + subColW / 2;
+            ctx.fillStyle = lColors[li] + '66';
+            ctx.textAlign = 'center';
+            ctx.fillText(ln, cx2, padT - 18);
+        });
+        ctx.textAlign = 'left';
+
+        // ── Energy levels ──
+        for (let n = 1; n <= N_MAX; n++) {
+            const E   = HYDROGEN_ENERGY(n);
+            const y   = nToY_large(n, h, padT, padB);
+            const cur = (n === curN);
+            const isPrev = (eDot.transitioning && n === eDot.fromN);
+
+            // Full-width glow for current
+            if (cur) {
+                const grd = ctx.createLinearGradient(padL, 0, w - padR, 0);
+                grd.addColorStop(0, 'rgba(0,200,255,0)');
+                grd.addColorStop(0.3, 'rgba(0,200,255,0.06)');
+                grd.addColorStop(0.7, 'rgba(0,200,255,0.06)');
+                grd.addColorStop(1, 'rgba(0,200,255,0)');
+                ctx.fillStyle = grd;
+                ctx.fillRect(padL, y - 10, w - padL - padR, 20);
+            }
+
+            // Horizontal level line
+            ctx.strokeStyle = cur ? '#0cf' : isPrev ? '#334' : '#1a2535';
+            ctx.lineWidth   = cur ? 2 : 0.8;
+            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR + 12, y); ctx.stroke();
+
+            // n= label left
+            ctx.fillStyle = cur ? '#0cf' : '#445';
+            ctx.font = cur ? 'bold 12px Courier New' : '10px Courier New';
+            ctx.textAlign = 'right';
+            ctx.fillText(`n=${n}`, padL - 6, y + 4);
+
+            // Energy right of axis
+            ctx.fillStyle = cur ? '#4affa0' : '#2a3a4a';
+            ctx.font = '9px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${E.toFixed(3)} eV`, padL + 4, y - 4);
+
+            // Sub-level ticks (one per allowed ℓ)
+            for (let l2 = 0; l2 < n && l2 < N_MAX - 1; l2++) {
+                const cx2 = padL + 60 + l2 * subColW + subColW / 2;
+                const isActiveL = cur && l2 === curL;
+                ctx.fillStyle = isActiveL ? lColors[l2] : lColors[l2] + '33';
+                ctx.strokeStyle = isActiveL ? lColors[l2] : lColors[l2] + '44';
+                ctx.lineWidth = isActiveL ? 2 : 0.8;
+                // Tick mark
+                ctx.beginPath(); ctx.moveTo(cx2 - 10, y); ctx.lineTo(cx2 + 10, y); ctx.stroke();
+                // Active sub-level circle
+                if (isActiveL) {
+                    ctx.beginPath(); ctx.arc(cx2, y, 5, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.font = '8px Courier New'; ctx.textAlign = 'center';
+                    ctx.fillStyle = lColors[l2];
+                    ctx.fillText(`m=${state.m}`, cx2, y - 9);
+                }
+            }
+
+            // Degeneracy label
+            ctx.textAlign = 'right'; ctx.fillStyle = cur ? '#0cf8' : '#2a3545';
+            ctx.font = '8px Courier New';
+            ctx.fillText(`g=${n*n}`, w - padR + 10, y + 3);
+        }
+        ctx.textAlign = 'left';
+
+        // ── Animated dot (glowing) ──
+        const dotX = padL + 60 + curL * subColW + subColW / 2;
+        const glowR = 8 + 3 * Math.sin(ts * 0.003);
+        // Trail while transitioning
+        if (eDot.transitioning && eDot.fromN > 0) {
+            const fromX = padL + 60 + curL * subColW + subColW / 2;
+            const grad = ctx.createLinearGradient(fromX, eDot.fromY, dotX, eDot.y);
+            grad.addColorStop(0, 'rgba(0,200,255,0)');
+            grad.addColorStop(1, 'rgba(0,200,255,0.4)');
+            ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.moveTo(fromX, eDot.fromY); ctx.lineTo(dotX, eDot.y); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        // Outer glow
+        const grd2 = ctx.createRadialGradient(dotX, eDot.y, 0, dotX, eDot.y, glowR*2.5);
+        grd2.addColorStop(0, 'rgba(0,200,255,0.35)');
+        grd2.addColorStop(1, 'rgba(0,200,255,0)');
+        ctx.fillStyle = grd2;
+        ctx.beginPath(); ctx.arc(dotX, eDot.y, glowR*2.5, 0, Math.PI*2); ctx.fill();
+        // Core dot
+        ctx.beginPath(); ctx.arc(dotX, eDot.y, glowR * 0.55, 0, Math.PI*2);
+        ctx.fillStyle = '#0cf'; ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // ── State label near dot ──
+        const lbl2 = `${curN}${lNames[curL]}  m=${state.m >= 0 ? '+' : ''}${state.m}  E=${HYDROGEN_ENERGY(curN).toFixed(3)} eV`;
+        ctx.font = 'bold 11px Courier New'; ctx.fillStyle = '#0cf';
+        const lblX = Math.min(dotX + 18, w - padR - 10 - ctx.measureText(lbl2).width);
+        ctx.fillText(lbl2, lblX, eDot.y - 10);
+
+        // ── Photon info for last transition ──
+        if (state.transitionHistory.length > 0) {
+            const t = state.transitionHistory[0];
+            const λ = eVtoNm(t.dE);
+            const [r2,g2,b2] = wavelengthToRGB(λ);
+            const colStr = `rgb(${r2},${g2},${b2})`;
+            ctx.font = '10px Courier New';
+            ctx.fillStyle = 'rgba(0,0,20,0.7)';
+            ctx.fillRect(padL + 2, h - padB - 22, 310, 18);
+            ctx.fillStyle = colStr;
+            ctx.fillText(`last: n${t.fromN}→n${t.toN}  ΔE=${t.dE.toFixed(3)} eV  λ=${Math.round(λ)} nm`, padL + 6, h - padB - 8);
+        }
+
+        // ── Column guide labels ──
+        ctx.font = '8px Courier New'; ctx.fillStyle = '#1a2535'; ctx.textAlign='center';
+        for (let l2 = 0; l2 < N_MAX-1; l2++) {
+            const cx2 = padL + 60 + l2 * subColW + subColW / 2;
+            ctx.strokeStyle = '#0a0f1a'; ctx.lineWidth = 0.4; ctx.setLineDash([2,6]);
+            ctx.beginPath(); ctx.moveTo(cx2, padT); ctx.lineTo(cx2, h - padB); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        ctx.textAlign = 'left';
+
+    } else if (state.system === 'pib') {
+        // PIB large view
+        const curE = state.nx*state.nx + state.ny*state.ny;
+        const levels = [];
+        for (let nx=1;nx<=5;nx++) for (let ny=1;ny<=5;ny++) {
+            const E=nx*nx+ny*ny, key=`${Math.min(nx,ny)},${Math.max(nx,ny)}`;
+            if (!levels.find(l=>l.E===E)) levels.push({E,pairs:[[nx,ny]]});
+            else { const lv=levels.find(l=>l.E===E); if(!lv.pairs.find(p=>p[0]===nx&&p[1]===ny)) lv.pairs.push([nx,ny]); }
+        }
+        levels.sort((a,b)=>a.E-b.E);
+        const vis=levels.slice(0,12); const maxE=vis[vis.length-1].E;
+        const padL=70,padR=20,padT=30,padB=30;
+        ctx.font='10px Courier New';
+        vis.forEach(lv=>{
+            const y=h-padB-(lv.E/maxE)*(h-padT-padB);
+            const cur=lv.E===curE;
+            ctx.strokeStyle=cur?'#0cf':'#1a2535'; ctx.lineWidth=cur?2:.7;
+            ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+            ctx.fillStyle=cur?'#0cf':'#445'; ctx.textAlign='right';
+            ctx.fillText(`${lv.E}·E₁`, padL-4, y+4);
+            ctx.textAlign='left'; ctx.fillStyle=cur?'#4af':'#334';
+            ctx.fillText(lv.pairs.map(p=>`(${p[0]},${p[1]})`).join(' '), padL+6, y+(cur?-4:3));
+            if (cur) {
+                const grd3=ctx.createRadialGradient(padL+40,y,0,padL+40,y,30);
+                grd3.addColorStop(0,'rgba(0,200,255,0.2)'); grd3.addColorStop(1,'rgba(0,200,255,0)');
+                ctx.fillStyle=grd3; ctx.beginPath(); ctx.arc(padL+40,y,30,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#0cf'; ctx.beginPath(); ctx.arc(padL+40,y,6,0,Math.PI*2); ctx.fill();
+            }
+        });
+        ctx.textAlign='left';
+    } else {
+        // SHO large view
+        const padL=70,padR=20,padT=40,padB=30;
+        const N=8;
+        ctx.font='10px Courier New';
+        for (let n=0;n<=N;n++) {
+            const E=n+.5, y=h-padB-(E/(N+1))*(h-padT-padB), cur=n===state.shoN;
+            ctx.strokeStyle=cur?'#0cf':'#1a2535'; ctx.lineWidth=cur?2:.7;
+            ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+            ctx.fillStyle=cur?'#0cf':'#445'; ctx.textAlign='right';
+            ctx.fillText(`n=${n}`, padL-4, y+4);
+            ctx.textAlign='left'; ctx.fillStyle=cur?'#4af':'#334';
+            ctx.fillText(`${E.toFixed(1)} ℏω`, padL+6, y-3);
+            if(cur){
+                const grd4=ctx.createRadialGradient(padL+30,y,0,padL+30,y,25);
+                grd4.addColorStop(0,'rgba(0,200,255,0.2)'); grd4.addColorStop(1,'rgba(0,200,255,0)');
+                ctx.fillStyle=grd4; ctx.beginPath(); ctx.arc(padL+30,y,25,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#0cf'; ctx.beginPath(); ctx.arc(padL+30,y,6,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#0cf'; ctx.font='bold 11px Courier New';
+                ctx.fillText(`  n=${n}  E=${E.toFixed(1)}ℏω`, padL+40, y+4);
+            }
+            if(n>0&&n<=N){
+                ctx.strokeStyle=`rgba(0,200,255,${cur?0.5:0.1})`; ctx.lineWidth=.7; ctx.setLineDash([3,4]);
+                const ya2=y, yb2=h-padB-((n-.5)/(N+1))*(h-padT-padB);
+                ctx.beginPath(); ctx.moveTo(w*0.6,ya2); ctx.lineTo(w*0.6,yb2); ctx.stroke();
+                ctx.setLineDash([]);
+                if(cur){ ctx.fillStyle='rgba(0,200,255,0.6)'; ctx.font='9px Courier New';
+                    ctx.fillText('ℏω', w*0.6+4, (ya2+yb2)/2+3); }
+            }
+        }
+        ctx.textAlign='left';
+    }
+}
+
+// Wire energy view toggle
+document.getElementById('energy-view-btn').addEventListener('click', () => {
+    energyViewActive = !energyViewActive;
+    const btn = document.getElementById('energy-view-btn');
+    const orb = document.getElementById('orbital-canvas');
+    const large = document.getElementById('energy-large-canvas');
+    btn.classList.toggle('active', energyViewActive);
+    orb.style.opacity   = energyViewActive ? '0' : '1';
+    large.style.display = energyViewActive ? 'block' : 'none';
+    if (energyViewActive) {
+        // Sync dot to current level immediately
+        const curN = state.excitedN || state.n;
+        const h = elCvs.offsetHeight || 400;
+        eDot.n = curN; eDot.t = 1;
+        eDot.y = eDot.targetY = nToY_large(Math.min(curN,7), h, 52, 36);
+    }
+});
+
 function drawSpectrum() {
     const sw=spCvs.offsetWidth||400; spCvs.width=sw; spCvs.height=18;
     const ctx=spCtx;
@@ -1902,6 +2251,7 @@ function render(ts) {
     }
 
     if(state.autoFire){autoTimer+=dt;if(autoTimer>1800){autoTimer=0;spawnEdgePhoton();}}
+    drawLargeEnergyDiagram(ts);
     requestAnimationFrame(render);
 }
 
