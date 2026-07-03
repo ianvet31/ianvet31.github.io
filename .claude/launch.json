@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "quantum-sim",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-c", "import sys; sys.path=[p for p in sys.path if p]; import functools,http.server,socketserver; Handler=functools.partial(http.server.SimpleHTTPRequestHandler, directory='/Users/ianvet31/Desktop/ianvet31.github.io'); socketserver.TCPServer.allow_reuse_address=True; s=socketserver.TCPServer(('0.0.0.0',8765), Handler); s.serve_forever()"],
+      "port": 8765
+    }
+  ]
+}
