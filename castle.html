@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>~ workpoop castle ~</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; background: #07061a; overflow: hidden; }
+  body { font-family: 'Press Start 2P', monospace; color: #f4ecd0; -webkit-user-select: none; user-select: none; }
+  #stage { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  #c { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+  .hud { position: absolute; font-size: 10px; line-height: 1.6; text-shadow: 2px 2px 0 #07061a; pointer-events: none; }
+  #title { left: 12px; top: 10px; font-size: 12px; color: #ffd36b; }
+  #title small { display: block; font-size: 8px; color: #b9b4cf; margin-top: 4px; }
+  #coins { right: 12px; top: 10px; color: #ffe08a; }
+  #help { left: 12px; bottom: 10px; font-size: 8px; color: #b9b4cf; }
+  #back { position: absolute; right: 12px; bottom: 10px; font-size: 8px; color: #b9b4cf; text-decoration: none; text-shadow: 2px 2px 0 #07061a; }
+  #back:hover { color: #ffd36b; }
+  #prompt { left: 50%; bottom: 44px; transform: translateX(-50%); background: #07061ae0; border: 2px solid #ffd36b;
+            padding: 8px 12px; color: #fff0b0; white-space: nowrap; display: none; }
+  #toast { left: 50%; top: 18%; transform: translateX(-50%); color: #ffe08a; font-size: 11px; display: none; white-space: nowrap; }
+  #touch { position: fixed; inset: auto 0 0 0; height: 0; display: none; }
+  #touch button { position: fixed; width: 56px; height: 56px; border: 2px solid #f4ecd055; background: #07061a99; color: #f4ecd0;
+                  font-family: inherit; font-size: 12px; border-radius: 6px; touch-action: none; }
+  @media (pointer: coarse) { #touch { display: block; } #help { display: none; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div class="hud" id="title">WORKPOOP CASTLE<small>est. whenever</small></div>
+  <div class="hud" id="coins">&#9673; 0</div>
+  <div class="hud" id="help">&larr;&rarr;&uarr;&darr; walk &middot; SPACE jump &middot; E interact &middot; M mute</div>
+  <a id="back" href="index.html">&larr; back to workpoop</a>
+  <div class="hud" id="prompt"></div>
+  <div class="hud" id="toast"></div>
+</div>
+<div id="touch">
+  <button data-k="ArrowLeft"  style="left:12px;bottom:72px">&larr;</button>
+  <button data-k="ArrowRight" style="left:132px;bottom:72px">&rarr;</button>
+  <button data-k="ArrowUp"    style="left:72px;bottom:132px">&uarr;</button>
+  <button data-k="ArrowDown"  style="left:72px;bottom:12px">&darr;</button>
+  <button data-k="KeyE"       style="right:84px;bottom:40px">E</button>
+  <button data-k="Space"      style="right:16px;bottom:72px">JUMP</button>
+</div>
+<script>
+'use strict';
+// =====================================================================
+//  WORKPOOP CASTLE
+//  A tiny software rasterizer renders a 3D castle once, in two-point
+//  perspective (camera has yaw but no pitch, so verticals stay vertical),
+//  into a low-res pixel buffer with a z-buffer. Animated bits and the
+//  player are drawn on top every frame, depth-tested against that buffer.
+// =====================================================================
+const W = 400, H = 225, HY = 148, F = 330;          // internal res, horizon line, focal length (px)
+const CAM = { x: -34, y: 7.5, z: -66 };
+let FX = 18 - CAM.x, FZ = 8 - CAM.z;
+{ const l = Math.hypot(FX, FZ); FX /= l; FZ /= l; }
+const RX = FZ, RZ = -FX;                             // camera right vector (horizontal)
+const WATER_Y = -0.35;
+
+function toCam(x, y, z) { const dx = x - CAM.x, dz = z - CAM.z; return [dx * RX + dz * RZ, y - CAM.y, dx * FX + dz * FZ]; }
+function proj(x, y, z) { const c = toCam(x, y, z); return { x: W / 2 + F * c[0] / c[2], y: HY - F * c[1] / c[2], z: c[2] }; }
+function groundAtScreen(sx, zc) { const xc = (sx - W / 2) * zc / F; return { x: CAM.x + RX * xc + FX * zc, z: CAM.z + RZ * xc + FZ * zc }; }
+
+// ---------- utils ----------
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => v / 16 - 0.47);
+const bay = (x, y) => BAY[(y & 3) * 4 + (x & 3)];
+function hash(a, b) {
+  let n = Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+}
+let seed = 1337; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+const c32 = (r, g, b, a = 255) => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0;
+const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+
+const RAMP = {};
+const R = (k, arr) => RAMP[k] = arr.map(hex);
+R('stone', ['#141226', '#201e36', '#2f2c48', '#423e5e', '#585378', '#726c93', '#928cb0', '#b6b0cc']);
+R('roof',  ['#170a1c', '#2c0f26', '#4a1631', '#6c1f3b', '#932b45', '#bb404f', '#dc6461']);
+R('wood',  ['#140c0a', '#271810', '#3f2718', '#5b3a21', '#7c512d', '#a06c3c']);
+R('grass', ['#07110e', '#0c1b15', '#12291c', '#1a3923', '#244b2a', '#336033', '#46773b']);
+R('dirt',  ['#120c0c', '#221815', '#36261e', '#4c3628', '#654a35', '#806043']);
+R('water', ['#05081a', '#0a112c', '#101b40', '#182957', '#233b70']);
+R('iron',  ['#0b0a12', '#1a1824', '#2c2a3c', '#45415a', '#625d7c']);
+R('blue',  ['#0b0f34', '#141d5a', '#1f2c85', '#2d40ae', '#4560d4']);
+R('gold',  ['#4a2e0c', '#87561a', '#c48a2c', '#ecc055', '#fff0a0']);
+R('win',   ['#5e2410', '#a5461a', '#e0782a', '#f9a944', '#ffd36b', '#fff2bf']);
+R('pine',  ['#040b0b', '#081614', '#0d211d', '#143128', '#1e4434', '#2e5c44']);
+const WARM = hex('#ffad5a'), FOG = hex('#3c2558'), DARKGLASS = hex('#2a1810');
+function ramp(name, v, d) { const r = RAMP[name]; return r[clamp(Math.round(v * (r.length - 1) + d), 0, r.length - 1)]; }
+
+// ---------- geometry ----------
+const polys = []; let OBJ = 0;
+const solids = [];           // collision: {t:'box',x0,x1,z0,z1,top,bot} | {t:'cyl',cx,cz,r,top,bot}
+const V = (x, y, z) => ({ x, y, z });
+function poly(pts, mat, ex = {}) {
+  const a = pts[0], b = pts[1], c = pts[2];
+  const ux = b.x - a.x, uy = b.y - a.y, uz = b.z - a.z, vx = c.x - a.x, vy = c.y - a.y, vz = c.z - a.z;
+  let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+  const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
+  if (nx * (CAM.x - a.x) + ny * (CAM.y - a.y) + nz * (CAM.z - a.z) < 0) { nx = -nx; ny = -ny; nz = -nz; }
+  polys.push(Object.assign({ pts, mat, n: { x: nx, y: ny, z: nz }, obj: OBJ }, ex));
+}
+function prism(fp, y0, y1, mat, ex = {}, top = true) {
+  for (let i = 0; i < fp.length; i++) {
+    const a = fp[i], b = fp[(i + 1) % fp.length];
+    poly([V(a[0], y0, a[1]), V(b[0], y0, b[1]), V(b[0], y1, b[1]), V(a[0], y1, a[1])], mat, ex);
+  }
+  if (top) poly(fp.map(p => V(p[0], y1, p[1])), mat, Object.assign({}, ex, { cyl: null }));
+}
+function box(x0, x1, z0, z1, y0, y1, mat = 'stone', ex = {}) { OBJ++; prism([[x0, z0], [x1, z0], [x1, z1], [x0, z1]], y0, y1, mat, ex); }
+function circ(cx, cz, r, seg) { const p = []; for (let i = 0; i < seg; i++) { const a = i / seg * Math.PI * 2; p.push([cx + Math.cos(a) * r, cz + Math.sin(a) * r]); } return p; }
+function cyl(cx, cz, r, y0, y1, mat = 'stone', seg = 28) { OBJ++; prism(circ(cx, cz, r, seg), y0, y1, mat, { cyl: { cx, cz, r } }); }
+function cone(cx, cz, r, y0, h, mat = 'roof', seg = 28) {
+  OBJ++;
+  const fp = circ(cx, cz, r, seg), apex = V(cx, y0 + h, cz);
+  for (let i = 0; i < seg; i++) {
+    const a = fp[i], b = fp[(i + 1) % seg];
+    poly([V(a[0], y0, a[1]), V(b[0], y0, b[1]), apex], mat, { cone: { cx, cz, r, y0, h } });
+  }
+}
+function obox(cx, cz, ang, hw, hd, y0, y1, mat = 'stone') { // box rotated about Y
+  OBJ++;
+  const c = Math.cos(ang), s = Math.sin(ang);
+  const P = (u, v) => [cx + c * u - s * v, cz + s * u + c * v];
+  prism([P(-hd, -hw), P(hd, -hw), P(hd, hw), P(-hd, hw)], y0, y1, mat);
+}
+// flat feature (window/door/banner/gate) on a vertical face; n = outward normal (nx,nz)
+function feature(cx, cz, nx, nz, y0, w, h, mat, ex = {}, arch = true, off = 0.07) {
+  OBJ++;
+  const tx = -nz, tz = nx, bx = cx + nx * off, bz = cz + nz * off;
+  const P = (s, y) => V(bx + tx * s, y, bz + tz * s);
+  const hw = w / 2, y1 = y0 + h;
+  const pts = arch ? [P(-hw, y0), P(hw, y0), P(hw, y1), P(0, y1 + w * 0.55), P(-hw, y1)]
+                   : [P(-hw, y0), P(hw, y0), P(hw, y1), P(-hw, y1)];
+  poly(pts, mat, Object.assign({ loc: { bx, bz, tx, tz, y0, w, h } }, ex));
+}
+function cylFeature(cx, cz, r, ang, y0, w, h, mat, ex, arch = true) {
+  const nx = Math.cos(ang), nz = Math.sin(ang);
+  feature(cx + nx * r, cz + nz * r, nx, nz, y0, w, h, mat, ex, arch, 0.14);
+}
+function ringMerlons(cx, cz, r, y, n = 14, h = 1.3) {
+  for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; obox(cx + Math.cos(a) * (r - 0.35), cz + Math.sin(a) * (r - 0.35), a, 0.5, 0.35, y, y + h); }
+}
+function merlonsX(x0, x1, z, y, h = 1.3, skip) { // along +x at given z (front edge)
+  for (let x = x0 + 0.35; x + 0.9 <= x1; x += 1.9) { if (skip && x + 0.9 > skip[0] && x < skip[1]) continue; box(x, x + 0.95, z, z + 0.6, y, y + h); }
+}
+function merlonsZ(z0, z1, x, y, h = 1.3) {
+  for (let z = z0 + 0.35; z + 0.9 <= z1; z += 1.9) box(x, x + 0.6, z, z + 0.95, y, y + h);
+}
+const solidBox = (x0, x1, z0, z1, top, bot = -9) => solids.push({ t: 'box', x0, x1, z0, z1, top, bot });
+const solidCyl = (cx, cz, r, top, bot = -9) => solids.push({ t: 'cyl', cx, cz, r, top, bot });
+
+let windowCount = 0;
+const win = (cx, cz, nx, nz, y0, w = 1.0, h = 1.6) => feature(cx, cz, nx, nz, y0, w, h, 'win', { winId: windowCount++ });
+const cwin = (cx, cz, r, a, y0, w = 1.0, h = 1.6) => cylFeature(cx, cz, r, a, y0, w, h, 'win', { winId: windowCount++ });
+const slit = (cx, cz, nx, nz, y0) => feature(cx, cz, nx, nz, y0, 0.32, 1.4, 'dark', {}, true);
+
+const TORCHES = [];
+const ANCHORS = {};          // world points used by animations
+
+function buildWorld() {
+  // ---- ground (with an L-shaped moat cut out) ----
+  OBJ++;
+  const G = (x0, x1, z0, z1) => poly([V(x0, 0, z0), V(x1, 0, z0), V(x1, 0, z1), V(x0, 0, z1)], 'ground');
+  G(-400, 400, -400, -17); G(-400, -17, -17, 400); G(52, 400, -17, 400); G(-17, -7, 40, 400); G(-7, 52, -7, 400);
+  OBJ++;
+  poly([V(-17, WATER_Y, -17), V(52, WATER_Y, -17), V(52, WATER_Y, -7), V(-17, WATER_Y, -7)], 'water');
+  poly([V(-17, WATER_Y, -7), V(-7, WATER_Y, -7), V(-7, WATER_Y, 40), V(-17, WATER_Y, 40)], 'water');
+  OBJ++;
+  poly([V(-7, WATER_Y, -7), V(52, WATER_Y, -7), V(52, 0, -7), V(-7, 0, -7)], 'stone', { bank: 1 });
+  poly([V(-7, WATER_Y, -7), V(-7, WATER_Y, 40), V(-7, 0, 40), V(-7, 0, -7)], 'stone', { bank: 1 });
+  poly([V(52, WATER_Y, -17), V(52, WATER_Y, -7), V(52, 0, -7), V(52, 0, -17)], 'stone', { bank: 1 });
+
+  // ---- keep (behind the curtain walls) ----
+  box(13, 29, 9, 21, 0, 24);
+  merlonsX(13, 29, 9, 24); merlonsZ(9, 21, 13, 24);
+  for (let i = 0; i < 4; i++) { win(15.2 + i * 3.6, 9, 0, -1, 15.5); win(15.2 + i * 3.6, 9, 0, -1, 19.8, 0.9, 1.4); }
+  for (let i = 0; i < 3; i++) win(13, 11.8 + i * 3.6, -1, 0, 17.5, 0.9, 1.5);
+  feature(21, 9, 0, -1, 12.6, 2.2, 4.2, 'banner', {}, false);
+  // bartizans on keep front corners
+  cyl(13.4, 9.4, 1.35, 19, 26.2); cone(13.4, 9.4, 1.65, 26.2, 3.6);
+  cyl(28.6, 9.4, 1.35, 19, 26.2); cone(28.6, 9.4, 1.65, 26.2, 3.6);
+  // tall turret on keep
+  cyl(25.5, 17.5, 2.7, 24, 34); cwin(25.5, 17.5, 2.7, -2.2, 29.3, 0.8, 1.4); cwin(25.5, 17.5, 2.7, -1.2, 27.6, 0.8, 1.4);
+  cyl(25.5, 17.5, 3.1, 34, 35.2); cone(25.5, 17.5, 3.4, 35.2, 8.5);
+  ANCHORS.keepSpire = V(25.5, 43.7, 17.5);
+  box(16, 17.4, 12, 13.4, 24, 27.2);                 // chimney
+  ANCHORS.chimney = V(16.7, 27.4, 12.7);
+
+  // ---- back walls & towers (mostly hidden, but they fill the silhouette) ----
+  box(4, 36, 24.5, 27.5, 0, 12); merlonsX(4, 36, 24.5, 12);
+  box(-1.5, 1.5, 4, 22, 0, 12); merlonsZ(4, 22, -1.5, 12);
+  for (let i = 0; i < 4; i++) slit(-1.5, 7 + i * 4.2, -1, 0, 5.5);
+  box(38.5, 41.5, 4, 22, 0, 12); merlonsX(38.5, 41.5, 4, 12);
+  cyl(0, 26, 4, 0, 18); ringMerlons(0, 26, 4.5, 19.4, 12); cyl(0, 26, 4.5, 18, 19.4); cone(0, 26, 4.2, 20.5, 7.5);
+  cwin(0, 26, 4, -2.4, 11, 0.9, 1.5);
+  cyl(40, 26, 4, 0, 18); cyl(40, 26, 4.5, 18, 19.4); cone(40, 26, 4.2, 19.4, 8);
+  cwin(40, 26, 4, -2.0, 12, 0.9, 1.5);
+
+  // ---- front-right curtain wall + gatehouse ----
+  box(4, 15.5, -1.5, 1.5, 0, 12); merlonsX(4, 15.5, -1.5, 12);
+  box(24.5, 37, -1.5, 1.5, 0, 12); merlonsX(24.5, 37, -1.5, 12);
+  for (let i = 0; i < 3; i++) slit(6.5 + i * 3.4, -1.5, 0, -1, 5);
+  for (let i = 0; i < 3; i++) slit(27 + i * 3.4, -1.5, 0, -1, 5);
+  box(15.5, 24.5, -4.6, 3.2, 0, 14.5);
+  merlonsX(15.5, 24.5, -4.6, 14.5, 1.3, [21.7, 23.2]);
+  merlonsZ(-4.6, -1, 15.5, 14.5);
+  feature(20, -4.6, 0, -1, 0, 3.4, 5.4, 'gate', {}, true, 0.06);
+  feature(20, -4.6, 0, -1, 8.6, 1.9, 3.2, 'banner', {}, false);
+  win(17.3, -4.6, 0, -1, 10.4, 0.8, 1.3); win(22.7, -4.6, 0, -1, 10.4, 0.8, 1.3);
+  feature(15.5, -3.0, -1, 0, 4.5, 0.32, 1.4, 'dark');
+  // ladder on gatehouse front
+  OBJ++;
+  { const x0 = 22.0, x1 = 22.95, z = -4.68;
+    poly([V(x0, 0.3, z), V(x1, 0.3, z), V(x1, 14.6, z), V(x0, 14.6, z)], 'ladder', { clip: P => { const s = P.x - x0; const rail = s < 0.13 || s > x1 - x0 - 0.13; const rung = ((P.y - 0.3) % 0.55) < 0.12; return !(rail || rung); } }); }
+  // torches beside the gate
+  TORCHES.push(V(16.9, 5.3, -4.95), V(23.75, 5.3, -4.95));
+  for (const t of TORCHES) box(t.x - 0.12, t.x + 0.12, -4.9, -4.6, 4.4, 5.1, 'iron');
+
+  // ---- drawbridge ----
+  box(17, 23, -17.6, -4.6, -0.25, 0.32, 'wood', { planks: 1 });
+  ANCHORS.chainL = [V(17.2, 7.4, -4.65), V(17.2, 0.35, -13.6)];
+  ANCHORS.chainR = [V(22.8, 7.4, -4.65), V(22.8, 0.35, -13.6)];
+
+  // ---- front corner tower ----
+  cyl(0, 0, 4.6, 0, 21);
+  cyl(0, 0, 5.2, 21, 22.6);
+  ringMerlons(0, 0, 5.2, 22.6, 16, 1.1);
+  cone(0, 0, 4.7, 23.1, 9.5);
+  ANCHORS.ftSpire = V(0, 32.6, 0);
+  cylFeature(0, 0, 4.6, Math.atan2(-0.89, -0.46), 0, 1.9, 3.0, 'door');
+  TORCHES.push(V(0 + Math.cos(-2.02) * 4.85 + 1.6, 3.9, Math.sin(-2.02) * 4.85 - 0.6));
+  cwin(0, 0, 4.6, -2.4, 8.0); cwin(0, 0, 4.6, -1.55, 13.5); cwin(0, 0, 4.6, -2.0, 17.6, 0.9, 1.4); cwin(0, 0, 4.6, -3.0, 13.5, 0.9, 1.4);
+
+  // ---- back-right tower (at the end of the right wall-walk) ----
+  cyl(40, 0, 4.2, 0, 19);
+  cyl(40, 0, 4.8, 19, 20.4);
+  ringMerlons(40, 0, 4.8, 20.4, 14, 1.1);
+  cone(40, 0, 4.4, 20.9, 8.8);
+  ANCHORS.brtSpire = V(40, 29.7, 0);
+  cylFeature(40, 0, 4.2, Math.atan2(-0.5, -0.87), 12, 1.25, 2.3, 'door');
+  TORCHES.push(V(36.05, 14.9, -1.6));
+  cwin(40, 0, 4.2, -1.75, 6.5); cwin(40, 0, 4.2, -1.3, 15, 0.9, 1.4);
+
+  // ---- collision ----
+  solidCyl(0, 0, 4.6, 99); solidCyl(40, 0, 4.2, 99); solidCyl(0, 26, 4.0, 99); solidCyl(40, 26, 4.0, 99);
+  solidBox(4, 15.5, -1.5, 1.5, 12); solidBox(24.5, 37, -1.5, 1.5, 12);
+  solidBox(4, 15.5, -1.5, -0.95, 13.3, 12); solidBox(24.5, 37, -1.5, -0.95, 13.3, 12);       // merlons
+  solidBox(4, 37, 1.1, 1.5, 30, 12);                                                         // inner rail
+  solidBox(15.5, 24.5, -4.6, 3.2, 14.5);
+  solidBox(15.5, 21.7, -4.6, -4.0, 15.8, 14.5); solidBox(23.2, 24.5, -4.6, -4.0, 15.8, 14.5);
+  solidBox(15.5, 16.1, -4.6, -1.0, 15.8, 14.5); solidBox(15.5, 24.5, 2.6, 3.2, 15.8, 14.5);
+  solidBox(-1.5, 1.5, 4, 22, 99); solidBox(4, 36, 24.5, 27.5, 99); solidBox(38.5, 41.5, 4, 22, 99);
+  solidBox(17, 23, -17.6, -4.6, 0.32);
+  solidBox(-1.5, 41.5, 1.5, 24.5, 99);                                                       // courtyard (off-limits)
+}
+buildWorld();
+
+// ---------- rasterize ----------
+const N = W * H;
+const ZB = new Float32Array(N).fill(Infinity);
+const PID = new Int32Array(N).fill(-1);
+const WP = new Float32Array(N * 3);
+const KIND = new Uint8Array(N);  // 0 sky, 1 structure, 2 ground, 3 water, 4 tree/sprite
+const COL = new Uint8ClampedArray(N * 4);
+
+function clipNear(cs, nz) {
+  const out = [];
+  for (let i = 0; i < cs.length; i++) {
+    const a = cs[i], b = cs[(i + 1) % cs.length], ai = a[2] >= nz, bi = b[2] >= nz;
+    if (ai) out.push(a);
+    if (ai !== bi) { const t = (nz - a[2]) / (b[2] - a[2]); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, nz]); }
+  }
+  return out;
+}
+function rayDir(px, py) { const xs = (px - W / 2) / F, ys = (HY - py) / F; return [RX * xs + FX, ys, RZ * xs + FZ]; }
+function rasterize() {
+  for (let pi = 0; pi < polys.length; pi++) {
+    const p = polys[pi];
+    const cs = clipNear(p.pts.map(v => toCam(v.x, v.y, v.z)), 0.5);
+    if (cs.length < 3) continue;
+    const sp = cs.map(c => [W / 2 + F * c[0] / c[2], HY - F * c[1] / c[2]]);
+    const n = p.n, a = p.pts[0];
+    const na = n.x * (a.x - CAM.x) + n.y * (a.y - CAM.y) + n.z * (a.z - CAM.z);
+    for (let k = 1; k < sp.length - 1; k++) triR(sp[0], sp[k], sp[k + 1], pi, p, na);
+  }
+}
+function triR(A, B, C, pi, p, na) {
+  const x0 = Math.max(0, Math.floor(Math.min(A[0], B[0], C[0]))), x1 = Math.min(W - 1, Math.ceil(Math.max(A[0], B[0], C[0])));
+  const y0 = Math.max(0, Math.floor(Math.min(A[1], B[1], C[1]))), y1 = Math.min(H - 1, Math.ceil(Math.max(A[1], B[1], C[1])));
+  const area = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+  if (Math.abs(area) < 1e-9) return;
+  const sg = area > 0 ? 1 : -1, n = p.n;
+  for (let y = y0; y <= y1; y++) {
+    const py = y + 0.5;
+    for (let x = x0; x <= x1; x++) {
+      const px = x + 0.5;
+      if (((B[0] - A[0]) * (py - A[1]) - (B[1] - A[1]) * (px - A[0])) * sg < 0) continue;
+      if (((C[0] - B[0]) * (py - B[1]) - (C[1] - B[1]) * (px - B[0])) * sg < 0) continue;
+      if (((A[0] - C[0]) * (py - C[1]) - (A[1] - C[1]) * (px - C[0])) * sg < 0) continue;
+      const d = rayDir(px, py), nd = n.x * d[0] + n.y * d[1] + n.z * d[2];
+      if (Math.abs(nd) < 1e-7) continue;
+      const t = na / nd;
+      if (t <= 0.3) continue;
+      const i = y * W + x;
+      if (t >= ZB[i]) continue;
+      if (p.clip && p.clip({ x: CAM.x + d[0] * t, y: CAM.y + d[1] * t, z: CAM.z + d[2] * t })) continue;
+      ZB[i] = t; PID[i] = pi;
+    }
+  }
+}
+
+// ---------- shading ----------
+const L = (() => { const v = [-0.25, 0.6, -0.8], l = Math.hypot(...v); return { x: v[0] / l, y: v[1] / l, z: v[2] / l }; })();
+const lambert = n => 0.18 + 0.8 * Math.max(0, n.x * L.x + n.y * L.y + n.z * L.z);
+function torchLight(P, n) {
+  let s = 0;
+  for (const t of TORCHES) {
+    const dx = t.x - P.x, dy = t.y - P.y, dz = t.z - P.z, d = Math.hypot(dx, dy, dz);
+    if (d > 7.5) continue;
+    const lam = Math.max(0, (n.x * dx + n.y * dy + n.z * dz) / (d || 1));
+    s += Math.pow(1 - d / 7.5, 2) * (0.35 + 0.65 * lam);
+  }
+  return Math.min(1, s);
+}
+const winPixels = [];   // per window id: [{i, g, frame}]
+function local(p, P) { const l = p.loc; return { s: (P.x - l.bx) * l.tx + (P.z - l.bz) * l.tz, y: P.y }; }
+function pathCenter(z) { const q = z + 17.5; return 20 + q * 1.05 + 3.2 * Math.sin(q * 0.13); }
+
+function shadePixel(p, P, x, y, z) {
+  const d = bay(x, y), pxm = F / z;
+  let n = p.n;
+  if (p.cyl) { const dx = P.x - p.cyl.cx, dz = P.z - p.cyl.cz, l = Math.hypot(dx, dz) || 1; n = { x: dx / l, y: 0, z: dz / l }; }
+  if (p.cone) {
+    const c = p.cone, dx = P.x - c.cx, dz = P.z - c.cz, l = Math.hypot(dx, dz) || 1, sl = Math.hypot(c.h, c.r);
+    n = { x: dx / l * c.h / sl, y: c.r / sl, z: dz / l * c.h / sl };
+  }
+  let v = lambert(n), col, warmK = 1;
+  switch (p.mat) {
+    case 'stone': {
+      const horiz = Math.abs(n.y) > 0.7;
+      let a = p.cyl ? Math.atan2(P.z - p.cyl.cz, P.x - p.cyl.cx) * p.cyl.r : (Math.abs(n.x) > Math.abs(n.z) ? P.z : P.x);
+      let ry, bw = 1.25, bh = 0.6, b = horiz ? (P.z * 0.8) : P.y;
+      if (horiz) a = P.x;
+      ry = b / bh;
+      const row = Math.floor(ry), ax = a / bw + (row & 1) * 0.5, colI = Math.floor(ax);
+      v += (hash(colI, row + p.obj * 131) - 0.5) * 0.17;
+      if (pxm * bh >= 2.4) {
+        if ((ry - row) * pxm * bh < 0.9 || (ax - colI) * pxm * bw < 0.9) v -= 0.2;
+      }
+      if (!horiz && P.y >= 0) v *= 0.62 + 0.38 * Math.min(1, P.y / 2.6);
+      if (p.bank) v *= 0.7;
+      col = ramp('stone', v, d);
+      if (!horiz && P.y < 1.6 && P.y > -0.2 && hash(Math.floor(a * 3), Math.floor(P.y * 4)) > 0.55 + P.y * 0.25) col = mix(col, RAMP.grass[3], 0.6);
+      break;
+    }
+    case 'roof': {
+      const c = p.cone, ang = Math.atan2(P.z - c.cz, P.x - c.cx), rr = c.r * (1 - (P.y - c.y0) / c.h);
+      const rowH = 0.55, ry = (P.y - c.y0) / rowH, row = Math.floor(ry);
+      const ax = ang * Math.max(rr, 0.3) / 0.7 + (row & 1) * 0.5, ci = Math.floor(ax);
+      v += (hash(ci, row * 7 + p.obj) - 0.5) * 0.14;
+      const fy = ry - row, fx = ax - ci;
+      if (pxm * rowH >= 2.2 && (fy * pxm * rowH < 0.9 + Math.abs(fx - 0.5) * 1.2)) v -= 0.22;
+      v += 0.05;
+      col = ramp('roof', v, d);
+      break;
+    }
+    case 'wood': {
+      const ry = P.z / 0.55, f = (ry - Math.floor(ry)) * pxm * 0.55;
+      if (f < 0.9) v -= 0.2;
+      v += (hash(Math.floor(ry), 3) - 0.5) * 0.15;
+      if (Math.abs(n.y) < 0.5) v -= 0.15;
+      col = ramp('wood', v * 0.9, d);
+      break;
+    }
+    case 'ladder': col = ramp('wood', v + 0.3, d); warmK = 0.5; break;
+    case 'iron': col = ramp('iron', v, d); break;
+    case 'dark': col = [9, 6, 16]; warmK = 0.3; break;
+    case 'door': {
+      const q = local(p, P), l = p.loc, s = q.s / l.w + 0.5, yy = (P.y - l.y0) / l.h;
+      const frame = s < 0.09 || s > 0.91 || yy > 1.0;
+      if (frame) col = ramp('stone', v - 0.18, d);
+      else {
+        const pl = s * 5, f = (pl - Math.floor(pl)) * pxm * l.w / 5;
+        let vv = v - 0.05 + (hash(Math.floor(pl), 9) - 0.5) * 0.14;
+        if (f < 0.9) vv -= 0.2;
+        col = ramp('wood', vv, d);
+        if (Math.abs(yy - 0.3) * pxm * l.h < 0.6 || Math.abs(yy - 0.75) * pxm * l.h < 0.6) col = ramp('iron', v, d);
+      }
+      break;
+    }
+    case 'gate': {
+      const q = local(p, P), l = p.loc, yy = (P.y - l.y0) / (l.h + l.w * 0.55);
+      const inner = 1 - yy;
+      col = mix([10, 6, 18], [92, 40, 24], clamp(inner * inner * 0.9 + d * 0.15, 0, 1));
+      const bx = (q.s + 10) / 0.5, by = P.y / 0.6;
+      const lw = Math.max(0.9, pxm * 0.09);
+      if ((bx - Math.floor(bx)) * pxm * 0.5 < lw || (by - Math.floor(by)) * pxm * 0.6 < lw) col = ramp('iron', 0.55 + inner * 0.3, d);
+      warmK = 0.4;
+      break;
+    }
+    case 'win': {
+      const q = local(p, P), l = p.loc;
+      const g = 1.05 - Math.abs(q.s) / (l.w / 2) * 0.25 - (P.y - l.y0) / l.h * 0.35;
+      const mull = l.w > 0.85 && (Math.abs(q.s) * pxm < 0.55 || Math.abs(P.y - (l.y0 + l.h * 0.55)) * pxm < 0.55);
+      col = mull ? DARKGLASS : ramp('win', g, d);
+      if (!mull) { (winPixels[p.winId] = winPixels[p.winId] || []).push({ i: y * W + x, g }); }
+      return col;
+    }
+    case 'banner': {
+      const q = local(p, P), l = p.loc, s = q.s / (l.w / 2), yy = (P.y - l.y0) / l.h;
+      const fold = Math.sin(q.s * 9) * 0.07;
+      const border = Math.abs(s) > 0.8 || yy > 0.92 || yy < 0.08;
+      const ey = (yy - 0.55) * l.h, ex = q.s;
+      const emblem = (Math.abs(ex) + Math.abs(ey) < 0.55 && Math.abs(ex) + Math.abs(ey) > 0.3) || (ex * ex + ey * ey < 0.04);
+      col = (border || emblem) ? ramp('gold', v + fold, d) : ramp('blue', v + fold, d);
+      break;
+    }
+    case 'water': col = ramp('water', 0.45, d); warmK = 0.6; break;
+    case 'ground': {
+      const pc = pathCenter(P.z);
+      const onPath = P.z < -17.3 && Math.abs(P.x - pc) < 2.3 + (hash(Math.floor(P.x * 2), Math.floor(P.z * 2)) - 0.5) * 0.8;
+      const near = P.x > -7 && P.x < 52 && P.z > -7 && P.z < 0;   // island strip
+      const big = (Math.sin(P.x * 0.21) + Math.sin(P.z * 0.17 + 1.3) + Math.sin((P.x + P.z) * 0.09)) * 0.06;
+      const grain = (hash(Math.floor(P.x * 3), Math.floor(P.z * 3)) - 0.5) * (pxm > 6 ? 0.22 : 0.1);
+      let gv = 0.5 + big + grain;
+      if (onPath || near) {
+        gv += Math.max(0, 1 - Math.abs(P.x - pc) / 2.6) * 0.05;
+        col = ramp('dirt', gv, d);
+        if (pxm > 7 && hash(Math.floor(P.x * 5), Math.floor(P.z * 5)) > 0.94) col = ramp('stone', 0.55, d);
+      } else {
+        col = ramp('grass', gv, d);
+        if (pxm > 6) {
+          const fh = hash(Math.floor(P.x * 4) + 77, Math.floor(P.z * 4));
+          if (fh > 0.996) col = [[232, 120, 160], [240, 214, 110], [220, 220, 240]][Math.floor(fh * 1000) % 3];
+          else if (fh > 0.97) col = ramp('grass', gv + 0.3, d);
+        }
+      }
+      break;
+    }
+    default: col = [255, 0, 255];
+  }
+  // warm torch light
+  const tw = torchLight(P, n) * warmK;
+  if (tw > 0.02) {
+    const q = clamp(Math.floor((tw * 1.25 + d * 0.35) * 4) / 4, 0, 0.85);
+    col = mix(col, [col[0] * 0.5 + WARM[0] * 0.75, col[1] * 0.45 + WARM[1] * 0.55, col[2] * 0.35 + WARM[2] * 0.25], q);
+  }
+  // distance haze
+  const ft = clamp((z - 130) / 300, 0, 0.85);
+  if (ft > 0) col = mix(col, FOG, clamp(Math.floor((ft + d * 0.3) * 5) / 5, 0, 0.85));
+  return col;
+}
+
+function shadeAll() {
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, pi = PID[i];
+    if (pi < 0) continue;
+    const p = polys[pi], z = ZB[i], dd = rayDir(x + 0.5, y + 0.5);
+    const P = { x: CAM.x + dd[0] * z, y: CAM.y + dd[1] * z, z: CAM.z + dd[2] * z };
+    WP[i * 3] = P.x; WP[i * 3 + 1] = P.y; WP[i * 3 + 2] = P.z;
+    KIND[i] = p.mat === 'ground' ? 2 : p.mat === 'water' ? 3 : 1;
+    const c = shadePixel(p, P, x, y, z);
+    COL[i * 4] = c[0]; COL[i * 4 + 1] = c[1]; COL[i * 4 + 2] = c[2]; COL[i * 4 + 3] = 255;
+  }
+  // dark silhouette outlines where a structure meets something farther away
+  const out = new Uint8Array(N);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    if (KIND[i] !== 1) continue;
+    const z = ZB[i], o = polys[PID[i]].obj;
+    const nb = [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, y > 0 ? i - W : -1, y < H - 1 ? i + W : -1];
+    for (const j of nb) {
+      if (j < 0) continue;
+      if (PID[j] < 0 || (polys[PID[j]].obj !== o && ZB[j] > z * 1.025 + 0.4 && KIND[j] !== 3)) { out[i] = 1; break; }
+    }
+  }
+  for (let i = 0; i < N; i++) if (out[i]) { COL[i * 4] *= 0.42; COL[i * 4 + 1] *= 0.4; COL[i * 4 + 2] *= 0.5; }
+}
+
+// ---------- billboard sprites baked into the static layer (trees, signposts) ----------
+function bakePx(x, y, z, c, wy) {
+  if (x < 0 || y < 0 || x >= W || y >= H) return;
+  const i = y * W + x;
+  if (ZB[i] < z) return;
+  ZB[i] = z; KIND[i] = 4; PID[i] = -2;
+  COL[i * 4] = c[0]; COL[i * 4 + 1] = c[1]; COL[i * 4 + 2] = c[2]; COL[i * 4 + 3] = 255;
+  if (wy) { WP[i * 3] = wy[0]; WP[i * 3 + 1] = wy[1]; WP[i * 3 + 2] = wy[2]; }
+}
+function pine(wx, wz, hm) {
+  const b = proj(wx, 0, wz), s = F / b.z, hp = Math.round(hm * s), bx = Math.round(b.x), by = Math.round(b.y);
+  const z = b.z, tw = Math.max(1, Math.round(hp * 0.05)), th = Math.max(2, Math.round(hp * 0.13));
+  const fog = clamp((z - 130) / 300, 0, 0.85);
+  const shade = (c, x, y) => fog > 0 ? mix(c, FOG, clamp(Math.floor((fog + bay(x, y) * 0.3) * 5) / 5, 0, .85)) : c;
+  for (let yy = 0; yy < th; yy++) for (let xx = -tw; xx <= tw; xx++) bakePx(bx + xx, by - yy, z, shade(ramp('wood', xx > 0 ? 0.35 : 0.15, 0), bx + xx, by - yy), [wx, yy / s, wz]);
+  const tiers = 4, top = by - hp, crown = hp - th + 2;
+  for (let yy = 0; yy < crown; yy++) {
+    const py = top + yy, t = yy / crown;
+    const ti = Math.min(tiers - 1, Math.floor(t * tiers)), tl = t * tiers - ti;
+    const hw = Math.round((0.18 + ti * 0.2 + tl * 0.42) * hp * 0.33);
+    for (let xx = -hw; xx <= hw; xx++) {
+      const u = xx / (hw || 1), px = bx + xx;
+      let v = 0.38 + u * 0.32 + (hash(px, py) - 0.5) * 0.25 - (tl > 0.8 ? 0.22 : 0);
+      if (Math.abs(xx) === hw) v = 0;
+      bakePx(px, py, z, shade(ramp('pine', v, bay(px, py)), px, py), [wx, (by - py) / s, wz]);
+    }
+  }
+}
+function signpost(wx, wz, dir) {
+  const b = proj(wx, 0, wz), s = F / b.z, bx = Math.round(b.x), by = Math.round(b.y), z = b.z;
+  const pw = Math.max(1, Math.round(0.14 * s)), ph = Math.round(2.3 * s);
+  for (let yy = 0; yy < ph; yy++) for (let xx = -pw; xx <= pw; xx++) bakePx(bx + xx, by - yy, z, ramp('wood', xx > 0 ? 0.6 : 0.3, 0));
+  const bw = Math.round(1.6 * s), bh = Math.max(3, Math.round(0.55 * s)), top = by - ph + Math.round(0.15 * s);
+  for (let yy = 0; yy < bh; yy++) for (let xx = 0; xx <= bw; xx++) {
+    const ex = dir > 0 ? xx : -xx, tip = Math.abs(yy - bh / 2) > (bw - xx) * 0.9;
+    if (tip) continue;
+    const edge = yy === 0 || yy === bh - 1 || xx === 0;
+    const groove = yy === Math.floor(bh / 2) && xx > 2 && xx < bw - 3;
+    bakePx(bx + ex - dir * Math.round(0.4 * s), top + yy, z - 0.05, ramp('wood', edge ? 0.15 : groove ? 0.35 : 0.75, bay(xx, yy)));
+  }
+}
+
+// ---------- reflections in the moat ----------
+const REFL = new Uint8ClampedArray(N * 3), RZ_ = new Float32Array(N).fill(Infinity), WATERPX = [];
+function bakeReflections(bgData) {
+  const has = new Uint8Array(N);
+  for (let i = 0; i < N; i++) {
+    const k = KIND[i];
+    if (k !== 1 && k !== 4) continue;
+    const px = WP[i * 3], py = WP[i * 3 + 1], pz = WP[i * 3 + 2];
+    if (py < WATER_Y) continue;
+    const q = proj(px, 2 * WATER_Y - py, pz);
+    const rx = Math.floor(q.x), ry = Math.floor(q.y);
+    if (rx < 0 || ry < 0 || rx >= W || ry >= H) continue;
+    const j = ry * W + rx;
+    if (KIND[j] !== 3 || ZB[j] > q.z + 0.5 || q.z >= RZ_[j]) continue;
+    RZ_[j] = q.z; has[j] = 1;
+    REFL[j * 3] = COL[i * 4]; REFL[j * 3 + 1] = COL[i * 4 + 1]; REFL[j * 3 + 2] = COL[i * 4 + 2];
+  }
+  for (let y = 1; y < H; y++) for (let x = 0; x < W; x++) {          // close small stretch gaps
+    const j = y * W + x;
+    if (KIND[j] !== 3 || has[j]) continue;
+    for (let k = 1; k <= 2; k++) { const u = j - k * W; if (u >= 0 && has[u] === 1 && KIND[u] === 3) { REFL.copyWithin(j * 3, u * 3, u * 3 + 3); has[j] = 2; break; } }
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const j = y * W + x;
+    if (KIND[j] !== 3) continue;
+    if (!has[j]) {                                                      // sky reflects about the horizon
+      const sy = clamp(2 * HY - y, 0, H - 1), s = (sy * W + x) * 4;
+      REFL[j * 3] = bgData[s]; REFL[j * 3 + 1] = bgData[s + 1]; REFL[j * 3 + 2] = bgData[s + 2];
+    }
+    const base = [COL[j * 4], COL[j * 4 + 1], COL[j * 4 + 2]];
+    const r = mix([REFL[j * 3], REFL[j * 3 + 1], REFL[j * 3 + 2]], base, has[j] ? 0.62 : 0.6);
+    REFL[j * 3] = r[0] * 0.78; REFL[j * 3 + 1] = r[1] * 0.88; REFL[j * 3 + 2] = Math.min(255, r[2] * 1.15 + 10);
+    WATERPX.push(j);
+  }
+}
+
+// ---------- sky / background ----------
+const bgC = document.createElement('canvas'); bgC.width = W; bgC.height = H;
+const MOON = { x: 322, y: 44, r: 13 };
+const mountainTop = new Float32Array(W);
+function bakeSky() {
+  const g = bgC.getContext('2d'), img = g.createImageData(W, H), D = img.data;
+  const stops = [[0, '#0a0920'], [0.3, '#151137'], [0.55, '#2a1a52'], [0.74, '#4a2462'], [0.87, '#7a3368'], [0.95, '#b24c68'], [1.0, '#e0775f']].map(s => [s[0], hex(s[1])]);
+  const skyAt = (t) => { for (let k = 1; k < stops.length; k++) if (t <= stops[k][0]) return [k - 1, (t - stops[k - 1][0]) / (stops[k][0] - stops[k - 1][0])]; return [stops.length - 2, 1]; };
+  // mountains: two layers of noisy ridges
+  const ridge = (x, sc, amp, off) => { let h = 0, f = 1, a = 1; for (let o = 0; o < 4; o++) { h += Math.sin(x * 0.011 * sc * f + off * f) * a + Math.sin(x * 0.023 * sc * f + off * 2.1) * a * 0.5; f *= 2.03; a *= 0.48; } return h * amp; };
+  const farT = new Float32Array(W), nearT = new Float32Array(W);
+  for (let x = 0; x < W; x++) {
+    farT[x] = HY - 20 - ridge(x, 1, 9, 1.7) - Math.max(0, 18 - Math.abs(x - 60) * 0.25);
+    nearT[x] = HY - 7 - ridge(x + 300, 1.6, 4.5, 4.1) - Math.max(0, 14 - Math.abs(x - 370) * 0.3);
+    mountainTop[x] = Math.min(farT[x], nearT[x]);
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = (y * W + x) * 4, d = bay(x, y);
+    let c;
+    const t = clamp(y / HY, 0, 1), [k, f] = skyAt(t);
+    c = (f + d * 0.9) > 0.5 ? stops[k + 1][1] : stops[k][1];
+    // moon + halo
+    const md = Math.hypot(x - MOON.x, y - MOON.y);
+    if (md < MOON.r * 3.2 && md >= MOON.r) { const h = 1 - (md - MOON.r) / (MOON.r * 2.2); if (h * 0.55 + d * 0.5 > 0.42) c = mix(c, [150, 120, 190], 0.35); }
+    if (md < MOON.r) {
+      c = hex('#f4ecd0');
+      const cr = [[-4, -3, 3.2], [4, 3, 2.4], [2, -6, 1.6], [-5, 5, 1.8], [6, -2, 1.4]];
+      for (const k2 of cr) if (Math.hypot(x - MOON.x - k2[0], y - MOON.y - k2[1]) < k2[2]) c = hex('#d6cba8');
+      if (Math.hypot(x - MOON.x + 4, y - MOON.y + 2) > MOON.r - 0.5 + d) c = mix(c, hex('#c8bc98'), 0.6);
+    }
+    if (y >= farT[x]) {
+      const hgt = y - farT[x];
+      c = hgt < 2 && d > -0.1 ? hex('#6a4880') : hgt < 6 && d > 0.25 ? hex('#4e3468') : hex('#3a2752');
+      if (y > HY - 6 && d + (y - HY + 6) / 8 > 0.5) c = hex('#4a2c5e');
+    }
+    if (y >= nearT[x]) {
+      const hgt = y - nearT[x];
+      c = hgt < 1.5 && d > 0 ? hex('#3c2a58') : hex('#22183a');
+    }
+    if (y >= HY) c = hex('#22183a');
+    D[i] = c[0]; D[i + 1] = c[1]; D[i + 2] = c[2]; D[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  return D;
+}
+
+// ---------- bake everything ----------
+const t0 = performance.now();
+rasterize();
+shadeAll();
+seed = 7;
+const TREES = [];
+for (let k = 0; k < 26; k++) { // left grove
+  const x = -80 + rnd() * 58, z = -30 + rnd() * 120; if (x > -24 && z < 45) continue; TREES.push([x, z, 7 + rnd() * 6]);
+}
+for (let k = 0; k < 30; k++) { // right grove
+  const x = 58 + rnd() * 90, z = -26 + rnd() * 140; TREES.push([x, z, 7 + rnd() * 7]);
+}
+TREES.push([-52, -36, 12], [-58, -20, 14], [-44, -46, 8], [62, -40, 12], [70, -24, 14], [58, -50, 9]);
+TREES.sort((a, b) => proj(b[0], 0, b[1]).z - proj(a[0], 0, a[1]).z);
+for (const t of TREES) pine(t[0], t[1], t[2]);
+const SIGNS = [];
+{ const a = groundAtScreen(96, 52); SIGNS.push({ x: a.x, z: a.z, href: 'dust.html', label: 'dust game', dir: -1 });
+  const b = groundAtScreen(366, 50); SIGNS.push({ x: b.x, z: b.z, href: 'cubes.html', label: 'the cubes', dir: 1 }); }
+for (const s of SIGNS) signpost(s.x, s.z, s.dir);
+const bgData = bakeSky();
+bakeReflections(bgData);
+const castleC = document.createElement('canvas'); castleC.width = W; castleC.height = H;
+castleC.getContext('2d').putImageData(new ImageData(COL, W, H), 0, 0);
+console.log('baked in', Math.round(performance.now() - t0), 'ms', polys.length, 'polys');
+
+// ---------- per-frame layer ----------
+const cv = document.getElementById('c'); cv.width = W; cv.height = H;
+const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+const fxC = document.createElement('canvas'); fxC.width = W; fxC.height = H;
+const fctx = fxC.getContext('2d'); const fxImg = fctx.createImageData(W, H); const FXB = new Uint32Array(fxImg.data.buffer);
+function put(x, y, c, z) {
+  x = Math.floor(x); y = Math.floor(y);
+  if (x < 0 || y < 0 || x >= W || y >= H) return;
+  const i = y * W + x;
+  if (z !== undefined && ZB[i] < z) return;
+  FXB[i] = c;
+}
+const C = {};
+for (const [k, v] of Object.entries({ white: '#f6f1e7', ink: '#0b0918', scarf: '#e5484d', scarfD: '#9c2436', flame1: '#fff2bf', flame2: '#ffc35a', flame3: '#f0782a', flame4: '#a5361a', ember: '#ffad5a', gold: '#ecc055', goldL: '#fff0a0', goldD: '#87561a', smoke: '#5a5470', smoke2: '#3e3a54', bat: '#0b0918', glint: '#8fa4e0', foam: '#c9d6f5', fly: '#d9ff7a', flyD: '#7aa040', flagR: '#c9343f', flagD: '#7e1d2b', flagG: '#ecc055', pole: '#b6b0cc' }))
+  { const h = hex(v); C[k] = c32(h[0], h[1], h[2]); }
+
+// stars
+seed = 99;
+const STARS = [];
+for (let k = 0; k < 150; k++) {
+  const x = Math.floor(rnd() * W), y = Math.floor(rnd() * (HY - 25));
+  if (y > mountainTop[x] - 3 || Math.hypot(x - MOON.x, y - MOON.y) < MOON.r * 3) continue;
+  STARS.push({ x, y, ph: rnd() * 6.28, sp: 0.6 + rnd() * 2.2, big: rnd() > 0.92, b: 0.4 + rnd() * 0.6 });
+}
+// clouds
+function makeCloud(w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'), im = g.createImageData(w, h);
+  const blobs = []; for (let k = 0; k < 7; k++) blobs.push([w * (0.15 + rnd() * 0.7), h * (0.35 + rnd() * 0.35), h * (0.22 + rnd() * 0.25)]);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let inside = false, top = 1e9;
+    for (const b of blobs) { const dd = Math.hypot((x - b[0]) * 0.55, y - b[1]); if (dd < b[2]) { inside = true; top = Math.min(top, (y - (b[1] - b[2])) / (b[2] * 2)); } }
+    if (!inside || y > h * 0.78) continue;
+    const d = bay(x, y), i = (y * w + x) * 4;
+    const cc = top + d * 0.35 < 0.18 ? hex('#a77aa8') : top + d * 0.35 < 0.45 ? hex('#6d4a86') : hex('#4a3068');
+    im.data[i] = cc[0]; im.data[i + 1] = cc[1]; im.data[i + 2] = cc[2]; im.data[i + 3] = 255;
+  }
+  g.putImageData(im, 0, 0); return c;
+}
+seed = 5;
+const CLOUDS = [];
+for (let k = 0; k < 6; k++) CLOUDS.push({ c: makeCloud(40 + Math.floor(rnd() * 50), 14 + Math.floor(rnd() * 8)), x: rnd() * (W + 100) - 50, y: 12 + rnd() * 70, v: 1.5 + rnd() * 2.5 });
+
+// critters & particles
+const BATS = []; for (let k = 0; k < 5; k++) BATS.push({ a: k * 1.3, r: 7 + k * 2.3, h: 27 + (k % 3) * 4, sp: 0.5 + k * 0.13, dir: k % 2 ? 1 : -1 });
+const FLIES = [];
+seed = 3;
+for (let k = 0; k < 34; k++) { const zc = 38 + rnd() * 40, g = groundAtScreen(rnd() * W, zc); if (!inMoat(g.x, g.z)) FLIES.push({ x: g.x, z: g.z, y: 0.5 + rnd() * 1.8, ph: rnd() * 10, sp: 0.4 + rnd() * 0.6 }); }
+let PARTS = [];
+const winFlick = []; for (let k = 0; k < windowCount; k++) winFlick.push({ mode: hash(k, 42) < 0.4 ? 1 : 0, off: false, t: 0 });
+
+// ---------- player ----------
+const SPAWN = (() => { const g = groundAtScreen(150, 44); return { x: g.x, z: g.z }; })();
+const P = { x: SPAWN.x, z: SPAWN.z, y: 0, vy: 0, face: 1, ground: true, ladder: false, run: 0, moving: false, dead: 0, idle: 0 };
+const LADDER = { x0: 21.75, x1: 23.2, z0: -6.1, z1: -4.3, xs: 22.47, zs: -5.15, top: 14.5 };
+
+function inMoat(x, z) { return (x > -17 && x < 52 && z > -17 && z < -7) || (x > -17 && x < -7 && z > -7 && z < 40); }
+function inSolidXZ(s, x, z, r) {
+  if (s.t === 'box') return x + r > s.x0 && x - r < s.x1 && z + r > s.z0 && z - r < s.z1;
+  return Math.hypot(x - s.cx, z - s.cz) < s.r + r;
+}
+function floorAt(x, z, y) {
+  let h = inMoat(x, z) ? -3 : 0;
+  for (const s of solids) if (s.top <= y + 0.65 && s.top > h && inSolidXZ(s, x, z, -0.05)) h = s.top;
+  return h;
+}
+function blocked(x, z, y) {
+  for (const s of solids) if (s.top > y + 0.65 && s.bot < y + 2.2 && inSolidXZ(s, x, z, 0.42)) return true;
+  const q = proj(x, y, z);
+  return q.x < 5 || q.x > W - 5 || q.z < 36 || q.z > 115;
+}
+
+const INTERACT = [
+  { x: 20, z: -5.7, y: 0.32, r: 2.0, label: 'ENTER: workpoop classic', href: 'index.html' },
+  { x: -2.6, z: -5.6, y: 0, r: 2.3, label: 'ENTER: quantum simulator', href: 'quantum.html' },
+  { x: 35.0, z: -0.25, y: 12, r: 1.8, label: 'ENTER: fluid simulation', href: 'fluidsim.html' },
+  { x: 31, z: -5.7, y: 0, r: 1.7, label: 'OPEN: chest', chest: true },
+  ...SIGNS.map(s => ({ x: s.x, z: s.z, y: 0, r: 2.6, label: 'GO: ' + s.label, href: s.href })),
+];
+const CHEST = { x: 31, z: -5.9, y: 0, open: false, t: 0 };
+
+// ---------- audio ----------
+let AC = null, muted = false;
+function audio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } } return AC; }
+function tone(f0, f1, dur, type = 'square', vol = 0.05, delay = 0) {
+  if (muted || !audio()) return;
+  const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+function noise(dur, vol = 0.08, hp = 800) {
+  if (muted || !audio()) return;
+  const b = AC.createBuffer(1, AC.sampleRate * dur, AC.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+  s.buffer = b; f.type = 'highpass'; f.frequency.value = hp; g.gain.value = vol;
+  s.connect(f).connect(g).connect(AC.destination); s.start();
+}
+const SFX = {
+  jump: () => tone(220, 520, 0.14, 'square', 0.04),
+  land: () => tone(120, 60, 0.08, 'triangle', 0.08),
+  splash: () => { noise(0.5, 0.12, 400); tone(300, 80, 0.3, 'triangle', 0.05); },
+  coin: () => { tone(988, 988, 0.08, 'square', 0.04); tone(1319, 1319, 0.3, 'square', 0.04, 0.08); },
+  portal: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.12, 'square', 0.035, i * 0.08)),
+  step: () => tone(90 + Math.random() * 30, 60, 0.03, 'triangle', 0.03),
+  climb: () => tone(300 + Math.random() * 60, 250, 0.03, 'square', 0.015),
+};
+
+// ---------- input ----------
+const keys = {}; let pressed = {};
+const BLOCK = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space']);
+addEventListener('keydown', e => { if (BLOCK.has(e.code)) e.preventDefault(); if (!keys[e.code]) pressed[e.code] = true; keys[e.code] = true; audio(); if (e.code === 'KeyM') muted = !muted; });
+addEventListener('keyup', e => { keys[e.code] = false; });
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+document.querySelectorAll('#touch button').forEach(b => {
+  const k = b.dataset.k;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); if (!keys[k]) pressed[k] = true; keys[k] = true; audio(); });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) b.addEventListener(ev, () => keys[k] = false);
+});
+
+// ---------- HUD ----------
+const $prompt = document.getElementById('prompt'), $toast = document.getElementById('toast'), $coins = document.getElementById('coins');
+let coins = 0, toastT = 0, near = null, leaving = null, leaveT = 0, introT = 0;
+function toast(msg) { $toast.textContent = msg; $toast.style.display = 'block'; toastT = 2.2; }
+
+// ---------- update ----------
+function update(dt, t) {
+  const ix = (keys.ArrowRight || keys.KeyD ? 1 : 0) - (keys.ArrowLeft || keys.KeyA ? 1 : 0);
+  const iz = (keys.ArrowUp || keys.KeyW ? 1 : 0) - (keys.ArrowDown || keys.KeyS ? 1 : 0);
+  const jump = pressed.Space || pressed.KeyX || pressed.KeyZ || pressed.KeyK;
+  const act = pressed.KeyE || pressed.Enter;
+  pressed = {};
+  if (leaving) return;
+
+  if (P.dead > 0) { P.dead -= dt; if (P.dead <= 0) { Object.assign(P, { x: SPAWN.x, z: SPAWN.z, y: 0, vy: 0, ladder: false }); poof(P.x, 0, P.z); } return; }
+
+  const inLadder = P.x > LADDER.x0 && P.x < LADDER.x1 && P.z > LADDER.z0 && P.z < LADDER.z1;
+  if (!P.ladder) {
+    if (inLadder && iz > 0 && P.y < LADDER.top - 0.3 && P.y >= -0.1) { P.ladder = true; P.x = LADDER.xs; P.z = LADDER.zs; P.vy = 0; }
+    else if (P.ground && Math.abs(P.y - LADDER.top) < 0.05 && iz < 0 && P.x > LADDER.x0 && P.x < LADDER.x1 && P.z < -3.0) { P.ladder = true; P.x = LADDER.xs; P.z = LADDER.zs; P.y = LADDER.top - 0.4; }
+  }
+  if (P.ladder) {
+    P.y += iz * 4.2 * dt;
+    if (iz) { P.run += dt * 9; if (Math.floor(P.run) % 2 && Math.random() < 0.15) SFX.climb(); }
+    P.moving = iz !== 0;
+    if (P.y >= LADDER.top) { P.y = LADDER.top; P.z = -3.6; P.ladder = false; P.ground = true; }
+    else if (P.y <= 0.32 && iz < 0) { P.y = 0.32; P.ladder = false; P.z = -5.6; }
+    else if (jump) { P.ladder = false; P.vy = 6; P.z -= 0.6; SFX.jump(); }
+    else if (ix) { P.ladder = false; }
+  } else {
+    // controls follow the castle's own axes: left/right runs parallel to the front wall, up/down toward/away from it
+    let mx = ix, mz = iz;
+    const ml = Math.hypot(mx, mz);
+    P.moving = ml > 0;
+    if (ml > 0) {
+      const sp = 7.5 / ml;
+      mx *= sp * dt; mz *= sp * dt;
+      // on foot you can't stroll into the moat by accident: you slide along the bridge/bank instead (jump to dive in)
+      const ledge = (x, z) => P.ground && inMoat(x, z) && floorAt(x, z, P.y) < P.y - 0.6;
+      if (!blocked(P.x + mx, P.z, P.y) && !ledge(P.x + mx, P.z)) P.x += mx;
+      if (!blocked(P.x, P.z + mz, P.y) && !ledge(P.x, P.z + mz)) P.z += mz;
+      if (ix) P.face = ix; else P.face = (RX * mx + RZ * mz) >= 0 ? 1 : -1;
+      const prevRun = Math.floor(P.run);
+      P.run += dt * 11;
+      if (P.ground && Math.floor(P.run) !== prevRun && Math.floor(P.run) % 2 === 0) SFX.step();
+    }
+    if (jump && P.ground) { P.vy = 12.6; P.ground = false; SFX.jump(); }
+    const fl = floorAt(P.x, P.z, P.y);
+    if (P.y > fl + 0.001 || P.vy > 0) {
+      P.vy -= 28 * dt; P.y += P.vy * dt; P.ground = false;
+      if (P.y <= fl) { if (P.vy < -9) { SFX.land(); dust(P.x, fl, P.z); } P.y = fl; P.vy = 0; P.ground = true; }
+    } else { P.y = fl; P.vy = 0; P.ground = true; }
+    if (inMoat(P.x, P.z) && P.y < WATER_Y + 0.4 && floorAt(P.x, P.z, P.y) < 0) { splash(P.x, P.z); P.dead = 1.1; SFX.splash(); toast('sploosh! the moat is cold.'); }
+  }
+  P.idle = P.moving || !P.ground ? 0 : P.idle + dt;
+
+  // interactions
+  near = null;
+  for (const it of INTERACT) if (Math.hypot(P.x - it.x, P.z - it.z) < it.r && Math.abs(P.y - it.y) < 1.3) { near = it; break; }
+  if (near && act) {
+    if (near.chest) {
+      if (!CHEST.open) { CHEST.open = true; coins += 7; $coins.innerHTML = '&#9673; ' + coins; SFX.coin(); for (let k = 0; k < 16; k++) coinBurst(); toast('you found 7 gold coins!'); }
+      else toast('it\'s empty. greedy.');
+    } else { leaving = near; leaveT = 0; SFX.portal(); }
+  }
+  if (near && !(near.chest && CHEST.open)) { $prompt.textContent = '[E] ' + near.label; $prompt.style.display = 'block'; }
+  else $prompt.style.display = 'none';
+}
+
+// ---------- particles ----------
+function poof(x, y, z) { for (let k = 0; k < 14; k++) PARTS.push({ k: 'dust', x, y: y + 0.3, z, vx: (Math.random() - .5) * 4, vy: Math.random() * 3, vz: (Math.random() - .5) * 4, life: 0.6 }); }
+function dust(x, y, z) { for (let k = 0; k < 8; k++) PARTS.push({ k: 'dust', x, y: y + 0.05, z, vx: (Math.random() - .5) * 5, vy: Math.random() * 1.2, vz: (Math.random() - .5) * 3, life: 0.35 }); }
+function splash(x, z) { for (let k = 0; k < 26; k++) PARTS.push({ k: 'drop', x, y: WATER_Y, z, vx: (Math.random() - .5) * 5, vy: 5 + Math.random() * 7, vz: (Math.random() - .5) * 5, life: 1.2, g: 1 }); }
+function coinBurst() { PARTS.push({ k: 'coin', x: CHEST.x, y: CHEST.y + 0.8, z: CHEST.z, vx: (Math.random() - .5) * 5, vy: 6 + Math.random() * 6, vz: (Math.random() - .5) * 3, life: 1.6, g: 1, ph: Math.random() * 6 }); }
+
+// ---------- drawing helpers ----------
+function line(x0, y0, x1, y1, fn) {
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let e = dx + dy;
+  for (let n = 0; n < 500; n++) { fn(x0, y0); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } }
+}
+
+function drawPlayer(t) {
+  if (P.dead > 0) return;
+  const q = proj(P.x, P.y, P.z), s = F / q.z, zt = q.z - 0.6;
+  // shadow on the floor beneath
+  const fl = floorAt(P.x, P.z, P.y), sq = proj(P.x, fl, P.z), sw = Math.max(2, 0.55 * s), hgt = P.y - fl;
+  const sh = c32(5, 4, 15, Math.round(150 - Math.min(100, hgt * 25)));
+  for (let yy = -1; yy <= 0; yy++) for (let xx = -sw; xx <= sw; xx++) put(sq.x + xx, sq.y + yy, sh, sq.z - 0.2);
+
+  const fx = q.x, fy = q.y, dir = P.face;
+  const pix = new Map();
+  const mark = (x, y, c) => pix.set(x + ',' + y, [x, y, c]);
+  const pt = (mx, my) => [fx + mx * s * dir, fy - my * s];
+  const th = s > 20 ? 2 : 1;
+  const seg = (a, b, c = C.white) => line(a[0], a[1], b[0], b[1], (x, y) => { mark(x, y, c); if (th > 1) mark(x + 1, y, c); });
+
+  const run = P.moving && P.ground && !P.ladder, ph = P.run;
+  const air = !P.ground && !P.ladder;
+  const bob = run ? Math.abs(Math.sin(ph)) * 0.08 : (P.idle > 0 ? Math.sin(t * 2.2) * 0.025 : 0);
+  const hip = [0, 1.0 + bob], neck = [0.06 * (run ? 1 : 0), 1.72 + bob], head = [0.08 * (run ? 1 : 0), 2.07 + bob];
+  let lf, rf, la, ra, lk, rk;
+  if (P.ladder) {
+    const c = Math.sin(ph) * 0.18;
+    lf = [-0.2, 0.15 + c]; rf = [0.2, 0.15 - c]; lk = [-0.25, 0.55 + c]; rk = [0.25, 0.55 - c];
+    la = [-0.3, 2.15 - c]; ra = [0.3, 2.15 + c];
+  } else if (air) {
+    const up = P.vy > 0;
+    lk = [0.32, 0.7]; lf = [0.05, 0.3]; rk = [-0.15, 0.62]; rf = [-0.35, 0.22];
+    la = up ? [0.45, 2.15] : [0.55, 1.9]; ra = up ? [-0.4, 2.2] : [-0.55, 1.95];
+  } else if (run) {
+    const a = Math.sin(ph), b = Math.sin(ph + Math.PI);
+    lf = [a * 0.48, Math.max(0, -Math.cos(ph)) * 0.22]; rf = [b * 0.48, Math.max(0, -Math.cos(ph + Math.PI)) * 0.22];
+    lk = [a * 0.22 + 0.12, 0.52]; rk = [b * 0.22 + 0.12, 0.52];
+    la = [b * 0.42 + 0.05, 1.12]; ra = [a * 0.42 + 0.05, 1.12];
+  } else {
+    lf = [-0.2, 0]; rf = [0.2, 0]; lk = [-0.13, 0.5]; rk = [0.13, 0.5];
+    const wave = P.idle > 4 && (P.idle % 6) < 1.2;
+    la = [-0.3, 1.0]; ra = wave ? [0.4, 2.2 + Math.sin(t * 14) * 0.08] : [0.3, 1.0];
+  }
+  const sh_ = [neck[0], neck[1] - 0.15];
+  seg(pt(...hip), pt(...lk)); seg(pt(...lk), pt(...lf));
+  seg(pt(...hip), pt(...rk)); seg(pt(...rk), pt(...rf));
+  seg(pt(...hip), pt(...neck));
+  const elb = (h) => [(sh_[0] + h[0]) / 2 + (P.ladder ? 0 : -0.06), (sh_[1] + h[1]) / 2 - 0.05];
+  seg(pt(...sh_), pt(...elb(la))); seg(pt(...elb(la)), pt(...la));
+  seg(pt(...sh_), pt(...elb(ra))); seg(pt(...elb(ra)), pt(...ra));
+  // head
+  const [hx, hy] = pt(...head), hr = Math.max(1.5, 0.3 * s);
+  for (let yy = -Math.ceil(hr); yy <= Math.ceil(hr); yy++) for (let xx = -Math.ceil(hr); xx <= Math.ceil(hr); xx++) {
+    const dd = Math.hypot(xx, yy);
+    if (dd <= hr + 0.1) mark(Math.round(hx + xx), Math.round(hy + yy), C.white);
+  }
+  if (hr >= 3) mark(Math.round(hx + dir * hr * 0.45), Math.round(hy - hr * 0.15), C.ink);   // eye
+  // scarf trailing behind
+  const sp = pt(neck[0], neck[1] - 0.05), len = 0.9, segs = Math.max(3, Math.round(len * s));
+  for (let k = 0; k <= segs; k++) {
+    const u = k / segs, wave = Math.sin(t * 12 - u * 6) * 0.12 * u * (P.moving || air ? 1.4 : 0.5);
+    const sx = sp[0] - dir * u * len * s * (P.moving || air ? 1 : 0.45), sy = sp[1] + (u * (P.moving || air ? 0.15 : 0.7) + wave) * s;
+    mark(Math.round(sx), Math.round(sy), u > 0.5 ? C.scarfD : C.scarf);
+    if (s > 16) mark(Math.round(sx), Math.round(sy) + 1, C.scarfD);
+  }
+  // outline then body
+  for (const [x, y] of pix.values()) for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!pix.has((x + ox) + ',' + (y + oy))) put(x + ox, y + oy, C.ink, zt);
+  for (const [x, y, c] of pix.values()) put(x, y, c, zt);
+  if (near) { const by = hy - hr - 4 - Math.abs(Math.sin(t * 5)) * 2; put(hx, by, C.goldL); put(hx, by - 1, C.goldL); put(hx, by - 2, C.goldL); put(hx, by + 2, C.goldL); }
+}
+
+function drawFlag(a, len, hgt, t, small) {
+  const q = proj(a.x, a.y, a.z), poleH = small ? 4 : 7;
+  for (let k = 0; k < poleH; k++) put(q.x, q.y - k, C.pole);
+  put(q.x, q.y - poleH, C.goldL);
+  for (let i = 1; i <= len; i++) {
+    const u = i / len, w = Math.sin(t * 5 - i * 0.55) * 1.4 * u, slope = Math.cos(t * 5 - i * 0.55);
+    const hh = Math.max(1, Math.round(hgt * (1 - u * (small ? 0.7 : 0.25))));
+    for (let k = 0; k < hh; k++) {
+      let c = slope > 0.3 ? C.flagD : C.flagR;
+      if (!small && k === Math.floor(hh / 2) && i > 2) c = C.flagG;
+      put(q.x + i, q.y - poleH + 1 + k + w, c);
+    }
+  }
+}
+
+function drawFlame(tp, t, k) {
+  const q = proj(tp.x, tp.y, tp.z), s = F / q.z, h = Math.max(3, Math.round(0.9 * s)), w = Math.max(1, Math.round(0.28 * s));
+  for (let yy = 0; yy < h; yy++) {
+    const u = yy / h, sway = Math.round(Math.sin(t * 13 + k * 3 + yy * 0.6) * u * 1.2);
+    const ww = Math.round(w * (1 - u) + (Math.sin(t * 20 + yy + k) > 0.6 ? 1 : 0) * (1 - u));
+    for (let xx = -ww; xx <= ww; xx++) {
+      const e = Math.abs(xx) / (ww + 0.5) + u * 0.8 + Math.sin(t * 30 + xx * 3 + yy * 2) * 0.12;
+      const c = e < 0.45 ? C.flame1 : e < 0.8 ? C.flame2 : e < 1.15 ? C.flame3 : C.flame4;
+      put(q.x + xx + sway, q.y - yy, c, q.z - 0.3);
+    }
+  }
+  if (Math.random() < 0.08) PARTS.push({ k: 'ember', x: tp.x, y: tp.y + 0.6, z: tp.z, vx: (Math.random() - .5) * 0.6, vy: 1.2 + Math.random(), vz: (Math.random() - .5) * 0.4, life: 0.9 + Math.random() * 0.6 });
+}
+
+function drawChest(t) {
+  const q = proj(CHEST.x, CHEST.y, CHEST.z), s = F / q.z, w = Math.max(3, Math.round(0.55 * s)), h = Math.max(2, Math.round(0.42 * s)), z = q.z;
+  for (let yy = 0; yy < h; yy++) for (let xx = -w; xx <= w; xx++) {
+    const edge = Math.abs(xx) === w || yy === h - 1;
+    put(q.x + xx, q.y - yy - 1, edge ? C.goldD : (xx === 0 && yy === Math.floor(h / 2)) ? C.goldL : c32(110, 66, 32), z);
+  }
+  if (!CHEST.open) { for (let xx = -w; xx <= w; xx++) { put(q.x + xx, q.y - h - 1, C.goldD, z); put(q.x + xx, q.y - h - 2, xx % 2 ? c32(140, 84, 40) : C.goldD, z); } }
+  else { for (let yy = 0; yy < h + 1; yy++) put(q.x - w, q.y - h - 1 - yy, C.goldD, z); if (Math.sin(t * 6) > 0) put(q.x, q.y - h - 2, C.goldL, z); }
+}
+
+// ---------- render ----------
+function render(t, dt) {
+  ctx.drawImage(bgC, 0, 0);
+  for (const s of STARS) {
+    const b = s.b * (0.55 + 0.45 * Math.sin(t * s.sp + s.ph));
+    if (b < 0.18) continue;
+    const v = Math.round(150 + 105 * b);
+    ctx.fillStyle = `rgb(${v},${v - 10},${Math.min(255, v + 20)})`;
+    ctx.fillRect(s.x, s.y, 1, 1);
+    if (s.big && b > 0.7) { ctx.fillStyle = 'rgba(200,190,255,0.55)'; ctx.fillRect(s.x - 1, s.y, 1, 1); ctx.fillRect(s.x + 1, s.y, 1, 1); ctx.fillRect(s.x, s.y - 1, 1, 1); ctx.fillRect(s.x, s.y + 1, 1, 1); }
+  }
+  // shooting star
+  const ss = (t % 11) / 11;
+  if (ss < 0.06) { const u = ss / 0.06, x0 = 60 + (Math.floor(t / 11) * 97) % 200, y0 = 10 + (Math.floor(t / 11) * 37) % 40;
+    for (let k = 0; k < 10; k++) { const a = 1 - k / 10; ctx.fillStyle = `rgba(255,240,210,${a * (1 - u)})`; ctx.fillRect(Math.round(x0 + u * 70 - k * 2), Math.round(y0 + u * 25 - k * 0.7), 1, 1); } }
+  for (const c of CLOUDS) {
+    c.x += c.v * dt; if (c.x > W + 10) { c.x = -c.c.width - 10; }
+    ctx.drawImage(c.c, Math.round(c.x), Math.round(c.y));
+  }
+  ctx.drawImage(castleC, 0, 0);
+
+  FXB.fill(0);
+  // moat: animated reflection with ripples + glints
+  for (const j of WATERPX) {
+    const x = j % W, y = (j / W) | 0;
+    const wx = WP[j * 3], wz = WP[j * 3 + 2];
+    const off = Math.round(Math.sin(y * 1.9 + t * 2.4 + wx * 0.3) * 0.9);
+    const sx = clamp(x + off, 0, W - 1), k = y * W + sx, src = KIND[k] === 3 ? k : j;
+    let c = c32(REFL[src * 3], REFL[src * 3 + 1], REFL[src * 3 + 2]);
+    const g = Math.sin(wx * 1.4 + t * 1.6 + Math.sin(wz * 0.9 + t)) * Math.sin(wz * 2.3 - t * 1.2 + wx * 0.2);
+    if (g > 0.86) c = C.glint;
+    FXB[j] = c;
+  }
+  // windows flicker
+  for (let id = 0; id < windowCount; id++) {
+    const f = winFlick[id], px = winPixels[id]; if (!px) continue;
+    f.t -= dt;
+    if (f.t <= 0) { f.t = 3 + Math.random() * 12; f.off = hash(id, Math.floor(t)) < 0.06 ? !f.off : (f.off && Math.random() < 0.7 ? false : f.off); }
+    if (!f.mode && !f.off) continue;
+    const k = f.off ? 0.15 : 0.92 + Math.sin(t * 9 + id * 4) * 0.06 + Math.sin(t * 23 + id) * 0.05;
+    for (const p of px) { const x = p.i % W, y = (p.i / W) | 0, c = ramp('win', p.g * k - (f.off ? 0.2 : 0), bay(x, y)); FXB[p.i] = f.off ? c32(18, 12, 30) : c32(c[0], c[1], c[2]); }
+  }
+  // drawbridge chains
+  for (const ch of [ANCHORS.chainL, ANCHORS.chainR]) {
+    const a = proj(ch[0].x, ch[0].y, ch[0].z), b = proj(ch[1].x, ch[1].y, ch[1].z); let n = 0;
+    line(a.x, a.y, b.x, b.y, (x, y) => { put(x, y, (n++ % 2) ? c32(98, 93, 124) : c32(44, 42, 60), Math.min(a.z, b.z) - 0.2); });
+  }
+  TORCHES.forEach((tp, k) => drawFlame(tp, t, k));
+  drawFlag(ANCHORS.keepSpire, 13, 6, t, false);
+  drawFlag(ANCHORS.ftSpire, 7, 3, t + 1, true);
+  drawFlag(ANCHORS.brtSpire, 6, 3, t + 2, true);
+  drawChest(t);
+  // chimney smoke
+  if (Math.random() < 0.25) PARTS.push({ k: 'smoke', x: ANCHORS.chimney.x, y: ANCHORS.chimney.y, z: ANCHORS.chimney.z, vx: 0.6 + Math.random() * 0.4, vy: 1.2 + Math.random() * 0.5, vz: (Math.random() - .5) * 0.3, life: 4 + Math.random() * 2, max: 6 });
+  // bats
+  for (const b of BATS) {
+    b.a += b.sp * b.dir * dt;
+    const wx = 25.5 + Math.cos(b.a) * b.r, wz = 17.5 + Math.sin(b.a) * b.r, wy = b.h + Math.sin(t * 2 + b.r) * 1.5;
+    const q = proj(wx, wy, wz), flap = Math.sin(t * 18 + b.r) > 0;
+    put(q.x, q.y, C.bat, q.z);
+    if (flap) { put(q.x - 1, q.y - 1, C.bat, q.z); put(q.x + 1, q.y - 1, C.bat, q.z); put(q.x - 2, q.y - 1, C.bat, q.z); put(q.x + 2, q.y - 1, C.bat, q.z); }
+    else { put(q.x - 1, q.y, C.bat, q.z); put(q.x + 1, q.y, C.bat, q.z); put(q.x - 2, q.y + 1, C.bat, q.z); put(q.x + 2, q.y + 1, C.bat, q.z); }
+  }
+  // fireflies
+  for (const f of FLIES) {
+    f.ph += dt * f.sp;
+    const wx = f.x + Math.sin(f.ph * 0.9) * 1.6, wz = f.z + Math.cos(f.ph * 0.7) * 1.6, wy = f.y + Math.sin(f.ph * 1.7) * 0.4;
+    const glow = Math.sin(f.ph * 3 + f.x);
+    if (glow < 0.1) continue;
+    const q = proj(wx, wy, wz);
+    put(q.x, q.y, glow > 0.6 ? C.fly : C.flyD, q.z);
+    if (glow > 0.8 && q.z < 40) { put(q.x + 1, q.y, C.flyD, q.z); put(q.x, q.y + 1, C.flyD, q.z); }
+  }
+  // particles
+  const np = [];
+  for (const p of PARTS) {
+    p.life -= dt; if (p.life <= 0) continue;
+    p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+    if (p.g) p.vy -= 22 * dt;
+    if (p.k === 'smoke') { p.vx *= 0.995; }
+    if (p.k === 'dust') { p.vx *= 0.9; p.vz *= 0.9; p.vy -= 6 * dt; }
+    if (p.k === 'drop' && p.y < WATER_Y) continue;
+    if (p.k === 'coin' && p.vy < 0) { const wet = inMoat(p.x, p.z); if (p.y < (wet ? WATER_Y : 0)) { if (wet) continue; p.y = 0; p.vy *= -0.45; p.vx *= 0.6; p.vz *= 0.6; } }
+    np.push(p);
+    const q = proj(p.x, p.y, p.z);
+    if (p.k === 'ember') put(q.x, q.y, p.life > 0.6 ? C.flame2 : C.flame4, q.z);
+    else if (p.k === 'smoke') { const a = p.life / p.max, r = 1 + Math.round((1 - a) * 2); for (let yy = -r; yy <= r; yy++) for (let xx = -r; xx <= r; xx++) if (xx * xx + yy * yy <= r * r && bay(q.x + xx, q.y + yy) < a - 0.25) put(q.x + xx, q.y + yy, a > 0.55 ? C.smoke : C.smoke2, q.z); }
+    else if (p.k === 'drop') { put(q.x, q.y, C.foam, q.z); }
+    else if (p.k === 'dust') { put(q.x, q.y, c32(150, 130, 110), q.z); }
+    else if (p.k === 'coin') { const sp = Math.sin(t * 14 + p.ph); put(q.x, q.y, sp > 0 ? C.goldL : C.gold, q.z); if (Math.abs(sp) > 0.4) put(q.x, q.y + 1, C.goldD, q.z); }
+  }
+  PARTS = np;
+  drawPlayer(t);
+  fctx.putImageData(fxImg, 0, 0);
+  ctx.drawImage(fxC, 0, 0);
+
+  // pixel-dissolve transitions
+  const fade = leaving ? Math.min(1, leaveT / 0.8) : Math.max(0, 1 - introT / 1.0);
+  if (fade > 0) {
+    ctx.fillStyle = '#07061a';
+    for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) if (bay(x >> 1, y >> 1) + 0.5 < fade) ctx.fillRect(x, y, 2, 2);
+  }
+}
+
+// ---------- layout ----------
+const stage = document.getElementById('stage');
+function layout() {
+  let s = Math.min(innerWidth / W, innerHeight / H);
+  if (s >= 3) s = Math.floor(s);
+  stage.style.width = Math.round(W * s) + 'px'; stage.style.height = Math.round(H * s) + 'px';
+  const fs = Math.max(8, Math.round(s * 3));
+  document.querySelectorAll('.hud').forEach(e => e.style.fontSize = (e.id === 'title' ? fs * 1.2 : e.id === 'help' ? fs * 0.8 : fs) + 'px');
+  document.getElementById('back').style.fontSize = Math.round(fs * 0.8) + 'px';
+}
+addEventListener('resize', layout); layout();
+
+// ---------- loop ----------
+let last = performance.now(), T = 0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt; introT += dt;
+  update(dt, T);
+  if (leaving) { leaveT += dt; if (leaveT > 0.9) { location.href = leaving.href; leaving = null; } }
+  if (toastT > 0) { toastT -= dt; if (toastT <= 0) $toast.style.display = 'none'; }
+  render(T, dt);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+window.__castle = { P, proj, keys };   // handy for poking around in devtools
+</script>
+</body>
+</html>
